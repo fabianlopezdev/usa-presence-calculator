@@ -18,7 +18,14 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "types": ["jest", "node"]
+    "types": ["jest", "node"],
+    "baseUrl": ".",
+    "paths": {
+      "@schemas/*": ["src/schemas/*"],
+      "@business-logic/*": ["src/business-logic/*"],
+      "@utils/*": ["src/utils/*"],
+      "@types/*": ["src/types/*"]
+    }
   },
   "include": ["src/**/*.ts", "tsup.config.ts"],
   "exclude": ["node_modules", "dist"]

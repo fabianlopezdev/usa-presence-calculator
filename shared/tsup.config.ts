@@ -9,4 +9,5 @@ export default defineConfig({
   minify: false,
   treeshake: true,
   splitting: false,
+  tsconfig: 'tsconfig.json',
 });

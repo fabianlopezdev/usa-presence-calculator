@@ -19,4 +19,10 @@ module.exports = {
       statements: 80,
     },
   },
+  moduleNameMapper: {
+    '^@schemas/(.*)$': '<rootDir>/src/schemas/$1',
+    '^@business-logic/(.*)$': '<rootDir>/src/business-logic/$1',
+    '^@utils/(.*)$': '<rootDir>/src/utils/$1',
+    '^@types/(.*)$': '<rootDir>/src/types/$1',
+  },
 };

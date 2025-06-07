@@ -3,7 +3,7 @@ import {
   PresenceStatusSchema, 
   ContinuousResidenceWarningSchema,
   EligibilityMilestoneSchema 
-} from '../presence';
+} from '@schemas/presence';
 
 describe('Presence Schemas', () => {
   describe('PresenceCalculationSchema', () => {

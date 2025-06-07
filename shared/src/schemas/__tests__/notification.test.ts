@@ -1,4 +1,4 @@
-import { NotificationSchema, NotificationPreferencesSchema } from '../notification';
+import { NotificationSchema, NotificationPreferencesSchema } from '@schemas/notification';
 
 describe('Notification Schemas', () => {
   describe('NotificationSchema', () => {

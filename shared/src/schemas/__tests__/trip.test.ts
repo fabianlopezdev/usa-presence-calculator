@@ -1,4 +1,4 @@
-import { TripSchema, TripCreateSchema, TripUpdateSchema, SimulatedTripSchema } from '../trip';
+import { TripSchema, TripCreateSchema, TripUpdateSchema, SimulatedTripSchema } from '@schemas/trip';
 
 describe('Trip Schemas', () => {
   describe('TripSchema', () => {

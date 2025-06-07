@@ -1,4 +1,4 @@
-import { UserProfileSchema, AuthUserSchema, UserSettingsSchema } from '../user';
+import { UserProfileSchema, AuthUserSchema, UserSettingsSchema } from '@schemas/user';
 
 describe('User Schemas', () => {
   describe('UserProfileSchema', () => {
