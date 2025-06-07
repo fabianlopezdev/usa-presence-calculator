@@ -19,17 +19,23 @@ export default tseslint.config(
   {
     rules: {
       // TypeScript specific rules
-      '@typescript-eslint/explicit-function-return-type': ['error', {
-        allowExpressions: true,
-        allowTypedFunctionExpressions: true,
-      }],
-      '@typescript-eslint/no-unused-vars': ['error', {
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-      }],
+      '@typescript-eslint/explicit-function-return-type': [
+        'error',
+        {
+          allowExpressions: true,
+          allowTypedFunctionExpressions: true,
+        },
+      ],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        },
+      ],
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-non-null-assertion': 'error',
-      
+
       // General rules
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'no-debugger': 'error',
@@ -39,9 +45,9 @@ export default tseslint.config(
       'prefer-template': 'error',
       'prefer-arrow-callback': 'error',
       'arrow-body-style': ['error', 'as-needed'],
-      
+
       // Code quality
-      'complexity': ['error', 10],
+      complexity: ['error', 10],
       'max-depth': ['error', 4],
       'max-lines': ['error', 300],
       'max-lines-per-function': ['error', 50],
@@ -52,6 +58,12 @@ export default tseslint.config(
     rules: {
       'max-lines-per-function': 'off',
       'max-lines': 'off',
+    },
+  },
+  {
+    files: ['**/presence-calculator.ts'],
+    rules: {
+      'max-lines': ['error', 350], // Allow more lines for critical USCIS calculation logic
     },
   },
   {

@@ -1,8 +1,8 @@
-import { 
-  PresenceCalculationSchema, 
-  PresenceStatusSchema, 
+import {
+  PresenceCalculationSchema,
+  PresenceStatusSchema,
   ContinuousResidenceWarningSchema,
-  EligibilityMilestoneSchema 
+  EligibilityMilestoneSchema,
 } from '@schemas/presence';
 
 describe('Presence Schemas', () => {

@@ -44,9 +44,9 @@ export const TripCreateSchema = BaseTripSchema.refine(dateRangeRefinement, {
 export const TripUpdateSchema = BaseTripSchema.partial().refine(
   (data) => {
     if (data.departureDate && data.returnDate) {
-      return dateRangeRefinement({ 
-        departureDate: data.departureDate, 
-        returnDate: data.returnDate 
+      return dateRangeRefinement({
+        departureDate: data.departureDate,
+        returnDate: data.returnDate,
       });
     }
     return true;
@@ -54,19 +54,21 @@ export const TripUpdateSchema = BaseTripSchema.partial().refine(
   {
     message: 'Return date must be after or equal to departure date',
     path: ['returnDate'],
-  }
+  },
 );
 
 /**
  * Simulated trip schema - For the travel simulator feature
  */
-export const SimulatedTripSchema = z.object({
-  departureDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-  returnDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-}).refine(dateRangeRefinement, {
-  message: 'Return date must be after or equal to departure date',
-  path: ['returnDate'],
-});
+export const SimulatedTripSchema = z
+  .object({
+    departureDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+    returnDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+  })
+  .refine(dateRangeRefinement, {
+    message: 'Return date must be after or equal to departure date',
+    path: ['returnDate'],
+  });
 
 // Type exports
 export type Trip = z.infer<typeof TripSchema>;
