@@ -364,7 +364,7 @@ describe('Presence Calculator', () => {
           id: '1',
           userId: 'user1',
           departureDate: '2022-01-01',
-          returnDate: '2022-06-25', // 175 days
+          returnDate: '2022-06-25', // 174 days abroad (176 total - 2 travel days)
           location: 'India',
           isSimulated: false,
           createdAt: new Date().toISOString(),
@@ -376,7 +376,7 @@ describe('Presence Calculator', () => {
 
       expect(warnings).toHaveLength(1);
       expect(warnings[0].tripId).toBe('1');
-      expect(warnings[0].daysAbroad).toBe(175);
+      expect(warnings[0].daysAbroad).toBe(174);
       expect(warnings[0].severity).toBe('medium');
     });
 
@@ -386,7 +386,7 @@ describe('Presence Calculator', () => {
           id: '1',
           userId: 'user1',
           departureDate: '2022-01-01',
-          returnDate: '2022-07-10', // 190 days
+          returnDate: '2022-07-10', // 189 days abroad (191 total - 2 travel days)
           location: 'India',
           isSimulated: false,
           createdAt: new Date().toISOString(),
@@ -398,7 +398,7 @@ describe('Presence Calculator', () => {
 
       expect(warnings).toHaveLength(1);
       expect(warnings[0].severity).toBe('high');
-      expect(warnings[0].daysAbroad).toBe(190);
+      expect(warnings[0].daysAbroad).toBe(189);
     });
 
     it('should warn about trips exactly at 150 days threshold', () => {
@@ -407,7 +407,7 @@ describe('Presence Calculator', () => {
           id: '1',
           userId: 'user1',
           departureDate: '2022-01-01',
-          returnDate: '2022-05-31', // Exactly 150 days
+          returnDate: '2022-06-01', // 150 days abroad (152 total - 2 travel days)
           location: 'Brazil',
           isSimulated: false,
           createdAt: new Date().toISOString(),
@@ -428,7 +428,7 @@ describe('Presence Calculator', () => {
           id: '1',
           userId: 'user1',
           departureDate: '2022-01-01',
-          returnDate: '2022-06-01', // 151 days
+          returnDate: '2022-06-01', // 150 days abroad (152 total - 2 travel days)
           location: 'India',
           isSimulated: false,
           createdAt: new Date().toISOString(),
@@ -438,7 +438,7 @@ describe('Presence Calculator', () => {
           id: '2',
           userId: 'user1',
           departureDate: '2022-07-01',
-          returnDate: '2023-01-10', // 193 days
+          returnDate: '2023-01-10', // 192 days abroad (194 total - 2 travel days)
           location: 'China',
           isSimulated: false,
           createdAt: new Date().toISOString(),
@@ -461,7 +461,7 @@ describe('Presence Calculator', () => {
           id: '1',
           userId: 'user1',
           departureDate: '2022-01-01',
-          returnDate: '2023-01-10', // 374 days
+          returnDate: '2023-01-10', // 373 days abroad (375 total - 2 travel days)
           location: 'Remote work abroad',
           isSimulated: false,
           createdAt: new Date().toISOString(),
@@ -504,7 +504,7 @@ describe('Presence Calculator', () => {
       const result = calculateEligibilityDates(greenCardDate, eligibilityCategory);
 
       expect(result.eligibilityDate).toBe('2025-01-14'); // 5 years - 1 day
-      expect(result.earliestFilingDate).toBe('2024-10-16'); // 90 days before
+      expect(result.earliestFilingDate).toBe('2024-10-17'); // 90 days before
     });
 
     it('should calculate eligibility dates for 3-year path', () => {
@@ -514,7 +514,7 @@ describe('Presence Calculator', () => {
       const result = calculateEligibilityDates(greenCardDate, eligibilityCategory);
 
       expect(result.eligibilityDate).toBe('2024-06-19'); // 3 years - 1 day
-      expect(result.earliestFilingDate).toBe('2024-03-21'); // 90 days before
+      expect(result.earliestFilingDate).toBe('2024-03-22'); // 90 days before anniversary
     });
 
     it('should handle leap year in calculation', () => {
@@ -535,7 +535,7 @@ describe('Presence Calculator', () => {
       const result = calculateEligibilityDates(greenCardDate, eligibilityCategory);
 
       expect(result.eligibilityDate).toBe('2023-12-30');
-      expect(result.earliestFilingDate).toBe('2023-10-01');
+      expect(result.earliestFilingDate).toBe('2023-10-02'); // 90 days before anniversary
     });
   });
 
@@ -573,7 +573,7 @@ describe('Presence Calculator', () => {
     it('should return true exactly on earliest filing date', () => {
       const greenCardDate = '2020-01-15';
       const eligibilityCategory = 'five_year';
-      const asOfDate = '2024-10-16'; // Exactly 90 days before
+      const asOfDate = '2024-10-17'; // Exactly 90 days before
 
       const result = isEligibleForEarlyFiling(greenCardDate, eligibilityCategory, asOfDate);
 
@@ -583,7 +583,7 @@ describe('Presence Calculator', () => {
     it('should return false one day before earliest filing date', () => {
       const greenCardDate = '2020-01-15';
       const eligibilityCategory = 'five_year';
-      const asOfDate = '2024-10-15'; // One day too early
+      const asOfDate = '2024-10-16'; // One day too early
 
       const result = isEligibleForEarlyFiling(greenCardDate, eligibilityCategory, asOfDate);
 

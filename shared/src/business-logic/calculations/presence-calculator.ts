@@ -140,9 +140,9 @@ export function checkContinuousResidence(trips: Trip[]): ContinuousResidenceWarn
     const departureDate = parseISO(trip.departureDate);
     const returnDate = parseISO(trip.returnDate);
 
-    // USCIS counts both departure and return days when determining if
-    // continuous residence is broken (different from physical presence rules)
-    const daysAbroad = differenceInDays(returnDate, departureDate);
+    // USCIS uses the same rule for continuous residence as physical presence:
+    // departure and return days count as days present in the USA
+    const daysAbroad = differenceInDays(returnDate, departureDate) - 1;
 
     if (isNaN(daysAbroad) || daysAbroad < 0) {
       continue;
@@ -191,8 +191,9 @@ export function calculateEligibilityDates(
   const eligibilityDate =
     greenCardDayOfMonth !== anniversaryDayOfMonth ? anniversaryDate : subDays(anniversaryDate, 1);
 
-  // USCIS allows filing up to 90 days before the eligibility date to account for processing time
-  const earliestFilingDate = subDays(eligibilityDate, 90);
+  // USCIS allows filing up to 90 days before meeting the continuous residence requirement
+  // The requirement is met on the anniversary date, not the eligibility date (anniversary - 1)
+  const earliestFilingDate = subDays(anniversaryDate, 90);
 
   return {
     eligibilityDate: eligibilityDate.toISOString().split('T')[0],

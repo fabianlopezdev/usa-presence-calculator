@@ -184,7 +184,7 @@ describe('USCIS Presence Calculator - Edge Cases', () => {
           id: '1',
           userId: 'user1',
           departureDate: '2022-01-01',
-          returnDate: '2022-05-30', // Exactly 149 days
+          returnDate: '2022-05-30', // 148 days abroad (150 total - 2 travel days)
           location: 'Canada',
           isSimulated: false,
           createdAt: new Date().toISOString(),
@@ -194,7 +194,7 @@ describe('USCIS Presence Calculator - Edge Cases', () => {
           id: '2',
           userId: 'user1',
           departureDate: '2022-07-01',
-          returnDate: '2022-11-27', // Exactly 149 days
+          returnDate: '2022-11-27', // 148 days abroad (150 total - 2 travel days)
           location: 'Mexico',
           isSimulated: false,
           createdAt: new Date().toISOString(),
@@ -204,7 +204,8 @@ describe('USCIS Presence Calculator - Edge Cases', () => {
 
       const warnings = checkContinuousResidence(trips);
 
-      // Both trips are 149 days, just under the 150-day warning threshold
+      // Both trips are 148 days abroad (150 total - 2 travel days)
+      // This is just under the 150-day warning threshold
       expect(warnings).toHaveLength(0);
     });
 
@@ -214,7 +215,7 @@ describe('USCIS Presence Calculator - Edge Cases', () => {
           id: '1',
           userId: 'user1',
           departureDate: '2022-01-01',
-          returnDate: '2023-01-10', // 374 days
+          returnDate: '2023-01-10', // 373 days abroad (375 total - 2 travel days)
           location: 'Remote work abroad',
           isSimulated: false,
           createdAt: new Date().toISOString(),
@@ -226,7 +227,7 @@ describe('USCIS Presence Calculator - Edge Cases', () => {
 
       expect(warnings).toHaveLength(1);
       expect(warnings[0].severity).toBe('high');
-      expect(warnings[0].daysAbroad).toBe(374);
+      expect(warnings[0].daysAbroad).toBe(373);
     });
   });
 
@@ -236,8 +237,8 @@ describe('USCIS Presence Calculator - Edge Cases', () => {
       const eligibilityCategory = 'five_year';
 
       // Eligibility date: Jan 14, 2025 (5 years - 1 day)
-      // 90 days before: Oct 16, 2024
-      const asOfDate = '2024-10-16';
+      // 90 days before: Oct 17, 2024
+      const asOfDate = '2024-10-17';
 
       const result = isEligibleForEarlyFiling(greenCardDate, eligibilityCategory, asOfDate);
 
@@ -368,7 +369,7 @@ describe('USCIS Presence Calculator - Edge Cases', () => {
       const result = calculateDaysOfPhysicalPresence(trips, greenCardDate, asOfDate);
       const warnings = checkContinuousResidence(trips);
 
-      // First trip: 110 days, Second trip: 120 days
+      // First trip: 109 days abroad, Second trip: 119 days abroad
       expect(warnings).toHaveLength(0); // Both under 150 days
 
       // Check if eligible for naturalization after studies
