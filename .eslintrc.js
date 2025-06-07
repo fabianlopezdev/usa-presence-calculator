@@ -53,4 +53,13 @@ module.exports = {
     '*.config.js',
     '.eslintrc.js',
   ],
+  overrides: [
+    {
+      files: ['**/*.test.ts', '**/*.spec.ts'],
+      rules: {
+        'max-lines-per-function': 'off',
+        'max-lines': 'off',
+      },
+    },
+  ],
 };

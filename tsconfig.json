@@ -21,9 +21,5 @@
       "@usa-presence/shared/*": ["shared/src/*"]
     }
   },
-  "references": [
-    { "path": "./shared" },
-    { "path": "./api" },
-    { "path": "./mobile" }
-  ]
+  "exclude": ["**/node_modules", "**/dist", "**/build", "**/coverage"]
 }

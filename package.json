@@ -9,7 +9,7 @@
     "test": "pnpm run --recursive test",
     "lint": "eslint . && pnpm run --recursive lint",
     "lint:fix": "eslint . --fix && pnpm run --recursive lint:fix",
-    "typecheck": "tsc --noEmit && pnpm run --recursive typecheck",
+    "typecheck": "pnpm run --recursive typecheck",
     "format": "prettier --write . && pnpm run --recursive format",
     "format:check": "prettier --check . && pnpm run --recursive format:check",
     "prepare": "husky install"
