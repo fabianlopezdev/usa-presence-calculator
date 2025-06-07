@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Expo
+.expo/
+web-build/
+
+# Environment
+.env*
+
+# Git
+.git/
+
+# Misc
+*.log
+*.sqlite
+*.db
+
+# Generated files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
