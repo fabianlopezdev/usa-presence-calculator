@@ -95,23 +95,56 @@ function getBaseDeadlineForYear(
 }
 
 /**
- * Adjust date to next business day if it falls on weekend
- * Note: This is a simplified version that doesn't account for federal holidays
+ * Adjust date to next business day if it falls on weekend or DC Emancipation Day
+ * DC Emancipation Day (April 16) affects IRS deadlines nationwide
  */
 function adjustForWeekend(date: Date): Date {
-  const dayOfWeek = getDay(date);
+  let adjustedDate = date;
+  const dayOfWeek = getDay(adjustedDate);
 
-  // If Saturday (6), move to Monday
+  // First, adjust for weekend
   if (dayOfWeek === 6) {
-    return addDays(date, 2);
+    // Saturday - move to Monday
+    adjustedDate = addDays(adjustedDate, 2);
+  } else if (dayOfWeek === 0) {
+    // Sunday - move to Monday
+    adjustedDate = addDays(adjustedDate, 1);
   }
 
-  // If Sunday (0), move to Monday
-  if (dayOfWeek === 0) {
-    return addDays(date, 1);
+  // Check if we need to account for DC Emancipation Day (April 16)
+  // Only relevant for April tax deadlines
+  if (adjustedDate.getMonth() === 3) {
+    // April (0-indexed)
+    const day = adjustedDate.getDate();
+    const year = adjustedDate.getFullYear();
+
+    // Check if adjusted date falls on April 16
+    if (day === 16) {
+      // Move to April 17
+      adjustedDate = addDays(adjustedDate, 1);
+    } else if (day === 15) {
+      // Special case: If April 15 is Friday, check if we need to skip to April 18
+      // because April 16 (Saturday) is Emancipation Day
+      const dayOfWeek15 = getDay(adjustedDate);
+      if (dayOfWeek15 === 5) {
+        // Friday - skip weekend AND Emancipation Day
+        adjustedDate = addDays(adjustedDate, 3); // Move to Monday April 18
+      }
+    } else if (day === 17) {
+      // Special case: If we moved to April 17 (Monday),
+      // check if Emancipation Day is being observed on this day
+      const april16 = new Date(year, 3, 16);
+      const april16DayOfWeek = getDay(april16);
+
+      // If April 16 was Sunday, it's observed on Monday (April 17)
+      if (april16DayOfWeek === 0) {
+        // Move to Tuesday
+        adjustedDate = addDays(adjustedDate, 1);
+      }
+    }
   }
 
-  return date;
+  return adjustedDate;
 }
 
 /**

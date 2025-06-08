@@ -141,15 +141,17 @@ describe('Tax Filing Reminder Calculator', () => {
 
   describe('Actual Tax Deadline with Weekend/Holiday Adjustments', () => {
     it('should adjust April 15 when it falls on Saturday', () => {
-      // 2023: April 15 was Saturday, actual deadline was April 18 (Monday)
+      // 2023: April 15 was Saturday, April 16 was Sunday
+      // When Emancipation Day falls on Sunday, it's observed Monday
+      // So tax deadline moves to Tuesday April 18
       const result = calculateTaxReminderStatus([], false, '2023-04-01');
-      expect(result.actualDeadline).toBe('2023-04-17'); // Monday after Saturday
+      expect(result.actualDeadline).toBe('2023-04-18'); // Tuesday (Monday was Emancipation Day observed)
     });
 
     it('should adjust April 15 when it falls on Sunday', () => {
       // 2018: April 15 was Sunday, actual deadline was April 17 (Tuesday due to DC holiday)
       const result = calculateTaxReminderStatus([], false, '2018-04-01');
-      expect(result.actualDeadline).toBe('2018-04-16'); // Monday after Sunday
+      expect(result.actualDeadline).toBe('2018-04-17'); // Tuesday (Monday was Emancipation Day)
     });
 
     it('should not adjust when April 15 is weekday', () => {
@@ -473,8 +475,8 @@ describe('Tax Filing Reminder Calculator', () => {
       const result = calculateTaxReminderStatus(trips, false, currentDate);
 
       expect(result.nextDeadline).toBe('2023-04-15'); // Legacy field for backward compatibility
-      expect(result.actualDeadline).toBe('2023-04-17'); // Adjusted to Monday
-      expect(result.daysUntilDeadline).toBe(2); // Days until actual deadline
+      expect(result.actualDeadline).toBe('2023-04-18'); // Tuesday (Monday was Emancipation Day observed)
+      expect(result.daysUntilDeadline).toBe(3); // Days until actual deadline
     });
 
     it('should handle leap year calculations', () => {
@@ -982,13 +984,21 @@ describe('Tax Filing Reminder Calculator', () => {
     it('should handle year with DC Emancipation Day holiday', () => {
       // In years when April 15 falls near DC Emancipation Day (April 16),
       // the deadline may be pushed further
-      // This is a simplified test - real implementation would need holiday calendar
-      const result = calculateTaxReminderStatus([], false, '2018-04-15');
 
-      // April 15, 2018 was Sunday, so moved to Monday April 16
-      // But April 16 was DC Emancipation Day, so deadline was April 17
-      // Our simplified implementation only handles weekends
-      expect(result.actualDeadline).toBe('2018-04-16'); // Our implementation only adjusts for weekend
+      // 2018: April 15 was Sunday, April 16 was Monday (Emancipation Day)
+      // Deadline should be April 17 (Tuesday)
+      const result2018 = calculateTaxReminderStatus([], false, '2018-04-01');
+      expect(result2018.actualDeadline).toBe('2018-04-17');
+
+      // 2016: April 15 was Friday, April 16 was Saturday (Emancipation Day)
+      // Deadline should be April 18 (Monday)
+      const result2016 = calculateTaxReminderStatus([], false, '2016-04-01');
+      expect(result2016.actualDeadline).toBe('2016-04-18');
+
+      // 2017: April 15 was Saturday, April 16 was Sunday (Emancipation Day observed Monday)
+      // Deadline should be April 18 (Tuesday)
+      const result2017 = calculateTaxReminderStatus([], false, '2017-04-01');
+      expect(result2017.actualDeadline).toBe('2017-04-18');
     });
   });
 });
