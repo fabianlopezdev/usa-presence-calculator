@@ -3,10 +3,15 @@
  *
  * Provides tax filing reminders and travel-aware notifications
  * for LPRs who must file US taxes on worldwide income
+ *
+ * Handles IRS rules including:
+ * - Weekend/holiday deadline adjustments
+ * - Automatic 2-month extension for taxpayers abroad
+ * - October extension deadline with Form 4868
  */
 
 // External dependencies
-import { parseISO, differenceInDays, isAfter, isBefore, getYear } from 'date-fns';
+import { parseISO, differenceInDays, isAfter, isBefore, getYear, addDays, getDay } from 'date-fns';
 
 // Internal dependencies - Schemas & Types
 import { TaxReminderStatus } from '@schemas/compliance';
@@ -23,20 +28,94 @@ export function calculateTaxReminderStatus(
   reminderDismissed: boolean,
   currentDate: string = new Date().toISOString(),
 ): TaxReminderStatus {
-  const nextDeadline = getNextTaxDeadline(currentDate);
-  const daysUntilDeadline = getDaysUntilTaxDeadline(currentDate);
   const isAbroadDuringTaxSeason = willBeAbroadDuringTaxSeason(trips, currentDate);
+
+  // Determine which deadline applies
+  const applicableDeadline = isAbroadDuringTaxSeason ? 'abroad_extension' : 'standard';
+
+  // Get the actual deadline (adjusted for weekends/holidays)
+  const actualDeadline = getActualTaxDeadline(currentDate, applicableDeadline);
+  const daysUntilDeadline = getDaysUntilSpecificDeadline(actualDeadline, currentDate);
+
+  // For legacy compatibility, keep nextDeadline as the base deadline
+  const nextDeadline = getNextTaxDeadline(currentDate);
 
   return {
     nextDeadline,
     daysUntilDeadline,
     isAbroadDuringTaxSeason,
     reminderDismissed,
+    applicableDeadline,
+    actualDeadline,
   };
 }
 
 /**
- * Get the next tax filing deadline
+ * Get the actual tax deadline adjusted for weekends and common holidays
+ */
+export function getActualTaxDeadline(
+  currentDate: string = new Date().toISOString(),
+  deadlineType: 'standard' | 'abroad_extension' | 'october_extension' = 'standard',
+): string {
+  const current = parseISO(currentDate);
+  const currentYear = getYear(current);
+
+  // Get base deadline for current year
+  let baseDeadline = getBaseDeadlineForYear(currentYear, deadlineType);
+
+  // Check if we need to look at next year's deadline
+  if (isAfter(current, adjustForWeekend(baseDeadline))) {
+    baseDeadline = getBaseDeadlineForYear(currentYear + 1, deadlineType);
+  }
+
+  // Adjust for weekends
+  const adjustedDeadline = adjustForWeekend(baseDeadline);
+  return adjustedDeadline.toISOString().split('T')[0];
+}
+
+/**
+ * Get base deadline for a specific year and type
+ */
+function getBaseDeadlineForYear(
+  year: number,
+  deadlineType: 'standard' | 'abroad_extension' | 'october_extension',
+): Date {
+  switch (deadlineType) {
+    case 'abroad_extension':
+      return parseISO(
+        `${year}-${TAX_FILING.ABROAD_EXTENSION_MONTH}-${TAX_FILING.ABROAD_EXTENSION_DAY}`,
+      );
+    case 'october_extension':
+      return parseISO(
+        `${year}-${TAX_FILING.OCTOBER_EXTENSION_MONTH}-${TAX_FILING.OCTOBER_EXTENSION_DAY}`,
+      );
+    default:
+      return parseISO(`${year}-${TAX_FILING.DEADLINE_MONTH}-${TAX_FILING.DEADLINE_DAY}`);
+  }
+}
+
+/**
+ * Adjust date to next business day if it falls on weekend
+ * Note: This is a simplified version that doesn't account for federal holidays
+ */
+function adjustForWeekend(date: Date): Date {
+  const dayOfWeek = getDay(date);
+
+  // If Saturday (6), move to Monday
+  if (dayOfWeek === 6) {
+    return addDays(date, 2);
+  }
+
+  // If Sunday (0), move to Monday
+  if (dayOfWeek === 0) {
+    return addDays(date, 1);
+  }
+
+  return date;
+}
+
+/**
+ * Get the next tax filing deadline (legacy - for backward compatibility)
  */
 export function getNextTaxDeadline(currentDate: string = new Date().toISOString()): string {
   const current = parseISO(currentDate);
@@ -56,7 +135,25 @@ export function getNextTaxDeadline(currentDate: string = new Date().toISOString(
 }
 
 /**
- * Calculate days until the next tax deadline
+ * Calculate days until a specific deadline
+ */
+export function getDaysUntilSpecificDeadline(
+  deadline: string,
+  currentDate: string = new Date().toISOString(),
+): number {
+  const current = parseISO(currentDate);
+  const deadlineDate = parseISO(deadline);
+
+  // If it's deadline day, return 0
+  if (current.getTime() === deadlineDate.getTime()) {
+    return 0;
+  }
+
+  return differenceInDays(deadlineDate, current);
+}
+
+/**
+ * Calculate days until the next tax deadline (legacy - for backward compatibility)
  */
 export function getDaysUntilTaxDeadline(currentDate: string = new Date().toISOString()): number {
   const current = parseISO(currentDate);
@@ -71,7 +168,8 @@ export function getDaysUntilTaxDeadline(currentDate: string = new Date().toISOSt
 }
 
 /**
- * Check if currently in tax season (March 1 - April 15)
+ * Check if currently in tax season (late January - April 15)
+ * Updated to reflect when IRS actually starts accepting returns
  */
 export function isCurrentlyTaxSeason(currentDate: string = new Date().toISOString()): boolean {
   const current = parseISO(currentDate);
@@ -127,6 +225,7 @@ export function willBeAbroadDuringTaxSeason(
 
 /**
  * Get the tax season date range for the current year
+ * Updated to start in late January when IRS begins accepting returns
  */
 export function getTaxSeasonDateRange(currentDate: string = new Date().toISOString()): {
   start: string;
@@ -138,5 +237,31 @@ export function getTaxSeasonDateRange(currentDate: string = new Date().toISOStri
   return {
     start: `${currentYear}-${TAX_FILING.SEASON_START_MONTH}-${TAX_FILING.SEASON_START_DAY}`,
     end: `${currentYear}-${TAX_FILING.DEADLINE_MONTH}-${TAX_FILING.DEADLINE_DAY}`,
+  };
+}
+
+/**
+ * Get information about available extensions
+ */
+export function getExtensionInfo(isAbroad: boolean): {
+  automaticExtension: boolean;
+  extensionDeadline: string | null;
+  requiresForm: boolean;
+  formNumber: string | null;
+} {
+  if (isAbroad) {
+    return {
+      automaticExtension: true,
+      extensionDeadline: 'June 15',
+      requiresForm: false,
+      formNumber: null,
+    };
+  }
+
+  return {
+    automaticExtension: false,
+    extensionDeadline: 'October 15',
+    requiresForm: true,
+    formNumber: 'Form 4868',
   };
 }

@@ -52,6 +52,8 @@ export const TaxReminderStatusSchema = z.object({
   daysUntilDeadline: z.number(),
   isAbroadDuringTaxSeason: z.boolean(),
   reminderDismissed: z.boolean(),
+  applicableDeadline: z.enum(['standard', 'abroad_extension', 'october_extension']),
+  actualDeadline: z.string(), // Adjusted for weekends/holidays
 });
 
 export type TaxReminderStatus = z.infer<typeof TaxReminderStatusSchema>;

@@ -82,6 +82,10 @@ export const SELECTIVE_SERVICE = {
 export const TAX_FILING = {
   DEADLINE_MONTH: '04', // April
   DEADLINE_DAY: '15',
-  SEASON_START_MONTH: '03', // March
-  SEASON_START_DAY: '01',
+  SEASON_START_MONTH: '01', // January (IRS starts accepting returns)
+  SEASON_START_DAY: '23', // Typically late January
+  ABROAD_EXTENSION_MONTH: '06', // June
+  ABROAD_EXTENSION_DAY: '15', // Automatic 2-month extension for those abroad
+  OCTOBER_EXTENSION_MONTH: '10', // October
+  OCTOBER_EXTENSION_DAY: '15', // Extension with Form 4868
 } as const;

@@ -150,6 +150,8 @@ describe('LPR Compliance Coordinator', () => {
         daysUntilDeadline: 104,
         isAbroadDuringTaxSeason: false,
         reminderDismissed: false,
+        applicableDeadline: 'standard' as const,
+        actualDeadline: '2024-04-15',
       },
     };
 
@@ -258,6 +260,8 @@ describe('LPR Compliance Coordinator', () => {
         daysUntilDeadline: 10,
         isAbroadDuringTaxSeason: true,
         reminderDismissed: false,
+        applicableDeadline: 'abroad_extension' as const,
+        actualDeadline: '2024-06-17',
       },
     };
 
@@ -327,6 +331,8 @@ describe('LPR Compliance Coordinator', () => {
           daysUntilDeadline: 300,
           isAbroadDuringTaxSeason: false,
           reminderDismissed: false,
+          applicableDeadline: 'standard' as const,
+          actualDeadline: '2024-04-15',
         },
       };
 
@@ -366,6 +372,8 @@ describe('LPR Compliance Coordinator', () => {
           daysUntilDeadline: 104,
           isAbroadDuringTaxSeason: false,
           reminderDismissed: false,
+          applicableDeadline: 'standard' as const,
+          actualDeadline: '2024-04-15',
         },
       };
 
@@ -410,6 +418,8 @@ describe('LPR Compliance Coordinator', () => {
           daysUntilDeadline: 104,
           isAbroadDuringTaxSeason: false,
           reminderDismissed: false,
+          applicableDeadline: 'standard' as const,
+          actualDeadline: '2024-04-15',
         },
       };
 
@@ -450,6 +460,8 @@ describe('LPR Compliance Coordinator', () => {
           daysUntilDeadline: 104,
           isAbroadDuringTaxSeason: false,
           reminderDismissed: true, // Dismissed
+          applicableDeadline: 'standard' as const,
+          actualDeadline: '2024-04-15',
         },
       };
 
@@ -690,6 +702,8 @@ describe('LPR Compliance Coordinator', () => {
           daysUntilDeadline: 10, // Within 30 days and abroad
           isAbroadDuringTaxSeason: true,
           reminderDismissed: false,
+          applicableDeadline: 'abroad_extension' as const,
+          actualDeadline: '2024-06-17',
         },
       };
 
@@ -771,6 +785,8 @@ describe('LPR Compliance Coordinator', () => {
           daysUntilDeadline: 15,
           isAbroadDuringTaxSeason: false,
           reminderDismissed: false,
+          applicableDeadline: 'standard' as const,
+          actualDeadline: '2024-04-15',
         },
       };
 
@@ -818,6 +834,8 @@ describe('LPR Compliance Coordinator', () => {
           daysUntilDeadline: 300,
           isAbroadDuringTaxSeason: false,
           reminderDismissed: true, // Dismissed
+          applicableDeadline: 'standard' as const,
+          actualDeadline: '2024-04-15',
         },
       };
 
@@ -867,20 +885,22 @@ describe('LPR Compliance Coordinator', () => {
       expect(result.selectiveService.registrationRequired).toBe(true);
       expect(result.selectiveService.currentStatus).toBe('must_register');
       expect(result.taxReminder.isAbroadDuringTaxSeason).toBe(true);
-      expect(result.taxReminder.daysUntilDeadline).toBe(14);
+      expect(result.taxReminder.applicableDeadline).toBe('abroad_extension');
+      expect(result.taxReminder.daysUntilDeadline).toBe(77); // April 1 to June 17 (adjusted weekend)
 
       const activeItems = getActiveComplianceItems(result);
-      expect(activeItems.length).toBe(4);
+      // Since the person is abroad and gets June extension, tax might not be active on April 1
+      expect(activeItems.length).toBe(3);
 
       const priorityItems = getPriorityComplianceItems(result);
       expect(priorityItems.length).toBeGreaterThan(0);
 
-      // Verify all types are represented
+      // Verify which types are represented
       const activeTypes = activeItems.map((item) => item.type);
       expect(activeTypes).toContain('removal_of_conditions');
       expect(activeTypes).toContain('green_card_renewal');
       expect(activeTypes).toContain('selective_service');
-      expect(activeTypes).toContain('tax_filing');
+      // Tax filing is not active since deadline is 77 days away (> 30 day threshold)
     });
 
     it('should handle edge case date calculations across all modules', () => {
