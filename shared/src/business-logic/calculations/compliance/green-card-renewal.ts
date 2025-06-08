@@ -3,6 +3,11 @@
  *
  * Tracks green card expiration dates and provides renewal recommendations
  * to ensure users maintain valid documentation
+ *
+ * IMPORTANT: This module is for 10-year permanent resident cards only.
+ * Conditional residents (2-year cards) must use the removal of conditions
+ * module, as they cannot renew their cards - they must file Form I-751
+ * during the 90-day window before expiration.
  */
 
 // External dependencies
@@ -16,6 +21,13 @@ import { DOCUMENT_RENEWAL } from '@constants/uscis-rules';
 
 /**
  * Calculate the green card renewal status
+ *
+ * @param expirationDate - The expiration date of the 10-year green card
+ * @param currentDate - The current date to check against
+ * @returns Green card renewal status
+ *
+ * NOTE: This function is ONLY for 10-year permanent resident cards.
+ * For 2-year conditional resident cards, use the removal of conditions module.
  */
 export function calculateGreenCardRenewalStatus(
   expirationDate: string,

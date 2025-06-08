@@ -311,18 +311,6 @@ describe('Green Card Renewal Tracker', () => {
       expect(nearExpiration.isInRenewalWindow).toBe(true);
       expect(nearExpiration.currentStatus).toBe('renewal_urgent');
     });
-
-    it('should handle 2-year conditional card renewal', () => {
-      // Conditional cards are valid for 2 years instead of 10
-      const twoYearCard = '2024-06-01';
-      const currentDate = '2024-01-01';
-
-      const result = calculateGreenCardRenewalStatus(twoYearCard, currentDate);
-
-      expect(result.isInRenewalWindow).toBe(true);
-      expect(result.currentStatus).toBe('renewal_recommended');
-      expect(result.monthsUntilExpiration).toBe(5);
-    });
   });
 
   describe('Date Calculation Extremes', () => {
