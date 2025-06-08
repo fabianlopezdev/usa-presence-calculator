@@ -77,10 +77,10 @@ export const SELECTIVE_SERVICE = {
   GENDER_REQUIRED: 'male' as const,
 } as const;
 
-// Tax Compliance Constants
-export const TAX_COMPLIANCE = {
-  FILING_DEADLINE_MONTH: 4, // April
-  FILING_DEADLINE_DAY: 15,
-  SEASON_START_MONTH: 3, // March (for reminders)
-  SEASON_END_MONTH: 4, // April
+// Tax Filing Constants
+export const TAX_FILING = {
+  DEADLINE_MONTH: '04', // April
+  DEADLINE_DAY: '15',
+  SEASON_START_MONTH: '03', // March
+  SEASON_START_DAY: '01',
 } as const;
