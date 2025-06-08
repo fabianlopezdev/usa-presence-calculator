@@ -101,7 +101,6 @@ export function calculateEligibilityDates(
 
   // Use our UTC-safe anniversary calculation that properly handles leap years
   const anniversaryDate = calculateAnniversaryDate(greenCardParsedDate, yearsRequired);
-  console.error('Anniversary Date:', anniversaryDate);
   // CORRECT: Eligibility date IS the anniversary date (not 1 day before)
   const eligibilityDate = anniversaryDate; // <-- REMOVE the subDays here
   const earliestFilingDate = subUTCDays(anniversaryDate, EARLY_FILING_WINDOW_DAYS);
