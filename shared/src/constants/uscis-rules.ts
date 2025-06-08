@@ -57,3 +57,30 @@ export const RISK_WARNING_THRESHOLDS = {
 
 // Early filing window (in days before eligibility)
 export const EARLY_FILING_WINDOW_DAYS = 90;
+
+// Removal of Conditions (Form I-751) Constants
+export const REMOVAL_OF_CONDITIONS = {
+  FILING_WINDOW_DAYS: 90, // Can file 90 days before 2-year anniversary
+  CONDITIONAL_PERIOD_DAYS: 730, // 2 years (365 * 2)
+} as const;
+
+// Document Renewal Constants
+export const DOCUMENT_RENEWAL = {
+  GREEN_CARD_VALIDITY_YEARS: 10,
+  RENEWAL_WINDOW_MONTHS: 6, // Recommend renewal 6 months before expiration
+} as const;
+
+// Selective Service Constants
+export const SELECTIVE_SERVICE = {
+  MIN_AGE: 18,
+  MAX_AGE: 26,
+  GENDER_REQUIRED: 'male' as const,
+} as const;
+
+// Tax Compliance Constants
+export const TAX_COMPLIANCE = {
+  FILING_DEADLINE_MONTH: 4, // April
+  FILING_DEADLINE_DAY: 15,
+  SEASON_START_MONTH: 3, // March (for reminders)
+  SEASON_END_MONTH: 4, // April
+} as const;
