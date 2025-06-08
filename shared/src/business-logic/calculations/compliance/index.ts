@@ -12,3 +12,4 @@ export * from './removal-of-conditions';
 export * from './green-card-renewal';
 export * from './selective-service';
 export * from './tax-reminders';
+export * from './compliance-coordinator';
