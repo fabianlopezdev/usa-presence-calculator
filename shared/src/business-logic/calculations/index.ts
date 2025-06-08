@@ -18,3 +18,6 @@ export * from './travel-analytics';
 
 // Reporting and summaries
 export * from './reporting';
+
+// LPR Compliance tracking
+export * from './compliance';
