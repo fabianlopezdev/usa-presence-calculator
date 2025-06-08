@@ -1,5 +1,7 @@
+// External dependencies (alphabetical)
 import { differenceInDays, isAfter, isBefore } from 'date-fns';
 
+// Internal dependencies - Schemas & Types (alphabetical)
 import {
   I751Status,
   LPRStatusRiskFactors,
@@ -11,15 +13,20 @@ import {
 } from '@schemas/lpr-status';
 import { Trip } from '@schemas/trip';
 
-import { parseUTCDate } from '@utils/utc-date-helpers';
-
+// Internal dependencies - Business Logic (alphabetical)
 import {
   handleAbandonmentRiskSuggestions,
   handleConditionalResidentSuggestions,
   handleGeneralRiskSuggestions,
   handleN470ExemptionSuggestions,
   handleReentryPermitSuggestions,
-} from './lpr-status-suggestion-helpers';
+} from '@business-logic/calculations/lpr-status-suggestion-helpers';
+
+// Internal dependencies - Constants (alphabetical)
+// None needed
+
+// Internal dependencies - Utilities (alphabetical)
+import { parseUTCDate } from '@utils/utc-date-helpers';
 
 /**
  * Calculate rebuttable presumption based on trip duration

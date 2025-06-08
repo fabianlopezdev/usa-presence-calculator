@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { TripSchema } from './trip';
+import { TripSchema } from '@schemas/trip';
 
 // Advanced LPR Status Types
 export const I751StatusSchema = z.enum(['not_applicable', 'pending', 'approved', 'denied']);

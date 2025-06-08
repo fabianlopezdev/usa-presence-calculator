@@ -1,6 +1,10 @@
-import { LPR_ABANDONMENT_THRESHOLDS, REENTRY_PERMIT_RULES } from '@constants/uscis-rules';
+// External dependencies (alphabetical)
+// None needed
+
+// Internal dependencies - Schemas & Types (alphabetical)
 import { Trip } from '@schemas/trip';
 
+// Internal dependencies - Business Logic (alphabetical)
 import {
   assessTripRiskForAllLegalThresholds,
   calculateGreenCardAbandonmentRisk,
@@ -9,7 +13,13 @@ import {
   checkIfTripBreaksContinuousResidence,
   checkIfTripRisksAutomaticGreenCardLoss,
   getReentryPermitProtectedThresholds,
-} from '../travel-risk-helpers';
+} from '@business-logic/calculations/travel-risk-helpers';
+
+// Internal dependencies - Constants (alphabetical)
+import { LPR_ABANDONMENT_THRESHOLDS, REENTRY_PERMIT_RULES } from '@constants/uscis-rules';
+
+// Internal dependencies - Utilities (alphabetical)
+// None needed
 
 describe('Enhanced Travel Risk Assessment', () => {
   describe('assessTripRiskForAllLegalThresholds', () => {

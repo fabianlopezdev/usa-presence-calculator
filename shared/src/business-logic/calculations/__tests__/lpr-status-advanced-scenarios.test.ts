@@ -1,15 +1,26 @@
+// External dependencies (alphabetical)
+// None needed
+
+// Internal dependencies - Schemas & Types (alphabetical)
 import { LPRStatusInput, N470Exemption } from '@schemas/lpr-status';
 import { Trip } from '@schemas/trip';
 
+// Internal dependencies - Business Logic (alphabetical)
+import { calculateRebuttablePresumption } from '@business-logic/calculations/lpr-status-advanced-helpers';
 import {
   assessRiskOfLosingPermanentResidentStatus,
   assessRiskOfLosingPermanentResidentStatusAdvanced,
   calculateMaximumTripDurationWithExemptions,
-} from '../lpr-status-calculator';
-import { calculateRebuttablePresumption } from '../lpr-status-advanced-helpers';
-import { calculateMaximumTripDurationToMaintainAllStatuses } from '../lpr-status-duration-calculator';
-import { analyzePatternOfNonResidence } from '../lpr-status-pattern-analysis';
-import { determineIfReentryPermitProvidesProtectionAdvanced } from '../lpr-status-permit-helpers';
+} from '@business-logic/calculations/lpr-status-calculator';
+import { calculateMaximumTripDurationToMaintainAllStatuses } from '@business-logic/calculations/lpr-status-duration-calculator';
+import { analyzePatternOfNonResidence } from '@business-logic/calculations/lpr-status-pattern-analysis';
+import { determineIfReentryPermitProvidesProtectionAdvanced } from '@business-logic/calculations/lpr-status-permit-helpers';
+
+// Internal dependencies - Constants (alphabetical)
+// None needed
+
+// Internal dependencies - Utilities (alphabetical)
+// None needed
 
 describe('LPR Status Calculator - Advanced Legal Scenarios', () => {
   const createTrip = (

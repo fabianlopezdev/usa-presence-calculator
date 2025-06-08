@@ -1,7 +1,21 @@
-// Internal imports - schemas/types first (alphabetical)
+// External dependencies (alphabetical)
+// None needed
+
+// Internal dependencies - Schemas & Types (alphabetical)
 import { TravelBudgetRiskResult, TravelRiskResult } from '@schemas/travel-analytics-helpers';
 
-// Internal imports - other (alphabetical)
+// Internal dependencies - Business Logic (alphabetical)
+export { assessTripRiskForAllLegalThresholds } from '@business-logic/calculations/travel-risk-assessment';
+export {
+  calculateGreenCardAbandonmentRisk,
+  checkIfTripApproachesGreenCardLoss,
+  checkIfTripApproachesContinuousResidenceRisk,
+  checkIfTripBreaksContinuousResidence,
+  checkIfTripRisksAutomaticGreenCardLoss,
+  getReentryPermitProtectedThresholds,
+} from '@business-logic/calculations/travel-risk-abandonment';
+
+// Internal dependencies - Constants (alphabetical)
 import {
   BUDGET_RECOMMENDATIONS,
   CONFIDENCE_THRESHOLDS,
@@ -12,15 +26,8 @@ import {
   TRAVEL_TREND_THRESHOLDS,
 } from '@constants/index';
 
-export { assessTripRiskForAllLegalThresholds } from './travel-risk-assessment';
-export {
-  calculateGreenCardAbandonmentRisk,
-  checkIfTripApproachesGreenCardLoss,
-  checkIfTripApproachesContinuousResidenceRisk,
-  checkIfTripBreaksContinuousResidence,
-  checkIfTripRisksAutomaticGreenCardLoss,
-  getReentryPermitProtectedThresholds,
-} from './travel-risk-abandonment';
+// Internal dependencies - Utilities (alphabetical)
+// None needed
 
 export function assessTravelRisk(
   totalTripDays: number,

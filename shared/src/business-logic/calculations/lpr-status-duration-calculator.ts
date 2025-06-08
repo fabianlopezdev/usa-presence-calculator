@@ -1,17 +1,23 @@
+// External dependencies (alphabetical)
 import { differenceInDays, isAfter } from 'date-fns';
 
+// Internal dependencies - Schemas & Types (alphabetical)
 import { MaximumTripDurationResult, ReentryPermitInfo } from '@schemas/lpr-status';
 import { Trip } from '@schemas/trip';
 
+// Internal dependencies - Business Logic (alphabetical)
+import { hasRiskyTrips } from '@business-logic/calculations/lpr-status-helpers';
+
+// Internal dependencies - Constants (alphabetical)
 import {
   CONTINUOUS_RESIDENCE_THRESHOLDS,
   LPR_ABANDONMENT_THRESHOLDS,
   PHYSICAL_PRESENCE_REQUIREMENTS,
   REENTRY_PERMIT_RULES,
 } from '@constants/uscis-rules';
-import { parseUTCDate } from '@utils/utc-date-helpers';
 
-import { hasRiskyTrips } from './lpr-status-helpers';
+// Internal dependencies - Utilities (alphabetical)
+import { parseUTCDate } from '@utils/utc-date-helpers';
 
 /**
  * Calculate the maximum safe trip duration to maintain all statuses

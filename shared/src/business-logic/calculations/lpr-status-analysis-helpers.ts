@@ -1,19 +1,30 @@
+// External dependencies (alphabetical)
+// None needed
+
+// Internal dependencies - Schemas & Types (alphabetical)
 import {
   I751Status,
+  LPRStatusInput,
+  LPRStatusRiskFactors,
   PatternOfNonResidence,
   RebuttablePresumption,
-  LPRStatusRiskFactors,
   ReentryPermit,
-  LPRStatusInput,
 } from '@schemas/lpr-status';
 import { Trip } from '@schemas/trip';
 
+// Internal dependencies - Business Logic (alphabetical)
 import {
   calculateRebuttablePresumption,
   calculateRiskFactors,
   determineCurrentStatus,
-} from './lpr-status-advanced-helpers';
-import { analyzePatternOfNonResidence } from './lpr-status-pattern-analysis';
+} from '@business-logic/calculations/lpr-status-advanced-helpers';
+import { analyzePatternOfNonResidence } from '@business-logic/calculations/lpr-status-pattern-analysis';
+
+// Internal dependencies - Constants (alphabetical)
+// None needed
+
+// Internal dependencies - Utilities (alphabetical)
+// None needed
 
 export function analyzePatterns(
   trips: Trip[],

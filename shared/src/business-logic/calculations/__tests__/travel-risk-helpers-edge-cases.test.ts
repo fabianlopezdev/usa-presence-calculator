@@ -1,5 +1,10 @@
+// External dependencies (alphabetical)
+// None needed
+
+// Internal dependencies - Schemas & Types (alphabetical)
 import { Trip } from '@schemas/trip';
 
+// Internal dependencies - Business Logic (alphabetical)
 import {
   assessTripRiskForAllLegalThresholds,
   calculateGreenCardAbandonmentRisk,
@@ -8,7 +13,13 @@ import {
   checkIfTripBreaksContinuousResidence,
   checkIfTripRisksAutomaticGreenCardLoss,
   getReentryPermitProtectedThresholds,
-} from '../travel-risk-helpers';
+} from '@business-logic/calculations/travel-risk-helpers';
+
+// Internal dependencies - Constants (alphabetical)
+// None needed
+
+// Internal dependencies - Utilities (alphabetical)
+// None needed
 
 describe('Travel Risk Helpers - Edge Cases', () => {
   const createTrip = (departureDate: string, returnDate: string): Trip => ({

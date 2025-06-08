@@ -1,15 +1,22 @@
+// External dependencies (alphabetical)
+import { differenceInDays } from 'date-fns';
+
+// Internal dependencies - Schemas & Types (alphabetical)
 import { ComprehensiveRiskAssessment, ReentryPermitInfo } from '@schemas/lpr-status';
 import { Trip } from '@schemas/trip';
 
+// Internal dependencies - Business Logic (alphabetical)
+import { calculateGreenCardAbandonmentRisk } from '@business-logic/calculations/travel-risk-abandonment';
+
+// Internal dependencies - Constants (alphabetical)
 import {
   CONTINUOUS_RESIDENCE_THRESHOLDS,
   LPR_ABANDONMENT_THRESHOLDS,
   RISK_WARNING_THRESHOLDS,
 } from '@constants/index';
-import { parseUTCDate } from '@utils/utc-date-helpers';
-import { differenceInDays } from 'date-fns';
 
-import { calculateGreenCardAbandonmentRisk } from './travel-risk-abandonment';
+// Internal dependencies - Utilities (alphabetical)
+import { parseUTCDate } from '@utils/utc-date-helpers';
 
 export function assessTripRiskForAllLegalThresholds(
   trip: Trip,

@@ -1,7 +1,7 @@
-// External imports (alphabetical)
-// None needed - all date functions are in helper files
+// External dependencies (alphabetical)
+// None needed
 
-// Internal imports - schemas/types first (alphabetical)
+// Internal dependencies - Schemas & Types (alphabetical)
 import {
   I751Status,
   LPRStatusAssessment,
@@ -18,17 +18,24 @@ import {
 } from '@schemas/lpr-status';
 import { Trip } from '@schemas/trip';
 
-// Internal imports - other (alphabetical)
+// Internal dependencies - Business Logic (alphabetical)
+import {
+  analyzePatterns,
+  assessRiskAndStatus,
+} from '@business-logic/calculations/lpr-status-analysis-helpers';
+import { generateSuggestions } from '@business-logic/calculations/lpr-status-advanced-helpers';
+import { calculateMaximumTripDurationToMaintainAllStatuses } from '@business-logic/calculations/lpr-status-duration-calculator';
 import {
   calculateTripMetrics,
   generateLPRStatusRecommendations,
 } from '@business-logic/calculations/lpr-status-helpers';
 import { calculateGreenCardAbandonmentRisk } from '@business-logic/calculations/travel-risk-helpers';
-import { parseUTCDate } from '@utils/utc-date-helpers';
 
-import { generateSuggestions } from './lpr-status-advanced-helpers';
-import { analyzePatterns, assessRiskAndStatus } from './lpr-status-analysis-helpers';
-import { calculateMaximumTripDurationToMaintainAllStatuses } from './lpr-status-duration-calculator';
+// Internal dependencies - Constants (alphabetical)
+// None needed
+
+// Internal dependencies - Utilities (alphabetical)
+import { parseUTCDate } from '@utils/utc-date-helpers';
 
 /**
  * Comprehensive assessment of risk to Lawful Permanent Resident status

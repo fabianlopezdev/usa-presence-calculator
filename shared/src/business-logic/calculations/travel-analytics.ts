@@ -212,10 +212,10 @@ export function projectEligibilityDate(
 }
 
 // Re-export functions from helper files
-export { calculateMilestones } from './milestone-helpers';
-export { calculateSafeTravelBudget } from './travel-budget-helpers';
-export { calculateTravelStreaks } from './travel-streak-helpers';
-export { generateAnnualTravelSummary } from './annual-summary-helpers';
+export { generateAnnualTravelSummary } from '@business-logic/calculations/annual-summary-helpers';
+export { calculateMilestones } from '@business-logic/calculations/milestone-helpers';
+export { calculateSafeTravelBudget } from '@business-logic/calculations/travel-budget-helpers';
+export { calculateTravelStreaks } from '@business-logic/calculations/travel-streak-helpers';
 
 function calculateHistoricalAbsenceRate(
   daysSinceGreenCard: number,
