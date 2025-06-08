@@ -4,14 +4,18 @@
 
 // Internal dependencies - Schemas & Types
 import {
-  RemovalOfConditionsStatus,
   GreenCardRenewalStatus,
+  RemovalOfConditionsStatus,
   SelectiveServiceStatus,
   TaxReminderStatus,
 } from '@schemas/compliance';
+import { ActiveComplianceItem } from '@schemas/compliance-helpers';
 
-import type { ActiveComplianceItem } from './compliance-helpers';
-import { determineGreenCardRenewalUrgency, determineTaxFilingUrgency } from './compliance-helpers';
+// Internal dependencies - Business Logic
+import {
+  determineGreenCardRenewalUrgency,
+  determineTaxFilingUrgency,
+} from '@business-logic/calculations/compliance/compliance-helpers';
 
 /**
  * Get active removal of conditions item

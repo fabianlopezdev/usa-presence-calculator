@@ -7,32 +7,16 @@ import { parseISO } from 'date-fns';
 
 // Internal dependencies - Schemas & Types
 import {
-  RemovalOfConditionsStatus,
   GreenCardRenewalStatus,
+  RemovalOfConditionsStatus,
   SelectiveServiceStatus,
   TaxReminderStatus,
 } from '@schemas/compliance';
-
-// Types
-export interface ActiveComplianceItem {
-  type: 'removal_of_conditions' | 'green_card_renewal' | 'selective_service' | 'tax_filing';
-  description: string;
-  urgency: 'low' | 'medium' | 'high' | 'critical';
-}
-
-export interface PriorityComplianceItem {
-  type: 'removal_of_conditions' | 'green_card_renewal' | 'selective_service' | 'tax_filing';
-  description: string;
-  deadline: string;
-  priority: 'low' | 'medium' | 'high' | 'critical';
-}
-
-export interface UpcomingDeadline {
-  type: 'removal_of_conditions' | 'green_card_renewal' | 'selective_service' | 'tax_filing';
-  description: string;
-  date: string;
-  daysRemaining: number;
-}
+import {
+  ActiveComplianceItem,
+  PriorityComplianceItem,
+  UpcomingDeadline,
+} from '@schemas/compliance-helpers';
 
 /**
  * Determine green card renewal urgency

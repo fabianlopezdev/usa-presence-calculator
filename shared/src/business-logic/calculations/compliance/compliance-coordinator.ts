@@ -9,80 +9,39 @@
 import { parseISO } from 'date-fns';
 
 // Internal dependencies - Schemas & Types
-import { Trip } from '@schemas/trip';
 import {
+  ComplianceCalculationParams,
+  ComprehensiveComplianceStatus,
   RemovalOfConditionsStatus,
-  GreenCardRenewalStatus,
-  SelectiveServiceStatus,
-  TaxReminderStatus,
 } from '@schemas/compliance';
-
-// Internal dependencies - Business Logic
-import { calculateRemovalOfConditionsStatus } from './removal-of-conditions';
-import { calculateGreenCardRenewalStatus } from './green-card-renewal';
-import { calculateSelectiveServiceStatus } from './selective-service';
-import { calculateTaxReminderStatus } from './tax-reminders';
-import type {
+import {
   ActiveComplianceItem,
   PriorityComplianceItem,
   UpcomingDeadline,
-} from './compliance-helpers';
+} from '@schemas/compliance-helpers';
 
+// Internal dependencies - Business Logic
 import {
-  getRemovalOfConditionsPriorityItem,
-  getGreenCardRenewalPriorityItem,
-  getSelectiveServicePriorityItem,
-  getTaxFilingPriorityItem,
-  sortPriorityItems,
-  getRemovalOfConditionsDeadline,
-  getGreenCardExpirationDeadline,
-  getSelectiveServiceDeadline,
-  getTaxFilingDeadline,
-} from './compliance-helpers';
-
-import {
-  getActiveRemovalOfConditionsItem,
   getActiveGreenCardRenewalItem,
+  getActiveRemovalOfConditionsItem,
   getActiveSelectiveServiceItem,
   getActiveTaxFilingItem,
-} from './active-item-helpers';
-
-// Re-export types
-export type { ActiveComplianceItem, PriorityComplianceItem, UpcomingDeadline };
-
-/**
- * Comprehensive compliance status for all LPR requirements
- */
-export interface ComprehensiveComplianceStatus {
-  removalOfConditions: RemovalOfConditionsStatus;
-  greenCardRenewal: GreenCardRenewalStatus;
-  selectiveService: SelectiveServiceStatus;
-  taxReminder: TaxReminderStatus;
-}
-
-/**
- * Parameters for calculating comprehensive compliance
- */
-export interface ComplianceCalculationParams {
-  // Removal of conditions
-  isConditionalResident: boolean;
-  greenCardDate: string;
-
-  // Green card renewal
-  greenCardExpirationDate: string;
-
-  // Selective service
-  birthDate: string;
-  gender: 'male' | 'female' | 'other';
-  isSelectiveServiceRegistered: boolean;
-
-  // Tax reminders
-  taxReminderDismissed: boolean;
-  trips: Trip[];
-
-  // Optional current date for testing
-  currentDate?: string;
-}
+} from '@business-logic/calculations/compliance/active-item-helpers';
+import {
+  getGreenCardExpirationDeadline,
+  getGreenCardRenewalPriorityItem,
+  getRemovalOfConditionsDeadline,
+  getRemovalOfConditionsPriorityItem,
+  getSelectiveServiceDeadline,
+  getSelectiveServicePriorityItem,
+  getTaxFilingDeadline,
+  getTaxFilingPriorityItem,
+  sortPriorityItems,
+} from '@business-logic/calculations/compliance/compliance-helpers';
+import { calculateGreenCardRenewalStatus } from '@business-logic/calculations/compliance/green-card-renewal';
+import { calculateRemovalOfConditionsStatus } from '@business-logic/calculations/compliance/removal-of-conditions';
+import { calculateSelectiveServiceStatus } from '@business-logic/calculations/compliance/selective-service';
+import { calculateTaxReminderStatus } from '@business-logic/calculations/compliance/tax-reminders';
 
 /**
  * Calculate comprehensive compliance status
@@ -240,3 +199,12 @@ function getRemovalOfConditionsStatus(
     }
   );
 }
+
+// Re-export types
+export type {
+  ActiveComplianceItem,
+  ComplianceCalculationParams,
+  ComprehensiveComplianceStatus,
+  PriorityComplianceItem,
+  UpcomingDeadline,
+};

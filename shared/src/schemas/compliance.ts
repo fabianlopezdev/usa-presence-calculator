@@ -9,6 +9,7 @@
  */
 
 import { z } from 'zod';
+import { TripSchema } from '@schemas/trip';
 
 // Removal of Conditions (I-751) Schemas
 export const RemovalOfConditionsStatusSchema = z.object({
@@ -54,6 +55,40 @@ export const TaxReminderStatusSchema = z.object({
 });
 
 export type TaxReminderStatus = z.infer<typeof TaxReminderStatusSchema>;
+
+// Comprehensive compliance status for all LPR requirements
+export const ComprehensiveComplianceStatusSchema = z.object({
+  removalOfConditions: RemovalOfConditionsStatusSchema,
+  greenCardRenewal: GreenCardRenewalStatusSchema,
+  selectiveService: SelectiveServiceStatusSchema,
+  taxReminder: TaxReminderStatusSchema,
+});
+
+export type ComprehensiveComplianceStatus = z.infer<typeof ComprehensiveComplianceStatusSchema>;
+
+// Parameters for calculating comprehensive compliance
+export const ComplianceCalculationParamsSchema = z.object({
+  // Removal of conditions
+  isConditionalResident: z.boolean(),
+  greenCardDate: z.string(),
+
+  // Green card renewal
+  greenCardExpirationDate: z.string(),
+
+  // Selective service
+  birthDate: z.string(),
+  gender: z.enum(['male', 'female', 'other']),
+  isSelectiveServiceRegistered: z.boolean(),
+
+  // Tax reminders
+  taxReminderDismissed: z.boolean(),
+  trips: z.array(TripSchema),
+
+  // Optional current date for testing
+  currentDate: z.string().optional(),
+});
+
+export type ComplianceCalculationParams = z.infer<typeof ComplianceCalculationParamsSchema>;
 
 // Main Compliance Status Schema
 export const ComplianceStatusSchema = z.object({
