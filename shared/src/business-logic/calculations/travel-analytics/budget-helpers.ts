@@ -9,8 +9,8 @@ import {
   calculateAnniversaryDate,
   getRequiredDays,
   getRequiredYears,
-} from '@business-logic/calculations/travel-analytics-helpers';
-import { determineTravelBudgetRisk } from '@business-logic/calculations/travel-risk-helpers';
+} from '@business-logic/calculations/travel-analytics/helpers';
+import { determineTravelBudgetRisk } from '@business-logic/calculations/travel-risk/helpers';
 
 // Internal dependencies - Utilities
 import { parseUTCDate, formatUTCDate, getCurrentUTCDate } from '@utils/utc-date-helpers';

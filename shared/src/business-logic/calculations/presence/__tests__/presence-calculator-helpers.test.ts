@@ -8,7 +8,7 @@ import {
   isValidTrip,
   isValidTripForResidenceCheck,
   validateAndParseDates,
-} from '@business-logic/calculations/presence-calculator-helpers';
+} from '@business-logic/calculations/presence/helpers';
 import { parseUTCDate } from '@utils/utc-date-helpers';
 
 describe('Presence Calculator Helpers', () => {

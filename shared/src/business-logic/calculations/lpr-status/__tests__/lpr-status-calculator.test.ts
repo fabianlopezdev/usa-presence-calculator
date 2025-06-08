@@ -1,8 +1,8 @@
 import { Trip } from '@schemas/trip';
 
-import { assessRiskOfLosingPermanentResidentStatus } from '@business-logic/calculations/lpr-status-calculator';
-import { calculateMaximumTripDurationToMaintainAllStatuses } from '@business-logic/calculations/lpr-status-duration-calculator';
-import { determineIfReentryPermitProvidesProtection } from '@business-logic/calculations/lpr-status-permit-helpers';
+import { assessRiskOfLosingPermanentResidentStatus } from '@business-logic/calculations/lpr-status/calculator';
+import { calculateMaximumTripDurationToMaintainAllStatuses } from '@business-logic/calculations/lpr-status/duration-calculator';
+import { determineIfReentryPermitProvidesProtection } from '@business-logic/calculations/lpr-status/permit-helpers';
 
 describe('LPR Status Calculator', () => {
   describe('assessRiskOfLosingPermanentResidentStatus', () => {

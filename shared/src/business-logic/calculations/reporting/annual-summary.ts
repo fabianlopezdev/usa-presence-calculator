@@ -7,8 +7,8 @@ import {
   formatDateRange,
   getActualValidTrips,
   parseTripDates,
-} from '@business-logic/calculations/travel-analytics-helpers';
-import { determineTravelTrend } from '@business-logic/calculations/travel-risk-helpers';
+} from '@business-logic/calculations/travel-analytics/helpers';
+import { determineTravelTrend } from '@business-logic/calculations/travel-risk/helpers';
 
 // Internal dependencies - Constants
 import { ANNUAL_SUMMARY_CONFIG, DEFAULT_VALUES } from '@constants/index';

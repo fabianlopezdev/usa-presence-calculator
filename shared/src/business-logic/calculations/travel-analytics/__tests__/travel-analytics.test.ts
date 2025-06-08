@@ -1,4 +1,5 @@
 // Internal dependencies - Schemas & Types
+import { MilestoneInfo, TravelStreak } from '@schemas/travel-analytics';
 import { Trip } from '@schemas/trip';
 
 // Internal dependencies - Business Logic
@@ -219,7 +220,7 @@ describe('Travel Analytics', () => {
       const streaks = calculateTravelStreaks(trips, '2022-01-01', '2022-12-31');
 
       const gapStreaks = streaks.filter(
-        (s) => s.startDate >= '2022-06-10' && s.endDate <= '2022-06-11',
+        (s: TravelStreak) => s.startDate >= '2022-06-10' && s.endDate <= '2022-06-11',
       );
       expect(gapStreaks).toHaveLength(0); // No gap between trips
     });
@@ -230,7 +231,9 @@ describe('Travel Analytics', () => {
       const streaks = calculateTravelStreaks(trips, '2022-01-01', '2022-12-31');
 
       // Should not have initial presence streak since trip starts on green card date
-      const initialStreaks = streaks.filter((s) => s.description.includes('Initial presence'));
+      const initialStreaks = streaks.filter((s: TravelStreak) =>
+        s.description.includes('Initial presence'),
+      );
       expect(initialStreaks).toHaveLength(0);
     });
 
@@ -260,7 +263,9 @@ describe('Travel Analytics', () => {
     it('should calculate physical presence milestone correctly', () => {
       const milestones = calculateMilestones(500, 'five_year', '2020-01-01', '2022-06-15');
 
-      const physicalPresence = milestones.find((m) => m.type === 'physical_presence');
+      const physicalPresence = milestones.find(
+        (m: MilestoneInfo) => m.type === 'physical_presence',
+      );
       expect(physicalPresence).toBeDefined();
       expect(physicalPresence?.daysRemaining).toBe(413); // 913 - 500
       expect(physicalPresence?.currentProgress).toBe(54.8); // 500/913 * 100
@@ -269,7 +274,9 @@ describe('Travel Analytics', () => {
     it('should show requirement met when eligible', () => {
       const milestones = calculateMilestones(920, 'five_year', '2020-01-01', '2024-06-15');
 
-      const physicalPresence = milestones.find((m) => m.type === 'physical_presence');
+      const physicalPresence = milestones.find(
+        (m: MilestoneInfo) => m.type === 'physical_presence',
+      );
       expect(physicalPresence?.daysRemaining).toBe(0);
       expect(physicalPresence?.currentProgress).toBe(100);
       expect(physicalPresence?.description).toContain('met!');
@@ -278,7 +285,7 @@ describe('Travel Analytics', () => {
     it('should calculate early filing window for 3-year path', () => {
       const milestones = calculateMilestones(400, 'three_year', '2021-01-15', '2023-06-15');
 
-      const earlyFiling = milestones.find((m) => m.type === 'early_filing');
+      const earlyFiling = milestones.find((m: MilestoneInfo) => m.type === 'early_filing');
       expect(earlyFiling).toBeDefined();
       expect(earlyFiling?.targetDate).toBe('2023-10-16'); // 90 days before 3-year anniversary (UTC calculation)
     });
@@ -286,7 +293,7 @@ describe('Travel Analytics', () => {
     it('should show early filing window open', () => {
       const milestones = calculateMilestones(548, 'three_year', '2020-01-15', '2023-01-01');
 
-      const earlyFiling = milestones.find((m) => m.type === 'early_filing');
+      const earlyFiling = milestones.find((m: MilestoneInfo) => m.type === 'early_filing');
       expect(earlyFiling?.daysRemaining).toBe(0);
       expect(earlyFiling?.currentProgress).toBe(100);
       expect(earlyFiling?.description).toContain('open!');
@@ -295,7 +302,7 @@ describe('Travel Analytics', () => {
     it('should handle leap year green card dates', () => {
       const milestones = calculateMilestones(500, 'five_year', '2020-02-29', '2024-06-15');
 
-      const earlyFiling = milestones.find((m) => m.type === 'early_filing');
+      const earlyFiling = milestones.find((m: MilestoneInfo) => m.type === 'early_filing');
       // Anniversary falls on Feb 28, 2025 (non-leap year)
       // 90 days before Feb 28, 2025 is Nov 29, 2024
       expect(earlyFiling?.targetDate).toBe('2024-11-29'); // 90 days before Feb 28, 2025
@@ -304,7 +311,9 @@ describe('Travel Analytics', () => {
     it('should handle edge case of exactly required days', () => {
       const milestones = calculateMilestones(913, 'five_year', '2020-01-01', '2024-06-15');
 
-      const physicalPresence = milestones.find((m) => m.type === 'physical_presence');
+      const physicalPresence = milestones.find(
+        (m: MilestoneInfo) => m.type === 'physical_presence',
+      );
       expect(physicalPresence?.daysRemaining).toBe(0);
       expect(physicalPresence?.currentProgress).toBe(100);
     });

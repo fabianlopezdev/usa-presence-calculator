@@ -6,11 +6,11 @@ import { TravelStreak } from '@schemas/travel-analytics';
 import { Trip } from '@schemas/trip';
 
 // Internal dependencies - Business Logic
-import { validateAndParseDates } from '@business-logic/calculations/presence-calculator-helpers';
+import { validateAndParseDates } from '@business-logic/calculations/presence/helpers';
 import {
   createPresenceStreak,
   getActualValidTrips,
-} from '@business-logic/calculations/travel-analytics-helpers';
+} from '@business-logic/calculations/travel-analytics/helpers';
 
 // Internal dependencies - Utilities
 import { parseUTCDate, formatUTCDate, getCurrentUTCDate } from '@utils/utc-date-helpers';

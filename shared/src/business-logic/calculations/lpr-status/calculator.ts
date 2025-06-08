@@ -22,14 +22,14 @@ import { Trip } from '@schemas/trip';
 import {
   analyzePatterns,
   assessRiskAndStatus,
-} from '@business-logic/calculations/lpr-status-analysis-helpers';
-import { generateSuggestions } from '@business-logic/calculations/lpr-status-advanced-helpers';
-import { calculateMaximumTripDurationToMaintainAllStatuses } from '@business-logic/calculations/lpr-status-duration-calculator';
+} from '@business-logic/calculations/lpr-status/analysis-helpers';
+import { generateSuggestions } from '@business-logic/calculations/lpr-status/advanced-helpers';
+import { calculateMaximumTripDurationToMaintainAllStatuses } from '@business-logic/calculations/lpr-status/duration-calculator';
 import {
   calculateTripMetrics,
   generateLPRStatusRecommendations,
-} from '@business-logic/calculations/lpr-status-helpers';
-import { calculateGreenCardAbandonmentRisk } from '@business-logic/calculations/travel-risk-helpers';
+} from '@business-logic/calculations/lpr-status/helpers';
+import { calculateGreenCardAbandonmentRisk } from '@business-logic/calculations/travel-risk/helpers';
 
 // Internal dependencies - Constants (alphabetical)
 // None needed

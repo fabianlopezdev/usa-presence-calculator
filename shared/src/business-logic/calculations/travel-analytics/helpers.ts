@@ -8,7 +8,7 @@ import { CountryData, TripDateRange, YearBoundaries } from '@schemas/travel-anal
 import { Trip } from '@schemas/trip';
 
 // Internal dependencies - Business Logic
-import { isValidTrip } from '@business-logic/calculations/presence-calculator-helpers';
+import { isValidTrip } from '@business-logic/calculations/presence/helpers';
 
 // Internal dependencies - Constants
 import {

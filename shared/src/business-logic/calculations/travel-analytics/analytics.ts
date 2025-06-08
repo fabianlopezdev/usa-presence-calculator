@@ -12,8 +12,8 @@ import {
 import { Trip } from '@schemas/trip';
 
 // Internal dependencies - Business Logic
-import { validateAndParseDates } from '@business-logic/calculations/presence-calculator-helpers';
-import { calculateSafeTravelBudget } from '@business-logic/calculations/travel-budget-helpers';
+import { validateAndParseDates } from '@business-logic/calculations/presence/helpers';
+import { calculateSafeTravelBudget } from '@business-logic/calculations/travel-analytics/budget-helpers';
 import {
   calculateDaysAbroadInYear,
   calculateTotalInclusiveDays,
@@ -25,13 +25,13 @@ import {
   isValidTripForRiskAssessment,
   parseTripDates,
   updateCountryData,
-} from '@business-logic/calculations/travel-analytics-helpers';
+} from '@business-logic/calculations/travel-analytics/helpers';
 import {
   assessTravelRisk,
   calculateConfidenceLevel,
   getRiskImpactDescription,
   getRiskRecommendation,
-} from '@business-logic/calculations/travel-risk-helpers';
+} from '@business-logic/calculations/travel-risk/helpers';
 
 // Internal dependencies - Constants
 import { DEFAULT_VALUES, PROJECTION_DEFAULTS, TIME_PERIODS } from '@constants/index';
@@ -212,10 +212,8 @@ export function projectEligibilityDate(
 }
 
 // Re-export functions from helper files
-export { generateAnnualTravelSummary } from '@business-logic/calculations/annual-summary-helpers';
-export { calculateMilestones } from '@business-logic/calculations/milestone-helpers';
-export { calculateSafeTravelBudget } from '@business-logic/calculations/travel-budget-helpers';
-export { calculateTravelStreaks } from '@business-logic/calculations/travel-streak-helpers';
+export { generateAnnualTravelSummary } from '@business-logic/calculations/reporting/annual-summary';
+export { calculateMilestones } from '@business-logic/calculations/reporting/milestones';
 
 function calculateHistoricalAbsenceRate(
   daysSinceGreenCard: number,

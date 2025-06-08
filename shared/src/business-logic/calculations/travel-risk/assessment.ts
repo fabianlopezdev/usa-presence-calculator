@@ -6,7 +6,7 @@ import { ComprehensiveRiskAssessment, ReentryPermitInfo } from '@schemas/lpr-sta
 import { Trip } from '@schemas/trip';
 
 // Internal dependencies - Business Logic (alphabetical)
-import { calculateGreenCardAbandonmentRisk } from '@business-logic/calculations/travel-risk-abandonment';
+import { calculateGreenCardAbandonmentRisk } from '@business-logic/calculations/travel-risk/abandonment';
 
 // Internal dependencies - Constants (alphabetical)
 import {

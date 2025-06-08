@@ -5,7 +5,6 @@
 import { TravelBudgetRiskResult, TravelRiskResult } from '@schemas/travel-analytics-helpers';
 
 // Internal dependencies - Business Logic (alphabetical)
-export { assessTripRiskForAllLegalThresholds } from '@business-logic/calculations/travel-risk-assessment';
 export {
   calculateGreenCardAbandonmentRisk,
   checkIfTripApproachesGreenCardLoss,
@@ -13,7 +12,7 @@ export {
   checkIfTripBreaksContinuousResidence,
   checkIfTripRisksAutomaticGreenCardLoss,
   getReentryPermitProtectedThresholds,
-} from '@business-logic/calculations/travel-risk-abandonment';
+} from '@business-logic/calculations/travel-risk/abandonment';
 
 // Internal dependencies - Constants (alphabetical)
 import {

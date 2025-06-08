@@ -8,7 +8,7 @@ import {
   checkContinuousResidence,
   calculateEligibilityDates,
   isEligibleForEarlyFiling,
-} from '@business-logic/calculations/presence-calculator';
+} from '@business-logic/calculations/presence/calculator';
 
 describe('Presence Calculator', () => {
   describe('calculateDaysOfPhysicalPresence', () => {

@@ -20,7 +20,7 @@ import {
   handleGeneralRiskSuggestions,
   handleN470ExemptionSuggestions,
   handleReentryPermitSuggestions,
-} from '@business-logic/calculations/lpr-status-suggestion-helpers';
+} from '@business-logic/calculations/lpr-status/suggestion-helpers';
 
 // Internal dependencies - Constants (alphabetical)
 // None needed

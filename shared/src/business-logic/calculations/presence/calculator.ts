@@ -17,8 +17,8 @@ import {
   isValidTrip,
   isValidTripForResidenceCheck,
   validateAndParseDates,
-} from '@business-logic/calculations/presence-calculator-helpers';
-import { calculateAnniversaryDate } from '@business-logic/calculations/travel-analytics-helpers';
+} from '@business-logic/calculations/presence/helpers';
+import { calculateAnniversaryDate } from '@business-logic/calculations/travel-analytics/helpers';
 
 // Internal dependencies - Constants
 import { EARLY_FILING_WINDOW_DAYS, PHYSICAL_PRESENCE_REQUIREMENTS } from '@constants/index';

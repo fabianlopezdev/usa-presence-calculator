@@ -9,7 +9,7 @@ import {
   calculateAnniversaryDate,
   getRequiredDays,
   getRequiredYears,
-} from '@business-logic/calculations/travel-analytics-helpers';
+} from '@business-logic/calculations/travel-analytics/helpers';
 import { formatUTCDate, getCurrentUTCDate, parseUTCDate } from '@utils/utc-date-helpers';
 
 // Internal dependencies - Constants

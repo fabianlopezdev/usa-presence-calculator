@@ -5,9 +5,9 @@
 import { Trip } from '@schemas/trip';
 
 // Internal dependencies - Business Logic (alphabetical)
-import { assessRiskOfLosingPermanentResidentStatus } from '@business-logic/calculations/lpr-status-calculator';
-import { calculateMaximumTripDurationToMaintainAllStatuses } from '@business-logic/calculations/lpr-status-duration-calculator';
-import { determineIfReentryPermitProvidesProtection } from '@business-logic/calculations/lpr-status-permit-helpers';
+import { assessRiskOfLosingPermanentResidentStatus } from '@business-logic/calculations/lpr-status/calculator';
+import { calculateMaximumTripDurationToMaintainAllStatuses } from '@business-logic/calculations/lpr-status/duration-calculator';
+import { determineIfReentryPermitProvidesProtection } from '@business-logic/calculations/lpr-status/permit-helpers';
 
 // Internal dependencies - Constants (alphabetical)
 // None needed

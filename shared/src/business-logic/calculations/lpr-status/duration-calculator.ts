@@ -6,7 +6,7 @@ import { MaximumTripDurationResult, ReentryPermitInfo } from '@schemas/lpr-statu
 import { Trip } from '@schemas/trip';
 
 // Internal dependencies - Business Logic (alphabetical)
-import { hasRiskyTrips } from '@business-logic/calculations/lpr-status-helpers';
+import { hasRiskyTrips } from '@business-logic/calculations/lpr-status/helpers';
 
 // Internal dependencies - Constants (alphabetical)
 import {

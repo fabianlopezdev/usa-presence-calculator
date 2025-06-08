@@ -5,15 +5,15 @@
 import { Trip } from '@schemas/trip';
 
 // Internal dependencies - Business Logic (alphabetical)
+import { assessTripRiskForAllLegalThresholds } from '@business-logic/calculations/travel-risk/assessment';
 import {
-  assessTripRiskForAllLegalThresholds,
   calculateGreenCardAbandonmentRisk,
   checkIfTripApproachesGreenCardLoss,
   checkIfTripApproachesContinuousResidenceRisk,
   checkIfTripBreaksContinuousResidence,
   checkIfTripRisksAutomaticGreenCardLoss,
   getReentryPermitProtectedThresholds,
-} from '@business-logic/calculations/travel-risk-helpers';
+} from '@business-logic/calculations/travel-risk/helpers';
 
 // Internal dependencies - Constants (alphabetical)
 // None needed

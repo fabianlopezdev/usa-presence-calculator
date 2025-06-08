@@ -17,8 +17,8 @@ import {
   calculateRebuttablePresumption,
   calculateRiskFactors,
   determineCurrentStatus,
-} from '@business-logic/calculations/lpr-status-advanced-helpers';
-import { analyzePatternOfNonResidence } from '@business-logic/calculations/lpr-status-pattern-analysis';
+} from '@business-logic/calculations/lpr-status/advanced-helpers';
+import { analyzePatternOfNonResidence } from '@business-logic/calculations/lpr-status/pattern-analysis';
 
 // Internal dependencies - Constants (alphabetical)
 // None needed
