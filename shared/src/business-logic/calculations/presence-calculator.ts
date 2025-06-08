@@ -24,7 +24,7 @@ import { calculateAnniversaryDate } from '@business-logic/calculations/travel-an
 import { EARLY_FILING_WINDOW_DAYS, PHYSICAL_PRESENCE_REQUIREMENTS } from '@constants/index';
 
 // Internal dependencies - Utilities
-import { formatUTCDate, parseUTCDate } from '@utils/utc-date-helpers';
+import { formatUTCDate, parseUTCDate, subUTCDays } from '@utils/utc-date-helpers';
 
 // Export functions in alphabetical order
 export function calculateDaysOfPhysicalPresence(
@@ -73,12 +73,6 @@ export function calculateDaysOfPhysicalPresence(
     totalDaysInUSA,
     totalDaysAbroad,
   };
-}
-
-function subUTCDays(date: Date, days: number): Date {
-  const result = new Date(date);
-  result.setUTCDate(result.getUTCDate() - days);
-  return result;
 }
 
 export function calculateEligibilityDates(

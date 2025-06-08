@@ -52,3 +52,10 @@ export function getCurrentUTCDate(): Date {
 export function getUTCYear(date: Date): number {
   return date.getUTCFullYear();
 }
+
+// Subtract days from a UTC date
+export function subUTCDays(date: Date, days: number): Date {
+  const result = new Date(date);
+  result.setUTCDate(result.getUTCDate() - days);
+  return result;
+}
