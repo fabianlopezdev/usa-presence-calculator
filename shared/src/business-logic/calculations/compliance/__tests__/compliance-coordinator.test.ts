@@ -482,10 +482,12 @@ describe('LPR Compliance Coordinator', () => {
       expect(result.taxReminder.daysUntilDeadline).toBe(0);
 
       const deadlines = getUpcomingDeadlines(result, params.currentDate);
-      // All should have the same date
+      // Tax deadline and green card expiry are on April 15
+      // Selective service deadline is 30 days after 18th birthday (May 15)
       const uniqueDates = [...new Set(deadlines.map((d) => d.date))];
-      expect(uniqueDates).toHaveLength(1);
-      expect(uniqueDates[0]).toBe('2024-04-15');
+      expect(uniqueDates).toHaveLength(2);
+      expect(uniqueDates).toContain('2024-04-15');
+      expect(uniqueDates).toContain('2024-05-15');
     });
 
     it('should handle cascading deadlines where one affects another', () => {

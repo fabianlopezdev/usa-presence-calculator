@@ -6,7 +6,14 @@
  */
 
 // External dependencies
-import { addYears, differenceInDays, differenceInYears, parseISO, isAfter } from 'date-fns';
+import {
+  addYears,
+  addDays,
+  differenceInDays,
+  differenceInYears,
+  parseISO,
+  isAfter,
+} from 'date-fns';
 
 // Internal dependencies - Schemas & Types
 import { SelectiveServiceStatus } from '@schemas/compliance';
@@ -90,7 +97,8 @@ export function getAgeInYears(
 }
 
 /**
- * Get the registration deadline (18th birthday for males)
+ * Get the registration deadline (30 days after 18th birthday for males)
+ * Per federal law, males have from 30 days before to 30 days after their 18th birthday to register
  */
 export function getRegistrationDeadline(birthDate: string, gender: string): string | null {
   if (gender !== SELECTIVE_SERVICE.GENDER_REQUIRED) {
@@ -99,12 +107,16 @@ export function getRegistrationDeadline(birthDate: string, gender: string): stri
 
   const birth = parseISO(birthDate);
   const eighteenthBirthday = addYears(birth, SELECTIVE_SERVICE.MIN_AGE);
+  const registrationDeadline = addDays(
+    eighteenthBirthday,
+    SELECTIVE_SERVICE.REGISTRATION_GRACE_PERIOD_DAYS,
+  );
 
-  return eighteenthBirthday.toISOString().split('T')[0];
+  return registrationDeadline.toISOString().split('T')[0];
 }
 
 /**
- * Get days until registration is required (18th birthday)
+ * Get days until registration deadline (30 days after 18th birthday)
  */
 export function getDaysUntilRegistrationRequired(
   birthDate: string,

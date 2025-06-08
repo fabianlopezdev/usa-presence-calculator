@@ -39,7 +39,7 @@ describe('Selective Service Registration Checker', () => {
       expect(result.applies).toBe(false);
       expect(result.registrationRequired).toBe(false);
       expect(result.currentStatus).toBe('not_applicable');
-      expect(result.registrationDeadline).toBe('2028-01-01'); // 18th birthday
+      expect(result.registrationDeadline).toBe('2028-01-31'); // 30 days after 18th birthday
     });
 
     it('should return must register for unregistered males 18-25', () => {
@@ -50,7 +50,7 @@ describe('Selective Service Registration Checker', () => {
       expect(result.registrationRequired).toBe(true);
       expect(result.isRegistered).toBe(false);
       expect(result.currentStatus).toBe('must_register');
-      expect(result.registrationDeadline).toBe('2022-01-01'); // Should have registered at 18
+      expect(result.registrationDeadline).toBe('2022-01-31'); // 30 days after 18th birthday
     });
 
     it('should return registered for registered males', () => {
@@ -150,9 +150,9 @@ describe('Selective Service Registration Checker', () => {
   });
 
   describe('getRegistrationDeadline', () => {
-    it('should return 18th birthday for males', () => {
+    it('should return 30 days after 18th birthday for males', () => {
       const deadline = getRegistrationDeadline('2006-01-15', 'male');
-      expect(deadline).toBe('2024-01-15');
+      expect(deadline).toBe('2024-02-14'); // 30 days after Jan 15
     });
 
     it('should return null for females', () => {
@@ -162,17 +162,17 @@ describe('Selective Service Registration Checker', () => {
 
     it('should handle leap year birthdays', () => {
       const deadline = getRegistrationDeadline('2004-02-29', 'male');
-      expect(deadline).toBe('2022-02-28'); // Non-leap year
+      expect(deadline).toBe('2022-03-30'); // 30 days after Feb 28 (Feb 29 -> Feb 28 in non-leap year)
     });
   });
 
   describe('getDaysUntilRegistrationRequired', () => {
-    it('should calculate days until 18th birthday', () => {
+    it('should calculate days until registration deadline (30 days after 18th birthday)', () => {
       const days = getDaysUntilRegistrationRequired('2010-01-01', 'male', '2024-01-01');
-      expect(days).toBe(1461); // 4 years including leap year
+      expect(days).toBe(1491); // 4 years + 30 days including leap year
     });
 
-    it('should return 0 if already 18 or older', () => {
+    it('should return 0 if already past deadline', () => {
       const days = getDaysUntilRegistrationRequired('2000-01-01', 'male', '2024-01-01');
       expect(days).toBe(0);
     });
@@ -184,7 +184,7 @@ describe('Selective Service Registration Checker', () => {
 
     it('should handle exact 18th birthday', () => {
       const days = getDaysUntilRegistrationRequired('2006-01-01', 'male', '2024-01-01');
-      expect(days).toBe(0);
+      expect(days).toBe(30); // 30 days left to register
     });
   });
 
@@ -256,7 +256,7 @@ describe('Selective Service Registration Checker', () => {
         expect(result.applies).toBe(false);
         expect(result.registrationRequired).toBe(false);
         expect(result.currentStatus).toBe('not_applicable');
-        expect(result.registrationDeadline).toBe('2022-02-28');
+        expect(result.registrationDeadline).toBe('2022-03-30'); // 30 days after Feb 28
       });
 
       it('should handle Feb 29 birthdate turning 26 on non-leap year', () => {
@@ -287,7 +287,7 @@ describe('Selective Service Registration Checker', () => {
 
         expect(result.applies).toBe(false);
         expect(result.currentStatus).toBe('not_applicable');
-        expect(result.registrationDeadline).toBe('2024-01-15');
+        expect(result.registrationDeadline).toBe('2024-02-14'); // 30 days after 18th birthday
       });
 
       it('should handle checking one day before 26th birthday', () => {
@@ -408,7 +408,7 @@ describe('Selective Service Registration Checker', () => {
 
         expect(unregistered.currentStatus).toBe('must_register');
         expect(registered.currentStatus).toBe('registered');
-        expect(registered.registrationDeadline).toBe('2024-01-01');
+        expect(registered.registrationDeadline).toBe('2024-01-31'); // 30 days after 18th birthday
       });
 
       it('should handle registration check on 26th birthday', () => {
@@ -470,7 +470,7 @@ describe('Selective Service Registration Checker', () => {
       const days = getDaysUntilRegistrationRequired(birthDate, 'male', currentDate);
       const deadline = getRegistrationDeadline(birthDate, 'male');
 
-      expect(deadline).toBe('2026-02-28'); // Adjusted to Feb 28
+      expect(deadline).toBe('2026-03-30'); // 30 days after Feb 28 (Feb 29 -> Feb 28 in non-leap year)
       expect(days).toBeGreaterThan(0);
     });
 
@@ -495,7 +495,7 @@ describe('Selective Service Registration Checker', () => {
       const days = getDaysUntilRegistrationRequired(birthDate, 'male', currentDate);
 
       expect(result.applies).toBe(false);
-      expect(days).toBe(1);
+      expect(days).toBe(31); // 1 day until 18th birthday + 30 days grace period
     });
 
     it('should handle exactly 25 years 364 days old', () => {

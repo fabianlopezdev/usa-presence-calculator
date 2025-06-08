@@ -75,6 +75,7 @@ export const SELECTIVE_SERVICE = {
   MIN_AGE: 18,
   MAX_AGE: 26,
   GENDER_REQUIRED: 'male' as const,
+  REGISTRATION_GRACE_PERIOD_DAYS: 30, // 30 days after 18th birthday to register
 } as const;
 
 // Tax Filing Constants
