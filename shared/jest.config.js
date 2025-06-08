@@ -24,5 +24,6 @@ module.exports = {
     '^@business-logic/(.*)$': '<rootDir>/src/business-logic/$1',
     '^@utils/(.*)$': '<rootDir>/src/utils/$1',
     '^@types/(.*)$': '<rootDir>/src/types/$1',
+    '^@constants/(.*)$': '<rootDir>/src/constants/$1',
   },
 };

@@ -1,7 +1,13 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-pnpm run format:check
+# Auto-format code
+pnpm run format
+
+# Re-add formatted files to the commit
+git add -A
+
+# Run other checks
 pnpm run lint
 pnpm run typecheck
 pnpm run test

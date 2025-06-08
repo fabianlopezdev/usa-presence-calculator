@@ -1,12 +1,15 @@
+// Internal dependencies - Schemas & Types
+import { Trip } from '@schemas/trip';
+
+// Internal dependencies - Business Logic
 import {
-  validateAndParseDates,
-  isValidTrip,
   calculateTripDaysAbroad,
   createResidenceWarning,
+  isValidTrip,
   isValidTripForResidenceCheck,
-} from '../presence-calculator-helpers';
-import { Trip } from '@schemas/trip';
-import { parseISO } from 'date-fns';
+  validateAndParseDates,
+} from '@business-logic/calculations/presence-calculator-helpers';
+import { parseUTCDate } from '@utils/utc-date-helpers';
 
 describe('Presence Calculator Helpers', () => {
   describe('validateAndParseDates', () => {
@@ -14,8 +17,8 @@ describe('Presence Calculator Helpers', () => {
       const result = validateAndParseDates('2020-01-01', '2023-01-01');
 
       expect(result.isValid).toBe(true);
-      expect(result.startDate).toEqual(parseISO('2020-01-01'));
-      expect(result.endDate).toEqual(parseISO('2023-01-01'));
+      expect(result.startDate).toEqual(parseUTCDate('2020-01-01'));
+      expect(result.endDate).toEqual(parseUTCDate('2023-01-01'));
     });
 
     it('should reject empty dates', () => {
@@ -124,8 +127,8 @@ describe('Presence Calculator Helpers', () => {
 
     it('should calculate days abroad for a normal trip', () => {
       const daysAbroadSet = new Set<string>();
-      const startDate = parseISO('2022-01-01');
-      const endDate = parseISO('2022-12-31');
+      const startDate = parseUTCDate('2022-01-01');
+      const endDate = parseUTCDate('2022-12-31');
 
       calculateTripDaysAbroad(trip, startDate, endDate, daysAbroadSet);
 
@@ -139,8 +142,8 @@ describe('Presence Calculator Helpers', () => {
 
     it('should handle trip starting before calculation period', () => {
       const daysAbroadSet = new Set<string>();
-      const startDate = parseISO('2022-06-15'); // Green card date during trip
-      const endDate = parseISO('2022-12-31');
+      const startDate = parseUTCDate('2022-06-15'); // Green card date during trip
+      const endDate = parseUTCDate('2022-12-31');
 
       calculateTripDaysAbroad(trip, startDate, endDate, daysAbroadSet);
 
@@ -153,8 +156,8 @@ describe('Presence Calculator Helpers', () => {
 
     it('should handle trip extending beyond calculation period', () => {
       const daysAbroadSet = new Set<string>();
-      const startDate = parseISO('2022-01-01');
-      const endDate = parseISO('2022-06-15'); // End date during trip
+      const startDate = parseUTCDate('2022-01-01');
+      const endDate = parseUTCDate('2022-06-15'); // End date during trip
 
       calculateTripDaysAbroad(trip, startDate, endDate, daysAbroadSet);
 
@@ -167,8 +170,8 @@ describe('Presence Calculator Helpers', () => {
 
     it('should skip trips entirely before calculation period', () => {
       const daysAbroadSet = new Set<string>();
-      const startDate = parseISO('2022-07-01'); // After trip
-      const endDate = parseISO('2022-12-31');
+      const startDate = parseUTCDate('2022-07-01'); // After trip
+      const endDate = parseUTCDate('2022-12-31');
 
       calculateTripDaysAbroad(trip, startDate, endDate, daysAbroadSet);
 
@@ -177,8 +180,8 @@ describe('Presence Calculator Helpers', () => {
 
     it('should skip trips entirely after calculation period', () => {
       const daysAbroadSet = new Set<string>();
-      const startDate = parseISO('2022-01-01');
-      const endDate = parseISO('2022-05-31'); // Before trip
+      const startDate = parseUTCDate('2022-01-01');
+      const endDate = parseUTCDate('2022-05-31'); // Before trip
 
       calculateTripDaysAbroad(trip, startDate, endDate, daysAbroadSet);
 
@@ -188,8 +191,8 @@ describe('Presence Calculator Helpers', () => {
     it('should handle same-day trips', () => {
       const sameDayTrip = { ...trip, returnDate: '2022-06-10' };
       const daysAbroadSet = new Set<string>();
-      const startDate = parseISO('2022-01-01');
-      const endDate = parseISO('2022-12-31');
+      const startDate = parseUTCDate('2022-01-01');
+      const endDate = parseUTCDate('2022-12-31');
 
       calculateTripDaysAbroad(sameDayTrip, startDate, endDate, daysAbroadSet);
 

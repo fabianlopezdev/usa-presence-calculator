@@ -1,3 +1,4 @@
+// Internal dependencies - Schemas & Types
 import { NotificationSchema, NotificationPreferencesSchema } from '@schemas/notification';
 
 describe('Notification Schemas', () => {

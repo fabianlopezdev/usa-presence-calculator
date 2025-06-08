@@ -24,7 +24,8 @@
       "@schemas/*": ["src/schemas/*"],
       "@business-logic/*": ["src/business-logic/*"],
       "@utils/*": ["src/utils/*"],
-      "@types/*": ["src/types/*"]
+      "@types/*": ["src/types/*"],
+      "@constants/*": ["src/constants/*"]
     }
   },
   "include": ["src/**/*.ts", "tsup.config.ts"],

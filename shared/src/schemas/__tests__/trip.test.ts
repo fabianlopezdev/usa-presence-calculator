@@ -1,3 +1,4 @@
+// Internal dependencies - Schemas & Types
 import { TripSchema, TripCreateSchema, TripUpdateSchema, SimulatedTripSchema } from '@schemas/trip';
 
 describe('Trip Schemas', () => {

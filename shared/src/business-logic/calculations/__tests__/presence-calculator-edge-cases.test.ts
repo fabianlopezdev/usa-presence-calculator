@@ -1,11 +1,14 @@
+// Internal dependencies - Schemas & Types
+import { Trip } from '@schemas/trip';
+
+// Internal dependencies - Business Logic
 import {
   calculateDaysOfPhysicalPresence,
   calculatePresenceStatus,
   checkContinuousResidence,
   calculateEligibilityDates,
   isEligibleForEarlyFiling,
-} from '../presence-calculator';
-import { Trip } from '@schemas/trip';
+} from '@business-logic/calculations/presence-calculator';
 
 describe('USCIS Presence Calculator - Edge Cases', () => {
   describe('Complex Trip Scenarios', () => {

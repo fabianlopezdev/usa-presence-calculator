@@ -1,42 +1,37 @@
-import { differenceInDays, parseISO, addYears, subDays, isAfter, isEqual, isValid } from 'date-fns';
-import { Trip } from '@schemas/trip';
+// External dependencies
+import { differenceInDays, isAfter, isEqual, isValid } from 'date-fns';
+
+// Internal dependencies - Schemas & Types
 import {
-  validateAndParseDates,
-  isValidTrip,
+  ContinuousResidenceWarningSimple,
+  EligibilityDates,
+  PresenceCalculationResult,
+  PresenceStatusDetails,
+} from '@schemas/presence';
+import { Trip } from '@schemas/trip';
+
+// Internal dependencies - Business Logic
+import {
   calculateTripDaysAbroad,
   createResidenceWarning,
+  isValidTrip,
   isValidTripForResidenceCheck,
-} from './presence-calculator-helpers';
+  validateAndParseDates,
+} from '@business-logic/calculations/presence-calculator-helpers';
+import { calculateAnniversaryDate } from '@business-logic/calculations/travel-analytics-helpers';
 
-interface PresenceCalculation {
-  totalDaysInUSA: number;
-  totalDaysAbroad: number;
-}
+// Internal dependencies - Constants
+import { EARLY_FILING_WINDOW_DAYS, PHYSICAL_PRESENCE_REQUIREMENTS } from '@constants/index';
 
-interface PresenceStatus {
-  requiredDays: number;
-  percentageComplete: number;
-  daysRemaining: number;
-  status: 'on_track' | 'at_risk' | 'requirement_met';
-}
+// Internal dependencies - Utilities
+import { formatUTCDate, parseUTCDate } from '@utils/utc-date-helpers';
 
-interface ContinuousResidenceWarning {
-  tripId: string;
-  daysAbroad: number;
-  message: string;
-  severity: 'low' | 'medium' | 'high';
-}
-
-interface EligibilityDates {
-  eligibilityDate: string;
-  earliestFilingDate: string;
-}
-
+// Export functions in alphabetical order
 export function calculateDaysOfPhysicalPresence(
   trips: Trip[],
   greenCardDate: string,
   asOfDate: string,
-): PresenceCalculation {
+): PresenceCalculationResult {
   // Validate and parse dates
   const {
     startDate,
@@ -50,6 +45,7 @@ export function calculateDaysOfPhysicalPresence(
 
   // USCIS counts both the first and last day of the period when calculating
   // physical presence, matching how they count trip durations
+  // Use date-fns differenceInDays which is DST-aware
   const totalDays = differenceInDays(endDate, startDate) + 1;
 
   if (!trips || trips.length === 0) {
@@ -79,82 +75,10 @@ export function calculateDaysOfPhysicalPresence(
   };
 }
 
-export function calculatePresenceStatus(
-  totalDaysInUSA: number,
-  eligibilityCategory: 'three_year' | 'five_year',
-): PresenceStatus {
-  // Validate eligibility category
-  if (
-    !eligibilityCategory ||
-    (eligibilityCategory !== 'three_year' && eligibilityCategory !== 'five_year')
-  ) {
-    throw new Error('Invalid eligibility category');
-  }
-
-  // Handle invalid input
-  if (typeof totalDaysInUSA !== 'number' || isNaN(totalDaysInUSA)) {
-    return {
-      requiredDays: eligibilityCategory === 'five_year' ? 913 : 548,
-      percentageComplete: 0,
-      daysRemaining: eligibilityCategory === 'five_year' ? 913 : 548,
-      status: 'on_track',
-    };
-  }
-
-  // Handle negative days as zero
-  const daysPresent = Math.max(0, totalDaysInUSA);
-
-  // Calculate required days based on eligibility category
-  const requiredDays =
-    eligibilityCategory === 'five_year'
-      ? 913 // 913 days for 5-year path (2.5 years)
-      : 548; // 548 days for 3-year path (1.5 years)
-
-  const percentageComplete = Math.min(
-    100,
-    Math.round((daysPresent / requiredDays) * 100 * 10) / 10,
-  );
-  const daysRemaining = Math.max(0, requiredDays - daysPresent);
-
-  const status: PresenceStatus['status'] =
-    daysPresent >= requiredDays ? 'requirement_met' : 'on_track';
-
-  return {
-    requiredDays,
-    percentageComplete,
-    daysRemaining,
-    status,
-  };
-}
-
-export function checkContinuousResidence(trips: Trip[]): ContinuousResidenceWarning[] {
-  if (!trips || !Array.isArray(trips) || trips.length === 0) {
-    return [];
-  }
-
-  const actualTrips = trips.filter(isValidTripForResidenceCheck);
-
-  const warnings: ContinuousResidenceWarning[] = [];
-
-  for (const trip of actualTrips) {
-    const departureDate = parseISO(trip.departureDate);
-    const returnDate = parseISO(trip.returnDate);
-
-    // USCIS uses the same rule for continuous residence as physical presence:
-    // departure and return days count as days present in the USA
-    const daysAbroad = differenceInDays(returnDate, departureDate) - 1;
-
-    if (isNaN(daysAbroad) || daysAbroad < 0) {
-      continue;
-    }
-
-    const warning = createResidenceWarning(trip.id, daysAbroad);
-    if (warning) {
-      warnings.push(warning);
-    }
-  }
-
-  return warnings;
+function subUTCDays(date: Date, days: number): Date {
+  const result = new Date(date);
+  result.setUTCDate(result.getUTCDate() - days);
+  return result;
 }
 
 export function calculateEligibilityDates(
@@ -173,7 +97,7 @@ export function calculateEligibilityDates(
     throw new Error('Invalid eligibility category');
   }
 
-  const greenCardParsedDate = parseISO(greenCardDate);
+  const greenCardParsedDate = parseUTCDate(greenCardDate);
 
   if (!isValid(greenCardParsedDate)) {
     throw new Error('Invalid green card date format');
@@ -181,24 +105,82 @@ export function calculateEligibilityDates(
 
   const yearsRequired = eligibilityCategory === 'five_year' ? 5 : 3;
 
-  // USCIS handles leap year eligibility dates by using the last day of February
-  // in non-leap years, avoiding the need to subtract an additional day
-  const anniversaryDate = addYears(greenCardParsedDate, yearsRequired);
-  const greenCardDayOfMonth = greenCardParsedDate.getDate();
-  const anniversaryDayOfMonth = anniversaryDate.getDate();
-
-  // Feb 29 -> Feb 28 adjustment already happened via addYears, no need to subtract another day
-  const eligibilityDate =
-    greenCardDayOfMonth !== anniversaryDayOfMonth ? anniversaryDate : subDays(anniversaryDate, 1);
-
-  // USCIS allows filing up to 90 days before meeting the continuous residence requirement
-  // The requirement is met on the anniversary date, not the eligibility date (anniversary - 1)
-  const earliestFilingDate = subDays(anniversaryDate, 90);
+  // Use our UTC-safe anniversary calculation that properly handles leap years
+  const anniversaryDate = calculateAnniversaryDate(greenCardParsedDate, yearsRequired);
+  console.error('Anniversary Date:', anniversaryDate);
+  // CORRECT: Eligibility date IS the anniversary date (not 1 day before)
+  const eligibilityDate = anniversaryDate; // <-- REMOVE the subDays here
+  const earliestFilingDate = subUTCDays(anniversaryDate, EARLY_FILING_WINDOW_DAYS);
 
   return {
-    eligibilityDate: eligibilityDate.toISOString().split('T')[0],
-    earliestFilingDate: earliestFilingDate.toISOString().split('T')[0],
+    eligibilityDate: formatUTCDate(eligibilityDate),
+    earliestFilingDate: formatUTCDate(earliestFilingDate),
   };
+}
+
+export function calculatePresenceStatus(
+  totalDaysInUSA: number,
+  eligibilityCategory: 'three_year' | 'five_year',
+): PresenceStatusDetails {
+  validateEligibilityCategory(eligibilityCategory);
+
+  const requiredDays = getRequiredDaysForCategory(eligibilityCategory);
+
+  // Handle invalid input
+  if (typeof totalDaysInUSA !== 'number' || isNaN(totalDaysInUSA)) {
+    return {
+      requiredDays,
+      percentageComplete: 0,
+      daysRemaining: requiredDays,
+      status: 'on_track',
+    };
+  }
+
+  const daysPresent = Math.max(0, totalDaysInUSA);
+  const percentageComplete = Math.min(
+    100,
+    Math.round((daysPresent / requiredDays) * 100 * 10) / 10,
+  );
+  const daysRemaining = Math.max(0, requiredDays - daysPresent);
+  const status: PresenceStatusDetails['status'] =
+    daysPresent >= requiredDays ? 'requirement_met' : 'on_track';
+
+  return {
+    requiredDays,
+    percentageComplete,
+    daysRemaining,
+    status,
+  };
+}
+
+export function checkContinuousResidence(trips: Trip[]): ContinuousResidenceWarningSimple[] {
+  if (!trips || !Array.isArray(trips) || trips.length === 0) {
+    return [];
+  }
+
+  const actualTrips = trips.filter(isValidTripForResidenceCheck);
+
+  const warnings: ContinuousResidenceWarningSimple[] = [];
+
+  for (const trip of actualTrips) {
+    const departureDate = parseUTCDate(trip.departureDate);
+    const returnDate = parseUTCDate(trip.returnDate);
+
+    // USCIS uses the same rule for continuous residence as physical presence:
+    // departure and return days count as days present in the USA
+    const daysAbroad = differenceInDays(returnDate, departureDate) - 1;
+
+    if (isNaN(daysAbroad) || daysAbroad < 0) {
+      continue;
+    }
+
+    const warning = createResidenceWarning(trip.id, daysAbroad);
+    if (warning) {
+      warnings.push(warning);
+    }
+  }
+
+  return warnings;
 }
 
 export function isEligibleForEarlyFiling(
@@ -219,8 +201,8 @@ export function isEligibleForEarlyFiling(
 
   try {
     const { earliestFilingDate } = calculateEligibilityDates(greenCardDate, eligibilityCategory);
-    const currentDateParsed = parseISO(asOfDate);
-    const earliestFilingDateParsed = parseISO(earliestFilingDate);
+    const currentDateParsed = parseUTCDate(asOfDate);
+    const earliestFilingDateParsed = parseUTCDate(earliestFilingDate);
 
     if (!isValid(currentDateParsed) || !isValid(earliestFilingDateParsed)) {
       return false;
@@ -234,5 +216,21 @@ export function isEligibleForEarlyFiling(
     // USCIS requires strict date validation - any malformed data should
     // prevent filing rather than risk an invalid application
     return false;
+  }
+}
+
+// Helper functions
+function getRequiredDaysForCategory(eligibilityCategory: 'three_year' | 'five_year'): number {
+  return eligibilityCategory === 'five_year'
+    ? PHYSICAL_PRESENCE_REQUIREMENTS.FIVE_YEAR_PATH
+    : PHYSICAL_PRESENCE_REQUIREMENTS.THREE_YEAR_PATH;
+}
+
+function validateEligibilityCategory(eligibilityCategory: unknown): void {
+  if (
+    !eligibilityCategory ||
+    (eligibilityCategory !== 'three_year' && eligibilityCategory !== 'five_year')
+  ) {
+    throw new Error('Invalid eligibility category');
   }
 }

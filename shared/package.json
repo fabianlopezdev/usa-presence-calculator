@@ -26,7 +26,8 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "date-fns": "^2.30.0",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {

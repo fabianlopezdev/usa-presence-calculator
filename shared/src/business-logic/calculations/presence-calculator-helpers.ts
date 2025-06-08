@@ -1,51 +1,20 @@
-import { parseISO, isAfter, isBefore, isEqual, addDays, isValid } from 'date-fns';
+// External dependencies
+import { addDays, isAfter, isBefore, isEqual, isValid } from 'date-fns';
+
+// Internal dependencies - Schemas & Types
+import {
+  ContinuousResidenceWarningSimple,
+  ValidatedDateRange as DateValidationResult,
+} from '@schemas/presence';
 import { Trip } from '@schemas/trip';
 
-interface DateValidationResult {
-  startDate: Date;
-  endDate: Date;
-  isValid: boolean;
-}
+// Internal dependencies - Constants
+import { CONTINUOUS_RESIDENCE_THRESHOLDS } from '@constants/index';
 
-interface ContinuousResidenceWarning {
-  tripId: string;
-  daysAbroad: number;
-  message: string;
-  severity: 'low' | 'medium' | 'high';
-}
+// Internal dependencies - Utilities
+import { parseUTCDate, formatUTCDate } from '@utils/utc-date-helpers';
 
-export function validateAndParseDates(
-  greenCardDate: string,
-  asOfDate: string,
-): DateValidationResult {
-  if (!greenCardDate || !asOfDate) {
-    return { startDate: new Date(), endDate: new Date(), isValid: false };
-  }
-
-  const greenCardParsedDate = parseISO(greenCardDate);
-  const asOfParsedDate = parseISO(asOfDate);
-
-  if (
-    !isValid(greenCardParsedDate) ||
-    !isValid(asOfParsedDate) ||
-    isBefore(asOfParsedDate, greenCardParsedDate)
-  ) {
-    return { startDate: greenCardParsedDate, endDate: asOfParsedDate, isValid: false };
-  }
-
-  return { startDate: greenCardParsedDate, endDate: asOfParsedDate, isValid: true };
-}
-
-export function isValidTrip(trip: Trip): boolean {
-  if (!trip || trip.isSimulated) return false;
-  if (!trip.departureDate || !trip.returnDate) return false;
-
-  const departure = parseISO(trip.departureDate);
-  const returnDate = parseISO(trip.returnDate);
-
-  return isValid(departure) && isValid(returnDate) && !isAfter(departure, returnDate);
-}
-
+// Export functions in alphabetical order
 // USCIS mandates that departure and return days count as present in the US,
 // regardless of actual departure/arrival times during those days
 export function calculateTripDaysAbroad(
@@ -54,8 +23,8 @@ export function calculateTripDaysAbroad(
   endDate: Date,
   daysAbroadSet: Set<string>,
 ): void {
-  const departureDate = parseISO(trip.departureDate);
-  const returnDate = parseISO(trip.returnDate);
+  const departureDate = parseUTCDate(trip.departureDate);
+  const returnDate = parseUTCDate(trip.returnDate);
 
   // Skip trips outside our date range
   if (isBefore(returnDate, startDate) || isAfter(departureDate, endDate)) {
@@ -85,7 +54,7 @@ export function calculateTripDaysAbroad(
     isBefore(currentDate, countEndDate) ||
     (tripExtendsBeyondAsOfDate && isEqual(currentDate, countEndDate))
   ) {
-    const dateStr = currentDate.toISOString().split('T')[0];
+    const dateStr = formatUTCDate(currentDate);
     daysAbroadSet.add(dateStr);
     currentDate = addDays(currentDate, 1);
   }
@@ -94,23 +63,33 @@ export function calculateTripDaysAbroad(
 export function createResidenceWarning(
   tripId: string,
   daysAbroad: number,
-): ContinuousResidenceWarning | null {
-  if (daysAbroad >= 180) {
+): ContinuousResidenceWarningSimple | null {
+  if (daysAbroad >= CONTINUOUS_RESIDENCE_THRESHOLDS.HIGH_RISK) {
     return {
       tripId,
       daysAbroad,
-      message: `This trip of ${daysAbroad} days exceeds 180 days and may break continuous residence`,
+      message: `This trip of ${daysAbroad} days exceeds ${CONTINUOUS_RESIDENCE_THRESHOLDS.HIGH_RISK} days and may break continuous residence`,
       severity: 'high',
     };
-  } else if (daysAbroad >= 150) {
+  } else if (daysAbroad >= CONTINUOUS_RESIDENCE_THRESHOLDS.MEDIUM_RISK) {
     return {
       tripId,
       daysAbroad,
-      message: `This trip of ${daysAbroad} days is approaching the 180-day limit for continuous residence`,
+      message: `This trip of ${daysAbroad} days is approaching the ${CONTINUOUS_RESIDENCE_THRESHOLDS.HIGH_RISK}-day limit for continuous residence`,
       severity: 'medium',
     };
   }
   return null;
+}
+
+export function isValidTrip(trip: Trip): boolean {
+  if (!trip || trip.isSimulated) return false;
+  if (!trip.departureDate || !trip.returnDate) return false;
+
+  const departure = parseUTCDate(trip.departureDate);
+  const returnDate = parseUTCDate(trip.returnDate);
+
+  return isValid(departure) && isValid(returnDate) && !isAfter(departure, returnDate);
 }
 
 // Trip ID is required for continuous residence warnings to allow users
@@ -119,8 +98,30 @@ export function isValidTripForResidenceCheck(trip: Trip): boolean {
   if (!trip || trip.isSimulated) return false;
   if (!trip.id || !trip.departureDate || !trip.returnDate) return false;
 
-  const departure = parseISO(trip.departureDate);
-  const returnDate = parseISO(trip.returnDate);
+  const departure = parseUTCDate(trip.departureDate);
+  const returnDate = parseUTCDate(trip.returnDate);
 
   return isValid(departure) && isValid(returnDate) && !isAfter(departure, returnDate);
+}
+
+export function validateAndParseDates(
+  greenCardDate: string,
+  asOfDate: string,
+): DateValidationResult {
+  if (!greenCardDate || !asOfDate) {
+    return { startDate: new Date(), endDate: new Date(), isValid: false };
+  }
+
+  const greenCardParsedDate = parseUTCDate(greenCardDate);
+  const asOfParsedDate = parseUTCDate(asOfDate);
+
+  if (
+    !isValid(greenCardParsedDate) ||
+    !isValid(asOfParsedDate) ||
+    isBefore(asOfParsedDate, greenCardParsedDate)
+  ) {
+    return { startDate: greenCardParsedDate, endDate: asOfParsedDate, isValid: false };
+  }
+
+  return { startDate: greenCardParsedDate, endDate: asOfParsedDate, isValid: true };
 }

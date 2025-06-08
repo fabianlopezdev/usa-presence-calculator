@@ -39,8 +39,11 @@ importers:
   shared:
     dependencies:
       date-fns:
-        specifier: ^2.30.0
-        version: 2.30.0
+        specifier: ^4.1.0
+        version: 4.1.0
+      date-fns-tz:
+        specifier: ^3.2.0
+        version: 3.2.0(date-fns@4.1.0)
       zod:
         specifier: ^3.22.4
         version: 3.25.56
@@ -212,10 +215,6 @@ packages:
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
-
-  '@babel/runtime@7.27.6':
-    resolution: {integrity: sha512-vbavdySgbTTrmFE+EsiqUTzlOr5bzlnJtUv9PynGCAKvfQqjIXbvFdumPM/GxMDfyuGMJaJAU6TO4zc1Jf1i8Q==}
-    engines: {node: '>=6.9.0'}
 
   '@babel/template@7.27.2':
     resolution: {integrity: sha512-LPDZ85aEJyYSd18/DkjNh4/y1ntkE5KwUHWTiqgRxruuZL2F1yuHligVHLvcHY2vMHXttKFpJn6LwfI7cw7ODw==}
@@ -1095,9 +1094,13 @@ packages:
     resolution: {integrity: sha512-2iy1EkLdlBzQGvbweYRFxmFath8+K7+AKB0TlhHWkNuH+TmovaMH/Wp7V7R4u7f4SnX3OgLsU9t1NI9ioDnUpg==}
     engines: {node: '>=8'}
 
-  date-fns@2.30.0:
-    resolution: {integrity: sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==}
-    engines: {node: '>=0.11'}
+  date-fns-tz@3.2.0:
+    resolution: {integrity: sha512-sg8HqoTEulcbbbVXeg84u5UnlsQa8GS5QXMqjjYIhS4abEVVKIUwe0/l/UhrZdKaL/W5eWZNlbTeEIiOXTcsBQ==}
+    peerDependencies:
+      date-fns: ^3.0.0 || ^4.0.0
+
+  date-fns@4.1.0:
+    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
 
   debug@4.4.1:
     resolution: {integrity: sha512-KcKCqiftBJcZr++7ykoDIEwSa3XWowTfNPo92BYxjXiyYEVrUQh2aLyhxBCwww+heortUFxEJYcRzosstTEBYQ==}
@@ -2624,8 +2627,6 @@ snapshots:
       '@babel/core': 7.27.4
       '@babel/helper-plugin-utils': 7.27.1
 
-  '@babel/runtime@7.27.6': {}
-
   '@babel/template@7.27.2':
     dependencies:
       '@babel/code-frame': 7.27.1
@@ -3605,9 +3606,11 @@ snapshots:
 
   dargs@7.0.0: {}
 
-  date-fns@2.30.0:
+  date-fns-tz@3.2.0(date-fns@4.1.0):
     dependencies:
-      '@babel/runtime': 7.27.6
+      date-fns: 4.1.0
+
+  date-fns@4.1.0: {}
 
   debug@4.4.1:
     dependencies:

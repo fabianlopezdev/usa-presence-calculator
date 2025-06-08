@@ -1,3 +1,4 @@
+// Internal dependencies - Schemas & Types
 import {
   PresenceCalculationSchema,
   PresenceStatusSchema,

@@ -1,3 +1,4 @@
+// Internal dependencies - Schemas & Types
 import { UserProfileSchema, AuthUserSchema, UserSettingsSchema } from '@schemas/user';
 
 describe('User Schemas', () => {
