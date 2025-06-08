@@ -390,4 +390,382 @@ describe('Tax Filing Reminder Calculator', () => {
       expect(result).toBe(true);
     });
   });
+
+  describe('Tax Year Transition Edge Cases', () => {
+    it('should handle checking on January 1st', () => {
+      const currentDate = '2024-01-01';
+      const trips: Trip[] = [];
+
+      const result = calculateTaxReminderStatus(trips, false, currentDate);
+
+      expect(result.nextDeadline).toBe('2024-04-15');
+      expect(result.daysUntilDeadline).toBe(105); // Jan 1 to Apr 15 is 105 days in 2024
+    });
+
+    it('should handle checking on December 31st', () => {
+      const currentDate = '2024-12-31';
+      const trips: Trip[] = [];
+
+      const result = calculateTaxReminderStatus(trips, false, currentDate);
+
+      expect(result.nextDeadline).toBe('2025-04-15');
+      expect(result.daysUntilDeadline).toBe(105);
+    });
+
+    it('should handle tax deadline falling on weekend', () => {
+      // In reality, IRS moves deadline to next business day, but our calculator uses fixed April 15
+      const currentDate = '2023-04-15'; // This was a Saturday
+      const trips: Trip[] = [];
+
+      const result = calculateTaxReminderStatus(trips, false, currentDate);
+
+      expect(result.nextDeadline).toBe('2023-04-15');
+      expect(result.daysUntilDeadline).toBe(0);
+    });
+
+    it('should handle leap year calculations', () => {
+      const currentDate = '2024-02-29'; // Leap day
+      const trips: Trip[] = [];
+
+      const result = calculateTaxReminderStatus(trips, false, currentDate);
+
+      expect(result.nextDeadline).toBe('2024-04-15');
+      expect(result.daysUntilDeadline).toBe(46);
+    });
+
+    it('should handle checking from previous year for upcoming tax season', () => {
+      const currentDate = '2023-12-15';
+      const trips: Trip[] = [
+        {
+          id: '1',
+          userId: 'user1',
+          departureDate: '2024-03-10',
+          returnDate: '2024-04-20',
+          location: 'Future Trip',
+          isSimulated: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ];
+
+      const result = calculateTaxReminderStatus(trips, false, currentDate);
+
+      expect(result.nextDeadline).toBe('2024-04-15');
+      expect(result.isAbroadDuringTaxSeason).toBe(true);
+    });
+  });
+
+  describe('Extended Filing Deadline Scenarios', () => {
+    it('should handle October 15 extension deadline', () => {
+      // Note: Our current implementation doesn't handle extensions, but testing the scenario
+      const currentDate = '2024-10-01';
+      const trips: Trip[] = [];
+
+      const result = calculateTaxReminderStatus(trips, false, currentDate);
+
+      // Should point to next year's regular deadline
+      expect(result.nextDeadline).toBe('2025-04-15');
+    });
+
+    it('should handle foreign filing extension (June 15)', () => {
+      // US citizens abroad get automatic 2-month extension to June 15
+      const currentDate = '2024-06-01';
+      const trips: Trip[] = [];
+
+      const result = calculateTaxReminderStatus(trips, false, currentDate);
+
+      // Current implementation points to next year
+      expect(result.nextDeadline).toBe('2025-04-15');
+    });
+  });
+
+  describe('Travel Pattern Anomalies', () => {
+    it('should handle continuous travel abroad', () => {
+      const trips: Trip[] = [
+        {
+          id: '1',
+          userId: 'user1',
+          departureDate: '2023-01-01',
+          returnDate: '2025-12-31',
+          location: 'Multi-year Travel',
+          isSimulated: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ];
+
+      const result = calculateTaxReminderStatus(trips, false, '2024-02-01');
+
+      expect(result.isAbroadDuringTaxSeason).toBe(true);
+    });
+
+    it('should handle same-day departure and return on tax deadline', () => {
+      const trips: Trip[] = [
+        {
+          id: '1',
+          userId: 'user1',
+          departureDate: '2024-04-15',
+          returnDate: '2024-04-15',
+          location: 'Day Trip',
+          isSimulated: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ];
+
+      const result = willBeAbroadDuringTaxSeason(trips, '2024-03-01');
+
+      expect(result).toBe(true); // Even one day counts
+    });
+
+    it('should handle overlapping trips', () => {
+      const trips: Trip[] = [
+        {
+          id: '1',
+          userId: 'user1',
+          departureDate: '2024-03-01',
+          returnDate: '2024-03-20',
+          location: 'Trip 1',
+          isSimulated: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          id: '2',
+          userId: 'user1',
+          departureDate: '2024-03-15',
+          returnDate: '2024-04-20',
+          location: 'Trip 2',
+          isSimulated: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ];
+
+      const result = willBeAbroadDuringTaxSeason(trips, '2024-02-01');
+
+      expect(result).toBe(true);
+    });
+
+    it('should handle back-to-back trips spanning tax season', () => {
+      const trips: Trip[] = [
+        {
+          id: '1',
+          userId: 'user1',
+          departureDate: '2024-02-20',
+          returnDate: '2024-03-10',
+          location: 'Trip 1',
+          isSimulated: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          id: '2',
+          userId: 'user1',
+          departureDate: '2024-03-10',
+          returnDate: '2024-04-20',
+          location: 'Trip 2',
+          isSimulated: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ];
+
+      const result = willBeAbroadDuringTaxSeason(trips, '2024-01-01');
+
+      expect(result).toBe(true);
+    });
+
+    it('should handle timezone crossing trips', () => {
+      // Trip starts before tax season in one timezone but during in another
+      const trips: Trip[] = [
+        {
+          id: '1',
+          userId: 'user1',
+          departureDate: '2024-02-28',
+          returnDate: '2024-03-02',
+          location: 'International Date Line',
+          isSimulated: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ];
+
+      const result = willBeAbroadDuringTaxSeason(trips, '2024-01-01');
+
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('Dismissal Logic Edge Cases', () => {
+    it('should handle dismissal on April 14', () => {
+      const currentDate = '2024-04-14';
+      const trips: Trip[] = [];
+
+      const dismissed = calculateTaxReminderStatus(trips, true, currentDate);
+      const notDismissed = calculateTaxReminderStatus(trips, false, currentDate);
+
+      expect(dismissed.reminderDismissed).toBe(true);
+      expect(notDismissed.reminderDismissed).toBe(false);
+      expect(dismissed.daysUntilDeadline).toBe(1);
+      expect(notDismissed.daysUntilDeadline).toBe(1);
+    });
+
+    it('should handle dismissal for future tax year', () => {
+      const currentDate = '2024-12-01';
+      const trips: Trip[] = [];
+
+      const result = calculateTaxReminderStatus(trips, true, currentDate);
+
+      expect(result.reminderDismissed).toBe(true);
+      expect(result.nextDeadline).toBe('2025-04-15');
+    });
+
+    it('should handle dismissal with abroad status', () => {
+      const currentDate = '2024-03-15';
+      const trips: Trip[] = [
+        {
+          id: '1',
+          userId: 'user1',
+          departureDate: '2024-03-01',
+          returnDate: '2024-04-30',
+          location: 'Abroad',
+          isSimulated: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ];
+
+      const result = calculateTaxReminderStatus(trips, true, currentDate);
+
+      expect(result.reminderDismissed).toBe(true);
+      expect(result.isAbroadDuringTaxSeason).toBe(true);
+    });
+  });
+
+  describe('Tax Season Boundary Edge Cases', () => {
+    it('should handle February 28 (day before tax season)', () => {
+      const result = isCurrentlyTaxSeason('2024-02-28');
+      expect(result).toBe(false);
+    });
+
+    it('should handle February 29 in leap year', () => {
+      const result = isCurrentlyTaxSeason('2024-02-29');
+      expect(result).toBe(false);
+    });
+
+    it('should handle March 1 at different times', () => {
+      const startOfDay = isCurrentlyTaxSeason('2024-03-01');
+      expect(startOfDay).toBe(true);
+    });
+
+    it('should handle April 15 at different times', () => {
+      const onDeadline = isCurrentlyTaxSeason('2024-04-15');
+      expect(onDeadline).toBe(true);
+    });
+
+    it('should handle April 16 (day after deadline)', () => {
+      const afterDeadline = isCurrentlyTaxSeason('2024-04-16');
+      expect(afterDeadline).toBe(false);
+    });
+  });
+
+  describe('Complex Trip Scenarios', () => {
+    it('should handle mix of real and simulated trips', () => {
+      const trips: Trip[] = [
+        {
+          id: '1',
+          userId: 'user1',
+          departureDate: '2024-03-01',
+          returnDate: '2024-03-10',
+          location: 'Real Trip',
+          isSimulated: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          id: '2',
+          userId: 'user1',
+          departureDate: '2024-04-01',
+          returnDate: '2024-04-20',
+          location: 'Simulated Trip',
+          isSimulated: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ];
+
+      const result = calculateTaxReminderStatus(trips, false, '2024-02-15');
+
+      expect(result.isAbroadDuringTaxSeason).toBe(true); // Real trip counts
+    });
+
+    it('should handle empty trip arrays', () => {
+      const trips: Trip[] = [];
+
+      const result = willBeAbroadDuringTaxSeason(trips, '2024-03-15');
+
+      expect(result).toBe(false);
+    });
+
+    it('should handle invalid trip dates gracefully', () => {
+      const trips: Trip[] = [
+        {
+          id: '1',
+          userId: 'user1',
+          departureDate: '2024-04-20',
+          returnDate: '2024-04-10', // Return before departure
+          location: 'Invalid Trip',
+          isSimulated: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ];
+
+      // Current implementation doesn't validate, but trip won't overlap properly
+      const result = willBeAbroadDuringTaxSeason(trips, '2024-03-01');
+      expect(result).toBe(false);
+    });
+
+    it('should handle trips with missing locations', () => {
+      const trips: Trip[] = [
+        {
+          id: '1',
+          userId: 'user1',
+          departureDate: '2024-03-15',
+          returnDate: '2024-04-20',
+          location: undefined,
+          isSimulated: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ];
+
+      const result = willBeAbroadDuringTaxSeason(trips, '2024-02-01');
+
+      expect(result).toBe(true); // Location doesn't affect calculation
+    });
+  });
+
+  describe('Days Until Deadline Edge Cases', () => {
+    it('should handle negative days (past deadline)', () => {
+      const days = getDaysUntilTaxDeadline('2024-04-20');
+      expect(days).toBe(360); // Points to next year
+    });
+
+    it('should handle exactly one year before deadline', () => {
+      const days = getDaysUntilTaxDeadline('2023-04-15');
+      expect(days).toBe(0); // Same date last year
+    });
+
+    it('should handle February 29 to April 15 calculation', () => {
+      const days = getDaysUntilTaxDeadline('2024-02-29');
+      expect(days).toBe(46);
+    });
+
+    it('should handle year boundary crossing', () => {
+      const days = getDaysUntilTaxDeadline('2024-12-31');
+      expect(days).toBe(105); // To April 15, 2025
+    });
+  });
 });
