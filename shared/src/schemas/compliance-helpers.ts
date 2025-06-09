@@ -23,7 +23,7 @@ export const ActiveComplianceItemSchema = z.object({
     PRIORITY_LEVEL.HIGH,
     PRIORITY_LEVEL.CRITICAL,
   ]),
-});
+}).strict();
 
 export type ActiveComplianceItem = z.infer<typeof ActiveComplianceItemSchema>;
 
@@ -43,7 +43,7 @@ export const PriorityComplianceItemSchema = z.object({
     PRIORITY_LEVEL.HIGH,
     PRIORITY_LEVEL.CRITICAL,
   ]),
-});
+}).strict();
 
 export type PriorityComplianceItem = z.infer<typeof PriorityComplianceItemSchema>;
 
@@ -58,6 +58,6 @@ export const UpcomingDeadlineSchema = z.object({
   description: z.string(),
   date: z.string(),
   daysRemaining: z.number(),
-});
+}).strict();
 
 export type UpcomingDeadline = z.infer<typeof UpcomingDeadlineSchema>;
