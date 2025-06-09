@@ -1,34 +1,24 @@
-/**
- * UTC Date Helper Functions
- *
- * These functions ensure consistent UTC date handling across the application,
- * avoiding timezone-related issues and DST complications.
- */
-
 // Parse date string to UTC Date object
 export function parseUTCDate(dateString: string): Date {
-  // First, do a basic format check to quickly reject clearly invalid strings.
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-    return new Date(NaN); // Return an "Invalid Date" object
+    return new Date(NaN);
   }
 
   const [year, month, day] = dateString.split('-').map(Number);
 
-  // Check for invalid month or day numbers.
   if (month < 1 || month > 12 || day < 1 || day > 31) {
     return new Date(NaN);
   }
 
-  // Create the date using UTC. JavaScript will still roll over dates
-  // like Feb 30 into March, so we need one more check.
   const date = new Date(Date.UTC(year, month - 1, day));
 
+  // Validate no date rollover occurred (e.g., Feb 30 -> March 2)
   if (
     date.getUTCFullYear() !== year ||
-    date.getUTCMonth() !== month - 1 || // month is 0-indexed
+    date.getUTCMonth() !== month - 1 ||
     date.getUTCDate() !== day
   ) {
-    return new Date(NaN); // Return an "Invalid Date" if a rollover occurred.
+    return new Date(NaN);
   }
 
   return date;
