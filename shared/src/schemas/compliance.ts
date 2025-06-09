@@ -33,7 +33,7 @@ export const RemovalOfConditionsStatusSchema = z.object({
   ]),
   daysUntilWindow: z.number().nullable(),
   daysUntilDeadline: z.number().nullable(),
-});
+}).strict();
 
 export type RemovalOfConditionsStatus = z.infer<typeof RemovalOfConditionsStatusSchema>;
 
@@ -49,7 +49,7 @@ export const GreenCardRenewalStatusSchema = z.object({
   ]),
   monthsUntilExpiration: z.number(),
   isInRenewalWindow: z.boolean(),
-});
+}).strict();
 
 export type GreenCardRenewalStatus = z.infer<typeof GreenCardRenewalStatusSchema>;
 
@@ -65,7 +65,7 @@ export const SelectiveServiceStatusSchema = z.object({
     SELECTIVE_SERVICE_STATUS.REGISTERED,
     SELECTIVE_SERVICE_STATUS.AGED_OUT,
   ]),
-});
+}).strict();
 
 export type SelectiveServiceStatus = z.infer<typeof SelectiveServiceStatusSchema>;
 
@@ -81,7 +81,7 @@ export const TaxReminderStatusSchema = z.object({
     TAX_DEADLINE_TYPE.OCTOBER_EXTENSION,
   ]),
   actualDeadline: z.string(), // Adjusted for weekends/holidays
-});
+}).strict();
 
 export type TaxReminderStatus = z.infer<typeof TaxReminderStatusSchema>;
 
@@ -91,7 +91,7 @@ export const ComprehensiveComplianceStatusSchema = z.object({
   greenCardRenewal: GreenCardRenewalStatusSchema,
   selectiveService: SelectiveServiceStatusSchema,
   taxReminder: TaxReminderStatusSchema,
-});
+}).strict();
 
 export type ComprehensiveComplianceStatus = z.infer<typeof ComprehensiveComplianceStatusSchema>;
 
@@ -115,7 +115,7 @@ export const ComplianceCalculationParamsSchema = z.object({
 
   // Optional current date for testing
   currentDate: z.string().optional(),
-});
+}).strict();
 
 export type ComplianceCalculationParams = z.infer<typeof ComplianceCalculationParamsSchema>;
 
@@ -126,6 +126,6 @@ export const ComplianceStatusSchema = z.object({
   selectiveService: SelectiveServiceStatusSchema.optional(),
   taxReminders: TaxReminderStatusSchema,
   lastUpdated: z.string(),
-});
+}).strict();
 
 export type ComplianceStatus = z.infer<typeof ComplianceStatusSchema>;
