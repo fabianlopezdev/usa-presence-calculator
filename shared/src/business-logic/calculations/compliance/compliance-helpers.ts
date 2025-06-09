@@ -18,6 +18,22 @@ import {
   UpcomingDeadline,
 } from '@schemas/compliance-helpers';
 
+// Internal dependencies - Constants
+import {
+  GREEN_CARD_RENEWAL_STATUS,
+  REMOVAL_CONDITIONS_STATUS,
+  COMPLIANCE_PRIORITY_MESSAGES,
+  COMPLIANCE_DEADLINE_DESCRIPTIONS,
+  COMPLIANCE_ITEM_TYPE,
+} from '@constants/compliance';
+import {
+  PRIORITY_LEVEL,
+  PRIORITY_SORT_ORDER,
+  COMPLIANCE_TYPE_SORT_ORDER,
+  TAX_FILING_THRESHOLDS_DAYS,
+} from '@constants/priority-urgency';
+import { MILLISECONDS } from '@constants/date-time';
+
 /**
  * Determine green card renewal urgency
  */
@@ -25,14 +41,14 @@ export function determineGreenCardRenewalUrgency(
   status: GreenCardRenewalStatus['currentStatus'],
 ): ActiveComplianceItem['urgency'] {
   switch (status) {
-    case 'expired':
-      return 'critical';
-    case 'renewal_urgent':
-      return 'high';
-    case 'renewal_recommended':
-      return 'medium';
+    case GREEN_CARD_RENEWAL_STATUS.EXPIRED:
+      return PRIORITY_LEVEL.CRITICAL;
+    case GREEN_CARD_RENEWAL_STATUS.RENEWAL_URGENT:
+      return PRIORITY_LEVEL.HIGH;
+    case GREEN_CARD_RENEWAL_STATUS.RENEWAL_RECOMMENDED:
+      return PRIORITY_LEVEL.MEDIUM;
     default:
-      return 'low';
+      return PRIORITY_LEVEL.LOW;
   }
 }
 
@@ -43,10 +59,16 @@ export function determineTaxFilingUrgency(
   daysUntilDeadline: number,
   isAbroad: boolean,
 ): ActiveComplianceItem['urgency'] {
-  if (daysUntilDeadline <= 7) return 'critical';
-  if (daysUntilDeadline <= 14 || (daysUntilDeadline <= 30 && isAbroad)) return 'high';
-  if (daysUntilDeadline <= 30) return 'medium';
-  return 'low';
+  if (daysUntilDeadline <= TAX_FILING_THRESHOLDS_DAYS.CRITICAL_URGENCY)
+    return PRIORITY_LEVEL.CRITICAL;
+  if (
+    daysUntilDeadline <= TAX_FILING_THRESHOLDS_DAYS.HIGH_URGENCY ||
+    (daysUntilDeadline <= TAX_FILING_THRESHOLDS_DAYS.PRIORITY_ITEM_THRESHOLD && isAbroad)
+  )
+    return PRIORITY_LEVEL.HIGH;
+  if (daysUntilDeadline <= TAX_FILING_THRESHOLDS_DAYS.PRIORITY_ITEM_THRESHOLD)
+    return PRIORITY_LEVEL.MEDIUM;
+  return PRIORITY_LEVEL.LOW;
 }
 
 /**
@@ -55,15 +77,15 @@ export function determineTaxFilingUrgency(
 export function getRemovalOfConditionsPriorityItem(
   status: RemovalOfConditionsStatus,
 ): PriorityComplianceItem | null {
-  if (!status.applies || status.currentStatus !== 'overdue') {
+  if (!status.applies || status.currentStatus !== REMOVAL_CONDITIONS_STATUS.OVERDUE) {
     return null;
   }
 
   return {
-    type: 'removal_of_conditions',
-    description: 'Overdue: File Form I-751 immediately',
+    type: COMPLIANCE_ITEM_TYPE.REMOVAL_CONDITIONS,
+    description: COMPLIANCE_PRIORITY_MESSAGES.REMOVAL_CONDITIONS_OVERDUE,
     deadline: status.filingWindowEnd,
-    priority: 'critical',
+    priority: PRIORITY_LEVEL.CRITICAL,
   };
 }
 
@@ -73,18 +95,24 @@ export function getRemovalOfConditionsPriorityItem(
 export function getGreenCardRenewalPriorityItem(
   status: GreenCardRenewalStatus,
 ): PriorityComplianceItem | null {
-  if (status.currentStatus !== 'renewal_urgent' && status.currentStatus !== 'expired') {
+  if (
+    status.currentStatus !== GREEN_CARD_RENEWAL_STATUS.RENEWAL_URGENT &&
+    status.currentStatus !== GREEN_CARD_RENEWAL_STATUS.EXPIRED
+  ) {
     return null;
   }
 
   return {
-    type: 'green_card_renewal',
+    type: COMPLIANCE_ITEM_TYPE.GREEN_CARD_RENEWAL,
     description:
-      status.currentStatus === 'expired'
-        ? 'Green card expired - renew immediately'
-        : 'Green card expiring soon - renew urgently',
+      status.currentStatus === GREEN_CARD_RENEWAL_STATUS.EXPIRED
+        ? COMPLIANCE_PRIORITY_MESSAGES.GREEN_CARD_EXPIRED
+        : COMPLIANCE_PRIORITY_MESSAGES.GREEN_CARD_EXPIRING_SOON,
     deadline: status.expirationDate,
-    priority: status.currentStatus === 'expired' ? 'critical' : 'high',
+    priority:
+      status.currentStatus === GREEN_CARD_RENEWAL_STATUS.EXPIRED
+        ? PRIORITY_LEVEL.CRITICAL
+        : PRIORITY_LEVEL.HIGH,
   };
 }
 
@@ -99,10 +127,10 @@ export function getSelectiveServicePriorityItem(
   }
 
   return {
-    type: 'selective_service',
-    description: 'Must register with Selective Service',
+    type: COMPLIANCE_ITEM_TYPE.SELECTIVE_SERVICE,
+    description: COMPLIANCE_PRIORITY_MESSAGES.SELECTIVE_SERVICE_REQUIRED,
     deadline: status.registrationDeadline,
-    priority: 'high',
+    priority: PRIORITY_LEVEL.HIGH,
   };
 }
 
@@ -112,17 +140,17 @@ export function getSelectiveServicePriorityItem(
 export function getTaxFilingPriorityItem(status: TaxReminderStatus): PriorityComplianceItem | null {
   if (
     status.reminderDismissed ||
-    status.daysUntilDeadline > 30 ||
+    status.daysUntilDeadline > TAX_FILING_THRESHOLDS_DAYS.PRIORITY_ITEM_THRESHOLD ||
     !status.isAbroadDuringTaxSeason
   ) {
     return null;
   }
 
   return {
-    type: 'tax_filing',
-    description: 'File taxes - you will be abroad during deadline',
+    type: COMPLIANCE_ITEM_TYPE.TAX_FILING,
+    description: COMPLIANCE_PRIORITY_MESSAGES.TAX_FILING_ABROAD_WARNING,
     deadline: status.nextDeadline,
-    priority: 'high',
+    priority: PRIORITY_LEVEL.HIGH,
   };
 }
 
@@ -131,8 +159,7 @@ export function getTaxFilingPriorityItem(status: TaxReminderStatus): PriorityCom
  */
 export function sortPriorityItems(items: PriorityComplianceItem[]): PriorityComplianceItem[] {
   return items.sort((a, b) => {
-    const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-    const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+    const priorityDiff = PRIORITY_SORT_ORDER[a.priority] - PRIORITY_SORT_ORDER[b.priority];
 
     if (priorityDiff !== 0) return priorityDiff;
 
@@ -140,14 +167,8 @@ export function sortPriorityItems(items: PriorityComplianceItem[]): PriorityComp
     const deadlineDiff = parseISO(a.deadline).getTime() - parseISO(b.deadline).getTime();
     if (deadlineDiff !== 0) return deadlineDiff;
 
-    // If same deadline, prioritize green card renewal over other types
-    const typeOrder = {
-      green_card_renewal: 0,
-      removal_of_conditions: 1,
-      selective_service: 2,
-      tax_filing: 3,
-    };
-    return typeOrder[a.type] - typeOrder[b.type];
+    // If same deadline, use compliance type sort order
+    return COMPLIANCE_TYPE_SORT_ORDER[a.type] - COMPLIANCE_TYPE_SORT_ORDER[b.type];
   });
 }
 
@@ -162,8 +183,8 @@ export function getRemovalOfConditionsDeadline(
   }
 
   return {
-    type: 'removal_of_conditions',
-    description: 'Remove conditions on residence',
+    type: COMPLIANCE_ITEM_TYPE.REMOVAL_CONDITIONS,
+    description: COMPLIANCE_DEADLINE_DESCRIPTIONS.REMOVAL_CONDITIONS,
     date: status.filingWindowEnd,
     daysRemaining: status.daysUntilDeadline,
   };
@@ -183,10 +204,10 @@ export function getGreenCardExpirationDeadline(
   }
 
   return {
-    type: 'green_card_renewal',
-    description: 'Green card expires',
+    type: COMPLIANCE_ITEM_TYPE.GREEN_CARD_RENEWAL,
+    description: COMPLIANCE_DEADLINE_DESCRIPTIONS.GREEN_CARD_EXPIRY,
     date: status.expirationDate,
-    daysRemaining: Math.floor((expiration.getTime() - current.getTime()) / (1000 * 60 * 60 * 24)),
+    daysRemaining: Math.floor((expiration.getTime() - current.getTime()) / MILLISECONDS.PER_DAY),
   };
 }
 
@@ -208,10 +229,10 @@ export function getSelectiveServiceDeadline(
   }
 
   return {
-    type: 'selective_service',
-    description: 'Register with Selective Service',
+    type: COMPLIANCE_ITEM_TYPE.SELECTIVE_SERVICE,
+    description: COMPLIANCE_DEADLINE_DESCRIPTIONS.SELECTIVE_SERVICE_REGISTRATION,
     date: status.registrationDeadline,
-    daysRemaining: Math.floor((deadline.getTime() - current.getTime()) / (1000 * 60 * 60 * 24)),
+    daysRemaining: Math.floor((deadline.getTime() - current.getTime()) / MILLISECONDS.PER_DAY),
   };
 }
 
@@ -233,8 +254,8 @@ export function getTaxFilingDeadline(
   }
 
   return {
-    type: 'tax_filing',
-    description: 'File US tax return',
+    type: COMPLIANCE_ITEM_TYPE.TAX_FILING,
+    description: COMPLIANCE_DEADLINE_DESCRIPTIONS.TAX_FILING,
     date: status.nextDeadline,
     daysRemaining: status.daysUntilDeadline,
   };
