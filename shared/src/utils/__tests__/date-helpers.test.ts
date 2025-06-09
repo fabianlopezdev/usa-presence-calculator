@@ -141,4 +141,201 @@ describe('date-helpers', () => {
       expect(isLeapYear(1900)).toBe(false); // Divisible by 100 but not 400
     });
   });
+
+  describe('edge cases and boundary conditions', () => {
+    describe('extreme dates', () => {
+      it('should handle year 9999', () => {
+        const farFuture = new Date('9999-12-31T23:59:59.999Z');
+        expect(isValidDate(farFuture)).toBe(true);
+        expect(formatDate(farFuture)).toBe('9999-12-31');
+        expect(getDaysInMonth(9999, 12)).toBe(31);
+      });
+
+      it('should handle year 1', () => {
+        const ancient = new Date('0001-01-01T00:00:00.000Z');
+        expect(isValidDate(ancient)).toBe(true);
+        expect(formatDate(ancient)).toBe('1-01-01'); // Year is not padded
+        expect(getDaysInMonth(1, 1)).toBe(31);
+      });
+
+      it('should handle negative years (BCE)', () => {
+        const bce = new Date();
+        bce.setUTCFullYear(-1);
+        expect(isValidDate(bce)).toBe(true);
+      });
+    });
+
+    describe('daylight saving time edge cases', () => {
+      it('should handle DST transitions with addUTCDays', () => {
+        // March 10, 2024 is when DST starts in most of US
+        const beforeDST = new Date('2024-03-09T12:00:00Z');
+        const afterDST = addUTCDays(beforeDST, 2);
+        expect(afterDST.toISOString()).toBe('2024-03-11T12:00:00.000Z');
+        // UTC operations should not be affected by DST
+      });
+
+      it('should handle DST transitions with startOfUTCDay', () => {
+        // November 3, 2024 is when DST ends in most of US
+        const dstEndDay = new Date('2024-11-03T08:30:00Z');
+        const startOfDay = startOfUTCDay(dstEndDay);
+        expect(startOfDay.toISOString()).toBe('2024-11-03T00:00:00.000Z');
+      });
+    });
+
+    describe('month boundary edge cases', () => {
+      it('should handle adding days across multiple months', () => {
+        const jan31 = new Date('2024-01-31T00:00:00Z');
+        const result = addUTCDays(jan31, 60);
+        expect(result.toISOString()).toBe('2024-03-31T00:00:00.000Z');
+      });
+
+      it('should handle subtracting days across year boundary', () => {
+        const jan5 = new Date('2024-01-05T00:00:00Z');
+        const result = addUTCDays(jan5, -10);
+        expect(result.toISOString()).toBe('2023-12-26T00:00:00.000Z');
+      });
+
+      it('should handle February 29 to non-leap year', () => {
+        const leapDay = new Date('2024-02-29T00:00:00Z');
+        const nextYear = addUTCDays(leapDay, 365);
+        expect(nextYear.toISOString()).toBe('2025-02-28T00:00:00.000Z');
+      });
+    });
+
+    describe('invalid input edge cases', () => {
+      it('should handle null/undefined in isValidDate', () => {
+        expect(isValidDate(null as unknown as Date)).toBe(false);
+        expect(isValidDate(undefined as unknown as Date)).toBe(false);
+      });
+
+      it('should handle non-Date objects in isValidDate', () => {
+        expect(isValidDate('2024-01-01' as unknown as Date)).toBe(false);
+        expect(isValidDate(123456789 as unknown as Date)).toBe(false);
+        expect(isValidDate({} as unknown as Date)).toBe(false);
+      });
+
+      it('should handle empty string in parseDateInput', () => {
+        const result = parseDateInput('');
+        expect(isNaN(result.getTime())).toBe(true);
+      });
+
+      it('should handle extremely large day additions', () => {
+        const date = new Date('2024-01-01T00:00:00Z');
+        const result = addUTCDays(date, 365000); // ~1000 years
+        expect(result.getUTCFullYear()).toBeGreaterThan(3000);
+      });
+
+      it('should handle extremely large negative day additions', () => {
+        const date = new Date('2024-01-01T00:00:00Z');
+        const result = addUTCDays(date, -365000); // ~1000 years ago
+        expect(result.getUTCFullYear()).toBeLessThan(1100);
+      });
+    });
+
+    describe('getDaysInMonth edge cases', () => {
+      it('should handle month 0 (December of previous year)', () => {
+        expect(getDaysInMonth(2024, 0)).toBe(31); // December 2023
+      });
+
+      it('should handle month 13 (January of next year)', () => {
+        expect(getDaysInMonth(2024, 13)).toBe(31); // January 2025
+      });
+
+      it('should handle negative months', () => {
+        expect(getDaysInMonth(2024, -1)).toBe(30); // November 2023
+      });
+
+      it('should handle century leap year rules', () => {
+        // Century years divisible by 400 are leap years
+        expect(getDaysInMonth(1600, 2)).toBe(29);
+        expect(getDaysInMonth(2000, 2)).toBe(29);
+        expect(getDaysInMonth(2400, 2)).toBe(29);
+
+        // Century years not divisible by 400 are not leap years
+        expect(getDaysInMonth(1700, 2)).toBe(28);
+        expect(getDaysInMonth(1800, 2)).toBe(28);
+        expect(getDaysInMonth(1900, 2)).toBe(28);
+        expect(getDaysInMonth(2100, 2)).toBe(28);
+      });
+    });
+
+    describe('time precision edge cases', () => {
+      it('should handle microsecond precision in endOfUTCDay', () => {
+        const date = new Date('2024-01-15T12:00:00.000Z');
+        const endOfDay = endOfUTCDay(date);
+        expect(endOfDay.getUTCMilliseconds()).toBe(999);
+        expect(endOfDay.toISOString()).toBe('2024-01-15T23:59:59.999Z');
+      });
+
+      it('should preserve time component when adding days', () => {
+        const dateWithTime = new Date('2024-01-15T13:45:30.123Z');
+        const result = addUTCDays(dateWithTime, 5);
+        expect(result.toISOString()).toBe('2024-01-20T13:45:30.123Z');
+      });
+
+      it('should handle dates at exact midnight', () => {
+        const midnight = new Date('2024-01-15T00:00:00.000Z');
+        expect(startOfUTCDay(midnight).getTime()).toBe(midnight.getTime());
+
+        const almostMidnight = new Date('2024-01-15T23:59:59.999Z');
+        expect(endOfUTCDay(almostMidnight).getTime()).toBe(almostMidnight.getTime());
+      });
+    });
+
+    describe('parseDate timezone edge cases', () => {
+      it('should handle ISO strings with timezone offsets', () => {
+        const result = parseDate('2024-01-15T12:00:00+05:00');
+        expect(result.toISOString()).toBe('2024-01-15T07:00:00.000Z');
+      });
+
+      it('should handle partial ISO strings', () => {
+        const dateOnly = parseDate('2024-01-15');
+        const withTime = parseDate('2024-01-15T12:00');
+        const withSeconds = parseDate('2024-01-15T12:00:00');
+
+        expect(isValidDate(dateOnly)).toBe(true);
+        expect(isValidDate(withTime)).toBe(true);
+        expect(isValidDate(withSeconds)).toBe(true);
+      });
+    });
+
+    describe('floating point arithmetic edge cases', () => {
+      it('should handle adding 0 days', () => {
+        const date = new Date('2024-01-15T12:30:45.678Z');
+        const result = addUTCDays(date, 0);
+        expect(result.getTime()).toBe(date.getTime());
+        expect(result).not.toBe(date); // Should return new instance
+      });
+
+      it('should handle fractional days (should truncate)', () => {
+        const date = new Date('2024-01-15T00:00:00Z');
+        const result1 = addUTCDays(date, 1.5);
+        const result2 = addUTCDays(date, 1.9);
+        const result3 = addUTCDays(date, 1.1);
+
+        // All should add exactly 1 day since setUTCDate truncates
+        expect(result1.toISOString()).toBe('2024-01-16T00:00:00.000Z');
+        expect(result2.toISOString()).toBe('2024-01-16T00:00:00.000Z');
+        expect(result3.toISOString()).toBe('2024-01-16T00:00:00.000Z');
+      });
+    });
+
+    describe('parseDateInput with Date object edge cases', () => {
+      it('should not modify the original Date object', () => {
+        const original = new Date('2024-01-15T12:00:00Z');
+        const originalTime = original.getTime();
+        const result = parseDateInput(original);
+
+        expect(result).toBe(original); // Same reference
+        expect(original.getTime()).toBe(originalTime); // Unchanged
+      });
+
+      it('should handle Invalid Date objects', () => {
+        const invalidDate = new Date('invalid');
+        const result = parseDateInput(invalidDate);
+        expect(result).toBe(invalidDate);
+        expect(isNaN(result.getTime())).toBe(true);
+      });
+    });
+  });
 });
