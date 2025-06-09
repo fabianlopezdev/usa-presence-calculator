@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-import { TripSchema } from '@schemas/trip';
-import { TripDurationOptionsSchema } from '@schemas/calculation-helpers';
+import { DATE_VALIDATION, TRIP_VALIDATION } from '@constants/validation-messages';
 import { 
   DateRangeError,
   err,
@@ -9,6 +8,8 @@ import {
   Result,
   TripValidationError
 } from '@errors/index';
+import { TripDurationOptionsSchema } from '@schemas/calculation-helpers';
+import { TripSchema } from '@schemas/trip';
 
 import {
   calculateTripDaysInPeriod,
@@ -29,8 +30,8 @@ const TripDurationInputSchema = z.object({
  */
 const TripDaysInPeriodInputSchema = z.object({
   trip: TripSchema,
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
   options: TripDurationOptionsSchema.optional(),
 });
 
@@ -56,7 +57,7 @@ export function safeCalculateTripDuration(
     
     if (!parseResult.success) {
       return err(new TripValidationError(
-        'Invalid input for trip duration calculation',
+        TRIP_VALIDATION.INVALID_DURATION,
         parseResult.error.format()
       ));
     }
@@ -75,7 +76,7 @@ export function safeCalculateTripDuration(
       }
       return err(new TripValidationError(error.message));
     }
-    return err(new TripValidationError('Unknown error during trip duration calculation'));
+    return err(new TripValidationError(TRIP_VALIDATION.UNKNOWN_ERROR));
   }
 }
 
@@ -99,7 +100,7 @@ export function safeCalculateTripDaysInPeriod(
     
     if (!parseResult.success) {
       return err(new TripValidationError(
-        'Invalid input for trip days in period calculation',
+        TRIP_VALIDATION.INVALID_RANGE,
         parseResult.error.format()
       ));
     }
@@ -120,7 +121,7 @@ export function safeCalculateTripDaysInPeriod(
       }
       return err(new TripValidationError(error.message));
     }
-    return err(new TripValidationError('Unknown error during trip days calculation'));
+    return err(new TripValidationError(TRIP_VALIDATION.UNKNOWN_ERROR));
   }
 }
 
@@ -142,7 +143,7 @@ export function safeCalculateTripDaysInYear(
     
     if (!parseResult.success) {
       return err(new TripValidationError(
-        'Invalid input for trip days in year calculation',
+        TRIP_VALIDATION.INVALID_RANGE,
         parseResult.error.format()
       ));
     }
@@ -162,6 +163,6 @@ export function safeCalculateTripDaysInYear(
       }
       return err(new TripValidationError(error.message));
     }
-    return err(new TripValidationError('Unknown error during trip year calculation'));
+    return err(new TripValidationError(TRIP_VALIDATION.UNKNOWN_ERROR));
   }
 }
