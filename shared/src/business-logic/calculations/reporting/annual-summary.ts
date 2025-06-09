@@ -3,12 +3,13 @@ import { Trip } from '@schemas/trip';
 
 // Internal dependencies - Business Logic
 import {
-  calculateTripDaysAbroadExcludingTravelDays,
   formatDateRange,
   getActualValidTrips,
-  parseTripDates,
 } from '@business-logic/calculations/travel-analytics/helpers';
 import { determineTravelTrend } from '@business-logic/calculations/travel-risk/helpers';
+
+// Internal dependencies - Utilities
+import { calculateTripDuration } from '@utils/trip-calculations';
 
 // Internal dependencies - Constants
 import { ANNUAL_SUMMARY_CONFIG, DEFAULT_VALUES } from '@constants/index';
@@ -27,10 +28,8 @@ export function calculateYearSummaryData(yearTrips: Trip[]): {
   const countryDays = new Map<string, number>();
 
   for (const trip of yearTrips) {
-    const dates = parseTripDates(trip);
-    if (!dates) continue;
-
-    const duration = calculateTripDaysAbroadExcludingTravelDays(dates.departure, dates.returnDate);
+    const duration = calculateTripDuration(trip);
+    if (duration < 0) continue;
 
     totalDaysAbroad += duration;
 

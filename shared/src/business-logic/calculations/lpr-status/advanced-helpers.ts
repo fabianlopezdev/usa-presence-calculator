@@ -26,6 +26,7 @@ import {
 // None needed
 
 // Internal dependencies - Utilities (alphabetical)
+import { calculateTripDuration } from '@utils/trip-calculations';
 import { parseUTCDate } from '@utils/utc-date-helpers';
 
 /**
@@ -39,11 +40,8 @@ export function calculateRebuttablePresumption(
   let daysSinceLastReturn = 0;
 
   trips.forEach((trip) => {
-    const departure = parseUTCDate(trip.departureDate);
     const returnDate = parseUTCDate(trip.returnDate);
-    // USCIS rule: departure and return days count as days IN the USA
-    const totalDays = differenceInDays(returnDate, departure);
-    const daysAbroad = Math.max(0, totalDays - 1);
+    const daysAbroad = calculateTripDuration(trip);
 
     if (daysAbroad > maxDaysAbroad) {
       maxDaysAbroad = daysAbroad;

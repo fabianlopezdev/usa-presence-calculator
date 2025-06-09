@@ -25,6 +25,7 @@ import { calculateAnniversaryDate } from '@business-logic/calculations/travel-an
 import { EARLY_FILING_WINDOW_DAYS } from '@constants/index';
 
 // Internal dependencies - Utilities
+import { calculateTripDuration } from '@utils/trip-calculations';
 import { formatUTCDate, parseUTCDate, subUTCDays } from '@utils/utc-date-helpers';
 
 // Export functions in alphabetical order
@@ -157,12 +158,8 @@ export function checkContinuousResidence(trips: Trip[]): ContinuousResidenceWarn
   const warnings: ContinuousResidenceWarningSimple[] = [];
 
   for (const trip of actualTrips) {
-    const departureDate = parseUTCDate(trip.departureDate);
-    const returnDate = parseUTCDate(trip.returnDate);
-
-    // USCIS uses the same rule for continuous residence as physical presence:
-    // departure and return days count as days present in the USA
-    const daysAbroad = differenceInDays(returnDate, departureDate) - 1;
+    // Calculate days abroad using USCIS rules
+    const daysAbroad = calculateTripDuration(trip);
 
     if (isNaN(daysAbroad) || daysAbroad < 0) {
       continue;

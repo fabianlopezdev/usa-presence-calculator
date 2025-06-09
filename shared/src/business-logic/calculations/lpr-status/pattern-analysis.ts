@@ -3,6 +3,7 @@ import { differenceInDays, isAfter, isBefore } from 'date-fns';
 import { PatternOfNonResidence } from '@schemas/lpr-status';
 import { Trip } from '@schemas/trip';
 
+import { calculateTripDuration } from '@utils/trip-calculations';
 import { parseUTCDate } from '@utils/utc-date-helpers';
 
 /**
@@ -78,7 +79,7 @@ function calculateTripStatistics(
 
     // Include trips that are within or overlap with the analysis period
     if (isAfter(returnDate, startDate) && isBefore(departure, endDate)) {
-      const daysAbroad = Math.max(0, differenceInDays(returnDate, departure) - 1);
+      const daysAbroad = calculateTripDuration(trip);
       totalDaysAbroad += daysAbroad;
       numberOfTrips++;
 

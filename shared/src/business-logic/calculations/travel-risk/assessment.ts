@@ -1,5 +1,5 @@
 // External dependencies (alphabetical)
-import { differenceInDays } from 'date-fns';
+// None needed
 
 // Internal dependencies - Schemas & Types (alphabetical)
 import { ComprehensiveRiskAssessment, ReentryPermitInfo } from '@schemas/lpr-status';
@@ -16,16 +16,13 @@ import {
 } from '@constants/index';
 
 // Internal dependencies - Utilities (alphabetical)
-import { parseUTCDate } from '@utils/utc-date-helpers';
+import { calculateTripDuration } from '@utils/trip-calculations';
 
 export function assessTripRiskForAllLegalThresholds(
   trip: Trip,
   reentryPermitInfo?: ReentryPermitInfo,
 ): ComprehensiveRiskAssessment {
-  const departureDate = parseUTCDate(trip.departureDate);
-  const returnDate = parseUTCDate(trip.returnDate);
-  // USCIS rule: departure and return days count as days IN the USA
-  const daysAbroad = Math.max(0, differenceInDays(returnDate, departureDate) - 1);
+  const daysAbroad = calculateTripDuration(trip);
 
   const result = initializeAssessmentResult(daysAbroad);
 

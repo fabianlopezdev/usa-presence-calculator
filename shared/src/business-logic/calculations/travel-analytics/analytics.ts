@@ -17,13 +17,11 @@ import { calculateSafeTravelBudget } from '@business-logic/calculations/travel-a
 import {
   calculateDaysAbroadInYear,
   calculateTotalInclusiveDays,
-  calculateTripDaysAbroadExcludingTravelDays,
   getActualValidTrips,
   getDefaultCountryData,
   getRequiredDays,
   getYearBoundaries,
   isValidTripForRiskAssessment,
-  parseTripDates,
   updateCountryData,
 } from '@business-logic/calculations/travel-analytics/helpers';
 import {
@@ -37,6 +35,7 @@ import {
 import { DEFAULT_VALUES, PROJECTION_DEFAULTS, TIME_PERIODS } from '@constants/index';
 
 // Internal dependencies - Utilities
+import { calculateTripDuration } from '@utils/trip-calculations';
 import { parseUTCDate, formatUTCDate, getUTCYear } from '@utils/utc-date-helpers';
 
 // Export functions in alphabetical order
@@ -64,13 +63,14 @@ export function assessUpcomingTripRisk(
   const futureTrips = upcomingTrips.filter(isValidTripForRiskAssessment);
 
   for (const trip of futureTrips) {
-    const dates = parseTripDates(trip);
-    if (!dates) continue;
+    const tripDays = calculateTripDuration(trip);
+    if (tripDays < 0) continue;
 
-    const tripDays = calculateTripDaysAbroadExcludingTravelDays(dates.departure, dates.returnDate);
     cumulativeDaysAbroad += tripDays;
 
-    const totalTripDays = calculateTotalInclusiveDays(dates.departure, dates.returnDate);
+    const departureDate = parseUTCDate(trip.departureDate);
+    const returnDate = parseUTCDate(trip.returnDate);
+    const totalTripDays = calculateTotalInclusiveDays(departureDate, returnDate);
     const { riskLevel, reason } = assessTravelRisk(
       totalTripDays,
       cumulativeDaysAbroad,
@@ -94,17 +94,13 @@ export function calculateCountryStatistics(trips: Trip[]): CountryStatistics[] {
   const actualTrips = getActualValidTrips(trips);
 
   for (const trip of actualTrips) {
-    const dates = parseTripDates(trip);
-    if (!dates) continue;
-
-    const daysAbroad = calculateTripDaysAbroadExcludingTravelDays(
-      dates.departure,
-      dates.returnDate,
-    );
+    const daysAbroad = calculateTripDuration(trip);
+    if (daysAbroad < 0) continue;
 
     const country = trip.location || DEFAULT_VALUES.UNKNOWN_LOCATION;
     const existing = countryMap.get(country) || getDefaultCountryData();
-    countryMap.set(country, updateCountryData(existing, daysAbroad, dates.returnDate));
+    const returnDate = parseUTCDate(trip.returnDate);
+    countryMap.set(country, updateCountryData(existing, daysAbroad, returnDate));
   }
 
   const statistics: CountryStatistics[] = [];

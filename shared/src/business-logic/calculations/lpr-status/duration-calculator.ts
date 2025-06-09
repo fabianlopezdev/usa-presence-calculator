@@ -1,5 +1,5 @@
 // External dependencies (alphabetical)
-import { differenceInDays, isAfter } from 'date-fns';
+import { isAfter } from 'date-fns';
 
 // Internal dependencies - Schemas & Types (alphabetical)
 import { MaximumTripDurationResult, ReentryPermitInfo } from '@schemas/lpr-status';
@@ -17,6 +17,7 @@ import {
 } from '@constants/uscis-rules';
 
 // Internal dependencies - Utilities (alphabetical)
+import { calculateTripDuration } from '@utils/trip-calculations';
 import { parseUTCDate } from '@utils/utc-date-helpers';
 
 /**
@@ -89,13 +90,11 @@ function createAlreadyAtRiskResult(result: MaximumTripDurationResult): MaximumTr
 function calculateTotalDaysAbroadInPeriod(trips: Trip[], eligibilityStartDate: Date): number {
   let totalDaysAbroad = 0;
   trips.forEach((trip) => {
-    const departure = parseUTCDate(trip.departureDate);
     const returnDate = parseUTCDate(trip.returnDate);
 
     // Only count trips within eligibility period
     if (isAfter(returnDate, eligibilityStartDate)) {
-      // USCIS rule: departure and return days count as days IN the USA
-      const daysAbroad = Math.max(0, differenceInDays(returnDate, departure) - 1);
+      const daysAbroad = calculateTripDuration(trip);
       totalDaysAbroad += daysAbroad;
     }
   });
