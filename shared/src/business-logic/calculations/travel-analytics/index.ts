@@ -8,3 +8,4 @@ export * from './analytics';
 export * from './helpers';
 export * from './budget-helpers';
 export * from './streak-helpers';
+export * from './safe-analytics';
