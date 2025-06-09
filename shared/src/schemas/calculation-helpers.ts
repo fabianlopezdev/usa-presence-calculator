@@ -6,7 +6,7 @@ export const TripDurationOptionsSchema = z.object({
   includeReturnDay: z.boolean().optional(),
   startBoundary: z.date().optional(),
   endBoundary: z.date().optional(),
-});
+}).strict();
 
 // Schema for trip validation requirements
 export const TripValidationRequirementsSchema = z.object({
@@ -14,7 +14,7 @@ export const TripValidationRequirementsSchema = z.object({
   needsLocation: z.boolean().optional(),
   allowSimulated: z.boolean().optional(),
   checkDates: z.boolean().optional(),
-});
+}).strict();
 
 // Type exports
 export type TripDurationOptions = z.infer<typeof TripDurationOptionsSchema>;
