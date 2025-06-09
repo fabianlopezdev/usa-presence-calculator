@@ -272,10 +272,8 @@ describe('validation', () => {
           if (format === '2024-01-10') {
             expect(isValidTrip(trip)).toBe(true);
           } else {
-            // parseDate might handle some formats, but not guaranteed
-            // This test documents actual behavior
-            const result = isValidTrip(trip);
-            expect(typeof result).toBe('boolean');
+            // All non-ISO formats must be rejected for USCIS compliance
+            expect(isValidTrip(trip)).toBe(false);
           }
         });
       });
@@ -440,7 +438,7 @@ describe('validation', () => {
           expect(isValidTripWithId(trip)).toBe(false);
         });
 
-        // IDs with only whitespace are considered valid (length > 0)
+        // IDs with only whitespace should be rejected
         const whitespaceIds = [
           ' ', // Only spaces
           '\t\n', // Only whitespace
@@ -448,7 +446,7 @@ describe('validation', () => {
 
         whitespaceIds.forEach((id) => {
           const trip = { ...validTrip, id };
-          expect(isValidTripWithId(trip)).toBe(true);
+          expect(isValidTripWithId(trip)).toBe(false);
         });
       });
     });
@@ -474,18 +472,17 @@ describe('validation', () => {
       });
 
       it('should handle edge case location values', () => {
-        const validLocations = [
-          '0', // Numeric string
-          'null', // String "null"
-          'undefined', // String "undefined"
-          '   ', // Only spaces (still has length > 0)
-          '\n\t', // Only whitespace (still has length > 0)
+        const edgeCaseLocations = [
+          { location: '0', valid: true }, // Numeric string
+          { location: 'null', valid: true }, // String "null"
+          { location: 'undefined', valid: true }, // String "undefined"
+          { location: '   ', valid: false }, // Only spaces
+          { location: '\n\t', valid: false }, // Only whitespace
         ];
 
-        validLocations.forEach((location) => {
+        edgeCaseLocations.forEach(({ location, valid }) => {
           const trip = { ...validTrip, location };
-          // All these are valid because they have length > 0
-          expect(validateTripForCalculation(trip, { needsLocation: true })).toBe(true);
+          expect(validateTripForCalculation(trip, { needsLocation: true })).toBe(valid);
         });
 
         // Only empty string is invalid

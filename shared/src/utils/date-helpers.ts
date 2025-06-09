@@ -15,6 +15,19 @@ export { parseISO as parseDate };
 export { formatUTCDate as formatDate } from './utc-date-helpers';
 export { getCurrentUTCDate as getCurrentDate } from './utc-date-helpers';
 
+// Strict date validation for USCIS compliance - only accepts YYYY-MM-DD format
+export function isValidDateFormat(dateString: string): boolean {
+  if (typeof dateString !== 'string') return false;
+
+  // Must match YYYY-MM-DD format exactly
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateRegex.test(dateString)) return false;
+
+  // Verify it's a real calendar date
+  const parsed = parseISO(dateString);
+  return !isNaN(parsed.getTime());
+}
+
 export function addUTCDays(date: Date, days: number): Date {
   const result = new Date(date);
   result.setUTCDate(result.getUTCDate() + days);

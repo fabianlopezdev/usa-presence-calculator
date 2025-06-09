@@ -12,6 +12,7 @@ import {
   parseDateInput,
   getDaysInMonth,
   isLeapYear,
+  isValidDateFormat,
 } from '../date-helpers';
 
 describe('date-helpers', () => {
@@ -336,6 +337,47 @@ describe('date-helpers', () => {
         expect(result).toBe(invalidDate);
         expect(isNaN(result.getTime())).toBe(true);
       });
+    });
+  });
+
+  describe('isValidDateFormat', () => {
+    it('should accept valid YYYY-MM-DD format', () => {
+      expect(isValidDateFormat('2024-01-15')).toBe(true);
+      expect(isValidDateFormat('2024-12-31')).toBe(true);
+      expect(isValidDateFormat('2000-01-01')).toBe(true);
+      expect(isValidDateFormat('9999-12-31')).toBe(true);
+    });
+
+    it('should reject non-YYYY-MM-DD formats', () => {
+      expect(isValidDateFormat('01-15-2024')).toBe(false); // MM-DD-YYYY
+      expect(isValidDateFormat('15.01.2024')).toBe(false); // DD.MM.YYYY
+      expect(isValidDateFormat('2024/01/15')).toBe(false); // Slash separator
+      expect(isValidDateFormat('Jan 15, 2024')).toBe(false); // Named month
+      expect(isValidDateFormat('2024-1-15')).toBe(false); // No padding
+      expect(isValidDateFormat('2024-01-15T00:00:00Z')).toBe(false); // ISO with time
+    });
+
+    it('should reject invalid calendar dates', () => {
+      expect(isValidDateFormat('2024-13-01')).toBe(false); // Invalid month
+      expect(isValidDateFormat('2024-01-32')).toBe(false); // Invalid day
+      expect(isValidDateFormat('2023-02-29')).toBe(false); // Not a leap year
+      expect(isValidDateFormat('2024-00-01')).toBe(false); // Month 0
+      expect(isValidDateFormat('2024-01-00')).toBe(false); // Day 0
+    });
+
+    it('should reject non-string inputs', () => {
+      expect(isValidDateFormat(null as unknown as string)).toBe(false);
+      expect(isValidDateFormat(undefined as unknown as string)).toBe(false);
+      expect(isValidDateFormat(123 as unknown as string)).toBe(false);
+      expect(isValidDateFormat(new Date() as unknown as string)).toBe(false);
+      expect(isValidDateFormat({} as unknown as string)).toBe(false);
+    });
+
+    it('should reject empty or whitespace strings', () => {
+      expect(isValidDateFormat('')).toBe(false);
+      expect(isValidDateFormat(' ')).toBe(false);
+      expect(isValidDateFormat('\n')).toBe(false);
+      expect(isValidDateFormat('\t')).toBe(false);
     });
   });
 });

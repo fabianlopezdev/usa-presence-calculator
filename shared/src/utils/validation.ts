@@ -6,7 +6,7 @@ import { TripValidationRequirements } from '@schemas/calculation-helpers';
 import { Trip } from '@schemas/trip';
 
 // Internal dependencies - Utilities
-import { parseDate } from './date-helpers';
+import { isValidDateFormat, parseDate } from './date-helpers';
 
 // Re-export types for backward compatibility
 export type { TripValidationRequirements } from '@schemas/calculation-helpers';
@@ -55,6 +55,11 @@ export function isValidTrip(trip: unknown): trip is Trip {
 
   if (t.isSimulated) return false;
 
+  // Enforce strict YYYY-MM-DD format for USCIS compliance
+  if (!isValidDateFormat(t.departureDate) || !isValidDateFormat(t.returnDate)) {
+    return false;
+  }
+
   const departure = parseDate(t.departureDate);
   const returnDate = parseDate(t.returnDate);
 
@@ -84,7 +89,7 @@ export function isValidTripWithId(trip: unknown): trip is Trip & { id: string } 
   if (!isValidTrip(trip)) return false;
 
   const t = trip;
-  return typeof t.id === 'string' && t.id.length > 0;
+  return typeof t.id === 'string' && t.id.trim().length > 0;
 }
 
 export function validateTripForCalculation(
@@ -101,6 +106,11 @@ export function validateTripForCalculation(
 function hasValidDates(trip: Trip): boolean {
   if (!trip.departureDate || !trip.returnDate) return false;
 
+  // Enforce strict YYYY-MM-DD format for USCIS compliance
+  if (!isValidDateFormat(trip.departureDate) || !isValidDateFormat(trip.returnDate)) {
+    return false;
+  }
+
   const departure = parseDate(trip.departureDate);
   const returnDate = parseDate(trip.returnDate);
 
@@ -112,12 +122,12 @@ function hasValidDates(trip: Trip): boolean {
 
 function hasValidId(trip: Trip, needsId: boolean): boolean {
   if (!needsId) return true;
-  return typeof trip.id === 'string' && trip.id.length > 0;
+  return typeof trip.id === 'string' && trip.id.trim().length > 0;
 }
 
 function hasValidLocation(trip: Trip, needsLocation: boolean): boolean {
   if (!needsLocation) return true;
-  return typeof trip.location === 'string' && trip.location.length > 0;
+  return typeof trip.location === 'string' && trip.location.trim().length > 0;
 }
 
 function meetsAllRequirements(trip: Trip, requirements: TripValidationRequirements): boolean {
