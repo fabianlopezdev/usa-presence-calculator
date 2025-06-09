@@ -13,6 +13,8 @@ import { RemovalOfConditionsStatus } from '@schemas/compliance';
 
 // Internal dependencies - Constants
 import { REMOVAL_OF_CONDITIONS } from '@constants/uscis-rules';
+import { REMOVAL_CONDITIONS_STATUS } from '@constants/compliance';
+import { ISO_DATE_UTILS } from '@constants/date-time';
 
 /**
  * Determine the current status based on dates and filing status
@@ -23,19 +25,19 @@ function determineCurrentStatus(
   windowEndDate: Date,
   filingStatus?: 'filed' | 'approved',
 ): RemovalOfConditionsStatus['currentStatus'] {
-  if (filingStatus === 'filed') {
-    return 'filed';
+  if (filingStatus === REMOVAL_CONDITIONS_STATUS.FILED) {
+    return REMOVAL_CONDITIONS_STATUS.FILED;
   }
-  if (filingStatus === 'approved') {
-    return 'approved';
+  if (filingStatus === REMOVAL_CONDITIONS_STATUS.APPROVED) {
+    return REMOVAL_CONDITIONS_STATUS.APPROVED;
   }
   if (isAfter(current, windowEndDate)) {
-    return 'overdue';
+    return REMOVAL_CONDITIONS_STATUS.OVERDUE;
   }
   if (isAfter(current, windowStartDate) || current.getTime() === windowStartDate.getTime()) {
-    return 'in_window';
+    return REMOVAL_CONDITIONS_STATUS.IN_WINDOW;
   }
-  return 'not_yet';
+  return REMOVAL_CONDITIONS_STATUS.NOT_YET;
 }
 
 /**
@@ -82,7 +84,10 @@ export function calculateRemovalOfConditionsStatus(
     filingWindowEnd: windowEnd,
     currentStatus,
     daysUntilWindow:
-      currentStatus === 'in_window' || currentStatus === 'overdue' ? null : daysUntilWindow,
+      currentStatus === REMOVAL_CONDITIONS_STATUS.IN_WINDOW ||
+      currentStatus === REMOVAL_CONDITIONS_STATUS.OVERDUE
+        ? null
+        : daysUntilWindow,
     daysUntilDeadline: daysUntilDeadline === 0 ? 0 : daysUntilDeadline,
   };
 }
@@ -139,8 +144,8 @@ export function getFilingWindowDates(greenCardDate: string): {
   const windowStart = addDays(windowEnd, -REMOVAL_OF_CONDITIONS.FILING_WINDOW_DAYS);
 
   return {
-    windowStart: windowStart.toISOString().split('T')[0],
-    windowEnd: windowEnd.toISOString().split('T')[0],
+    windowStart: windowStart.toISOString().split(ISO_DATE_UTILS.TIME_SEPARATOR)[0],
+    windowEnd: windowEnd.toISOString().split(ISO_DATE_UTILS.TIME_SEPARATOR)[0],
   };
 }
 
@@ -150,5 +155,5 @@ export function getFilingWindowDates(greenCardDate: string): {
 export function getRemovalOfConditionsDeadline(greenCardDate: string): string {
   const gcDate = parseISO(greenCardDate);
   const deadline = addYears(gcDate, 2);
-  return deadline.toISOString().split('T')[0];
+  return deadline.toISOString().split(ISO_DATE_UTILS.TIME_SEPARATOR)[0];
 }
