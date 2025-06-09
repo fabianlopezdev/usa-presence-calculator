@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { TripSchema } from '@schemas/trip';
+import { ANALYTICS_VALIDATION, DATE_VALIDATION } from '@constants/validation-messages';
 import { 
   DateRangeError,
   err,
@@ -9,6 +9,7 @@ import {
   TripValidationError,
   USCISCalculationError
 } from '@errors/index';
+import { TripSchema } from '@schemas/trip';
 
 import { 
   assessUpcomingTripRisk,
@@ -30,8 +31,8 @@ const UpcomingTripRiskInputSchema = z.object({
   upcomingTrips: z.array(TripSchema),
   currentTotalDaysAbroad: z.number().int().nonnegative(),
   eligibilityCategory: z.enum(['three_year', 'five_year']),
-  greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
+  greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
+  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
 });
 
 /**
@@ -46,8 +47,8 @@ const CountryStatisticsInputSchema = z.object({
  */
 const DaysAbroadByYearInputSchema = z.object({
   trips: z.array(TripSchema),
-  greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
+  greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
+  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
 });
 
 /**
@@ -57,8 +58,8 @@ const ProjectEligibilityDateInputSchema = z.object({
   trips: z.array(TripSchema),
   totalDaysInUSA: z.number().int().nonnegative(),
   eligibilityCategory: z.enum(['three_year', 'five_year']),
-  greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
+  greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
+  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
 });
 
 /**
@@ -83,7 +84,7 @@ export function safeAssessUpcomingTripRisk(
     
     if (!parseResult.success) {
       return err(new TripValidationError(
-        'Invalid input for upcoming trip risk assessment',
+        ANALYTICS_VALIDATION.INVALID_INPUT,
         parseResult.error.format()
       ));
     }
@@ -102,7 +103,7 @@ export function safeAssessUpcomingTripRisk(
     if (error instanceof Error) {
       return err(new USCISCalculationError(error.message));
     }
-    return err(new USCISCalculationError('Unknown error during trip risk assessment'));
+    return err(new USCISCalculationError(ANALYTICS_VALIDATION.UNKNOWN_ERROR));
   }
 }
 
@@ -118,7 +119,7 @@ export function safeCalculateCountryStatistics(
     
     if (!parseResult.success) {
       return err(new TripValidationError(
-        'Invalid input for country statistics calculation',
+        ANALYTICS_VALIDATION.INVALID_INPUT,
         parseResult.error.format()
       ));
     }
@@ -131,7 +132,7 @@ export function safeCalculateCountryStatistics(
     if (error instanceof Error) {
       return err(new USCISCalculationError(error.message));
     }
-    return err(new USCISCalculationError('Unknown error during country statistics calculation'));
+    return err(new USCISCalculationError(ANALYTICS_VALIDATION.UNKNOWN_ERROR));
   }
 }
 
@@ -153,7 +154,7 @@ export function safeCalculateDaysAbroadByYear(
     
     if (!parseResult.success) {
       return err(new TripValidationError(
-        'Invalid input for days abroad by year calculation',
+        ANALYTICS_VALIDATION.INVALID_INPUT,
         parseResult.error.format()
       ));
     }
@@ -173,7 +174,7 @@ export function safeCalculateDaysAbroadByYear(
       }
       return err(new USCISCalculationError(error.message));
     }
-    return err(new USCISCalculationError('Unknown error during days abroad calculation'));
+    return err(new USCISCalculationError(ANALYTICS_VALIDATION.UNKNOWN_ERROR));
   }
 }
 
@@ -199,7 +200,7 @@ export function safeProjectEligibilityDate(
     
     if (!parseResult.success) {
       return err(new TripValidationError(
-        'Invalid input for eligibility date projection',
+        ANALYTICS_VALIDATION.INVALID_INPUT,
         parseResult.error.format()
       ));
     }
@@ -221,6 +222,6 @@ export function safeProjectEligibilityDate(
       }
       return err(new USCISCalculationError(error.message));
     }
-    return err(new USCISCalculationError('Unknown error during eligibility projection'));
+    return err(new USCISCalculationError(ANALYTICS_VALIDATION.UNKNOWN_ERROR));
   }
 }
