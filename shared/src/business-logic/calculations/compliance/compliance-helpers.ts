@@ -173,9 +173,9 @@ export function sortPriorityItems(items: PriorityComplianceItem[]): PriorityComp
 }
 
 /**
- * Get removal of conditions deadline if applicable
+ * Get removal of conditions deadline as UpcomingDeadline object if applicable
  */
-export function getRemovalOfConditionsDeadline(
+export function getRemovalOfConditionsUpcomingDeadline(
   status: RemovalOfConditionsStatus,
 ): UpcomingDeadline | null {
   if (!status.applies || status.daysUntilDeadline === null || status.daysUntilDeadline < 0) {

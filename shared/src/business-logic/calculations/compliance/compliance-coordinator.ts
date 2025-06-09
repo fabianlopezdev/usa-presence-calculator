@@ -33,7 +33,7 @@ import {
 import {
   getGreenCardExpirationDeadline,
   getGreenCardRenewalPriorityItem,
-  getRemovalOfConditionsDeadline,
+  getRemovalOfConditionsUpcomingDeadline,
   getRemovalOfConditionsPriorityItem,
   getSelectiveServiceDeadline,
   getSelectiveServicePriorityItem,
@@ -153,7 +153,7 @@ export function getUpcomingDeadlines(
   const current = parseISO(currentDate);
 
   // Add removal of conditions deadline
-  const removalDeadline = getRemovalOfConditionsDeadline(compliance.removalOfConditions);
+  const removalDeadline = getRemovalOfConditionsUpcomingDeadline(compliance.removalOfConditions);
   if (removalDeadline) deadlines.push(removalDeadline);
 
   // Add green card expiration

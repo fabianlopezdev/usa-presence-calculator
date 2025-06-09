@@ -18,10 +18,11 @@ import {
   isValidTripForResidenceCheck,
   validateAndParseDates,
 } from '@business-logic/calculations/presence/helpers';
+import { getRequiredDays } from '@business-logic/calculations/travel-analytics/helpers';
 import { calculateAnniversaryDate } from '@business-logic/calculations/travel-analytics/helpers';
 
 // Internal dependencies - Constants
-import { EARLY_FILING_WINDOW_DAYS, PHYSICAL_PRESENCE_REQUIREMENTS } from '@constants/index';
+import { EARLY_FILING_WINDOW_DAYS } from '@constants/index';
 
 // Internal dependencies - Utilities
 import { formatUTCDate, parseUTCDate, subUTCDays } from '@utils/utc-date-helpers';
@@ -117,7 +118,7 @@ export function calculatePresenceStatus(
 ): PresenceStatusDetails {
   validateEligibilityCategory(eligibilityCategory);
 
-  const requiredDays = getRequiredDaysForCategory(eligibilityCategory);
+  const requiredDays = getRequiredDays(eligibilityCategory);
 
   // Handle invalid input
   if (typeof totalDaysInUSA !== 'number' || isNaN(totalDaysInUSA)) {
@@ -213,12 +214,6 @@ export function isEligibleForEarlyFiling(
 }
 
 // Helper functions
-function getRequiredDaysForCategory(eligibilityCategory: 'three_year' | 'five_year'): number {
-  return eligibilityCategory === 'five_year'
-    ? PHYSICAL_PRESENCE_REQUIREMENTS.FIVE_YEAR_PATH
-    : PHYSICAL_PRESENCE_REQUIREMENTS.THREE_YEAR_PATH;
-}
-
 function validateEligibilityCategory(eligibilityCategory: unknown): void {
   if (
     !eligibilityCategory ||
