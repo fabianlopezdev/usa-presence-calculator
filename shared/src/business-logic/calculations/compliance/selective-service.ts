@@ -20,6 +20,8 @@ import { SelectiveServiceStatus } from '@schemas/compliance';
 
 // Internal dependencies - Constants
 import { SELECTIVE_SERVICE } from '@constants/uscis-rules';
+import { SELECTIVE_SERVICE_STATUS } from '@constants/compliance';
+import { ISO_DATE_UTILS } from '@constants/date-time';
 
 /**
  * Calculate the selective service registration status
@@ -43,20 +45,22 @@ export function calculateSelectiveServiceStatus(
   let currentStatus: SelectiveServiceStatus['currentStatus'];
 
   if (gender !== SELECTIVE_SERVICE.GENDER_REQUIRED) {
-    currentStatus = 'not_applicable';
+    currentStatus = SELECTIVE_SERVICE_STATUS.NOT_APPLICABLE;
   } else if (age < SELECTIVE_SERVICE.MIN_AGE) {
-    currentStatus = 'not_applicable';
+    currentStatus = SELECTIVE_SERVICE_STATUS.NOT_APPLICABLE;
   } else if (age >= SELECTIVE_SERVICE.MAX_AGE) {
-    currentStatus = 'aged_out';
+    currentStatus = SELECTIVE_SERVICE_STATUS.AGED_OUT;
   } else if (isRegistered) {
-    currentStatus = 'registered';
+    currentStatus = SELECTIVE_SERVICE_STATUS.REGISTERED;
   } else {
-    currentStatus = 'must_register';
+    currentStatus = SELECTIVE_SERVICE_STATUS.MUST_REGISTER;
   }
 
   // Calculate registration deadline only if not aged out
   const registrationDeadline =
-    currentStatus === 'aged_out' ? null : getRegistrationDeadline(birthDate, gender);
+    currentStatus === SELECTIVE_SERVICE_STATUS.AGED_OUT
+      ? null
+      : getRegistrationDeadline(birthDate, gender);
 
   return {
     applies,
@@ -112,7 +116,7 @@ export function getRegistrationDeadline(birthDate: string, gender: string): stri
     SELECTIVE_SERVICE.REGISTRATION_GRACE_PERIOD_DAYS,
   );
 
-  return registrationDeadline.toISOString().split('T')[0];
+  return registrationDeadline.toISOString().split(ISO_DATE_UTILS.TIME_SEPARATOR)[0];
 }
 
 /**
