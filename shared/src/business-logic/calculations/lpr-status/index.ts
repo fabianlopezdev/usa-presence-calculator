@@ -13,3 +13,4 @@ export * from './suggestion-helpers';
 export * from './pattern-analysis';
 export * from './permit-helpers';
 export * from './duration-calculator';
+export * from './safe-calculator';
