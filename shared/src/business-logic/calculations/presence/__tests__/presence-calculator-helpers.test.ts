@@ -5,11 +5,12 @@ import { Trip } from '@schemas/trip';
 import {
   calculateTripDaysAbroad,
   createResidenceWarning,
-  isValidTrip,
-  isValidTripForResidenceCheck,
   validateAndParseDates,
 } from '@business-logic/calculations/presence/helpers';
+
+// Internal dependencies - Utilities
 import { parseUTCDate } from '@utils/utc-date-helpers';
+import { isValidTrip, isValidTripForResidenceCheck } from '@utils/validation';
 
 describe('Presence Calculator Helpers', () => {
   describe('validateAndParseDates', () => {
@@ -74,9 +75,7 @@ describe('Presence Calculator Helpers', () => {
     it('should reject trips with missing dates', () => {
       expect(isValidTrip({ ...validTrip, departureDate: '' })).toBe(false);
       expect(isValidTrip({ ...validTrip, returnDate: '' })).toBe(false);
-      // @ts-expect-error Testing invalid input
       expect(isValidTrip({ ...validTrip, departureDate: null })).toBe(false);
-      // @ts-expect-error Testing invalid input
       expect(isValidTrip({ ...validTrip, returnDate: undefined })).toBe(false);
     });
 
@@ -106,9 +105,7 @@ describe('Presence Calculator Helpers', () => {
     });
 
     it('should reject null/undefined trip', () => {
-      // @ts-expect-error Testing invalid input
       expect(isValidTrip(null)).toBe(false);
-      // @ts-expect-error Testing invalid input
       expect(isValidTrip(undefined)).toBe(false);
     });
   });

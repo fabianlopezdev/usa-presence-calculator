@@ -8,7 +8,7 @@ import { CountryData, TripDateRange, YearBoundaries } from '@schemas/travel-anal
 import { Trip } from '@schemas/trip';
 
 // Internal dependencies - Business Logic
-import { isValidTrip } from '@business-logic/calculations/presence/helpers';
+// None needed
 
 // Internal dependencies - Constants
 import {
@@ -18,6 +18,7 @@ import {
 
 // Internal dependencies - Utilities
 import { parseUTCDate, formatUTCDate } from '@utils/utc-date-helpers';
+import { isValidTrip } from '@utils/validation';
 
 // Export functions in alphabetical order
 export function calculateAnniversaryDate(greenCardDate: Date, yearsRequired: number): Date {
@@ -169,17 +170,8 @@ export function getYearBoundaries(
   return { yearStart, yearEnd };
 }
 
-// Trip ID is required for risk assessments to allow users
-// to identify which specific trip triggered the warning
-export function isValidTripForRiskAssessment(trip: Trip): boolean {
-  if (!trip || !trip.isSimulated) return false;
-  if (!trip.id || !trip.departureDate || !trip.returnDate) return false;
-
-  const departure = parseUTCDate(trip.departureDate);
-  const returnDate = parseUTCDate(trip.returnDate);
-
-  return isValid(departure) && isValid(returnDate) && !isAfter(departure, returnDate);
-}
+// Re-export from validation utility for backward compatibility
+export { isValidTripForRiskAssessment } from '@utils/validation';
 
 export function parseTripDates(trip: Trip): TripDateRange | null {
   const departure = parseUTCDate(trip.departureDate);

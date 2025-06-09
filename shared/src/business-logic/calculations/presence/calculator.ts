@@ -14,8 +14,6 @@ import { Trip } from '@schemas/trip';
 import {
   calculateTripDaysAbroad,
   createResidenceWarning,
-  isValidTrip,
-  isValidTripForResidenceCheck,
   validateAndParseDates,
 } from '@business-logic/calculations/presence/helpers';
 import { getRequiredDays } from '@business-logic/calculations/travel-analytics/helpers';
@@ -27,6 +25,7 @@ import { EARLY_FILING_WINDOW_DAYS } from '@constants/index';
 // Internal dependencies - Utilities
 import { calculateTripDuration } from '@utils/trip-calculations';
 import { formatUTCDate, parseUTCDate, subUTCDays } from '@utils/utc-date-helpers';
+import { isValidTrip, isValidTripForResidenceCheck } from '@utils/validation';
 
 // Export functions in alphabetical order
 export function calculateDaysOfPhysicalPresence(

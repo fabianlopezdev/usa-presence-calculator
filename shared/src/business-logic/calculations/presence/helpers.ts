@@ -82,27 +82,8 @@ export function createResidenceWarning(
   return null;
 }
 
-export function isValidTrip(trip: Trip): boolean {
-  if (!trip || trip.isSimulated) return false;
-  if (!trip.departureDate || !trip.returnDate) return false;
-
-  const departure = parseUTCDate(trip.departureDate);
-  const returnDate = parseUTCDate(trip.returnDate);
-
-  return isValid(departure) && isValid(returnDate) && !isAfter(departure, returnDate);
-}
-
-// Trip ID is required for continuous residence warnings to allow users
-// to identify which specific trip triggered the warning
-export function isValidTripForResidenceCheck(trip: Trip): boolean {
-  if (!trip || trip.isSimulated) return false;
-  if (!trip.id || !trip.departureDate || !trip.returnDate) return false;
-
-  const departure = parseUTCDate(trip.departureDate);
-  const returnDate = parseUTCDate(trip.returnDate);
-
-  return isValid(departure) && isValid(returnDate) && !isAfter(departure, returnDate);
-}
+// Re-export validation functions from utility for backward compatibility
+export { isValidTrip, isValidTripForResidenceCheck } from '@utils/validation';
 
 export function validateAndParseDates(
   greenCardDate: string,
