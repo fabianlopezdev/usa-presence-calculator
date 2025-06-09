@@ -50,7 +50,7 @@ export const TravelRiskDetailsSchema = z.object({
   riskLevel: TravelRiskLevelSchema,
   daysUntilNextThreshold: z.number(),
   message: z.string(),
-});
+}).strict();
 
 // Schema for continuous residence risk
 export const ContinuousResidenceRiskSchema = z.enum(['none', 'approaching', 'at_risk', 'broken']);
@@ -68,7 +68,7 @@ export const LimitingFactorSchema = z.enum([
 export const ReentryPermitInfoSchema = z.object({
   hasReentryPermit: z.boolean(),
   permitExpiryDate: z.string().optional(),
-});
+}).strict();
 
 // Schema for reentry permit protection assessment
 export const ReentryPermitProtectionSchema = z.object({
@@ -76,21 +76,21 @@ export const ReentryPermitProtectionSchema = z.object({
   daysProtected: z.number(),
   daysUntilExpiry: z.number(),
   warnings: z.array(z.string()),
-});
+}).strict();
 
 // Schema for green card risk result
 export const GreenCardRiskResultSchema = z.object({
   riskLevel: ComprehensiveRiskLevelSchema,
   daysUntilNextThreshold: z.number(),
   message: z.string(),
-});
+}).strict();
 
 // Schema for longest trip info
 export const LongestTripInfoSchema = z.object({
   trip: TripSchema,
   daysAbroad: z.number(),
   riskLevel: LPRRiskLevelSchema,
-});
+}).strict();
 
 // Schema for LPR status assessment
 export const LPRStatusAssessmentSchema = z.object({
@@ -100,7 +100,7 @@ export const LPRStatusAssessmentSchema = z.object({
   totalDaysAbroadCurrentYear: z.number(),
   recommendations: z.array(z.string()),
   requiresReentryPermit: z.boolean(),
-});
+}).strict();
 
 // Schema for maximum trip duration result
 export const MaximumTripDurationResultSchema = z.object({
@@ -110,7 +110,7 @@ export const MaximumTripDurationResultSchema = z.object({
   continuousResidenceSafetyDays: z.number(),
   lprStatusSafetyDays: z.number(),
   warnings: z.array(z.string()),
-});
+}).strict();
 
 // Schema for comprehensive risk assessment
 export const ComprehensiveRiskAssessmentSchema = z.object({
@@ -118,18 +118,18 @@ export const ComprehensiveRiskAssessmentSchema = z.object({
     daysDeductedFromEligibility: z.number(),
     affectsNaturalizationTimeline: z.boolean(),
     message: z.string(),
-  }),
+  }).strict(),
   continuousResidenceImpact: z.object({
     breaksRequirement: z.boolean(),
     resetsEligibilityClock: z.boolean(),
     daysUntilBreak: z.number(),
     message: z.string(),
-  }),
+  }).strict(),
   lprStatusRisk: z.object({
     riskLevel: TravelRiskLevelSchema,
     daysUntilNextThreshold: z.number(),
     message: z.string(),
-  }),
+  }).strict(),
   overallRiskLevel: TravelRiskLevelSchema,
   continuousResidenceRisk: ContinuousResidenceRiskSchema,
   daysAbroad: z.number(),
@@ -139,8 +139,8 @@ export const ComprehensiveRiskAssessmentSchema = z.object({
     daysAbroad: z.number(),
     hasReentryPermit: z.boolean(),
     assessmentDate: z.string(),
-  }),
-});
+  }).strict(),
+}).strict();
 
 // Schema for permit protected thresholds
 export const PermitProtectedThresholdsSchema = z.object({
