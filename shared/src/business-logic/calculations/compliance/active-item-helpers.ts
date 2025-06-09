@@ -17,6 +17,15 @@ import {
   determineTaxFilingUrgency,
 } from '@business-logic/calculations/compliance/compliance-helpers';
 
+// Internal dependencies - Constants
+import {
+  REMOVAL_CONDITIONS_STATUS,
+  GREEN_CARD_RENEWAL_STATUS,
+  COMPLIANCE_ITEM_TYPE,
+  COMPLIANCE_ACTIVE_ITEM_MESSAGES,
+} from '@constants/compliance';
+import { PRIORITY_LEVEL, TAX_FILING_THRESHOLDS_DAYS } from '@constants/priority-urgency';
+
 /**
  * Get active removal of conditions item
  */
@@ -25,15 +34,19 @@ export function getActiveRemovalOfConditionsItem(
 ): ActiveComplianceItem | null {
   if (
     !status.applies ||
-    (status.currentStatus !== 'in_window' && status.currentStatus !== 'overdue')
+    (status.currentStatus !== REMOVAL_CONDITIONS_STATUS.IN_WINDOW &&
+      status.currentStatus !== REMOVAL_CONDITIONS_STATUS.OVERDUE)
   ) {
     return null;
   }
 
   return {
-    type: 'removal_of_conditions',
-    description: 'File Form I-751 to remove conditions on residence',
-    urgency: status.currentStatus === 'overdue' ? 'critical' : 'high',
+    type: COMPLIANCE_ITEM_TYPE.REMOVAL_CONDITIONS,
+    description: COMPLIANCE_ACTIVE_ITEM_MESSAGES.REMOVAL_CONDITIONS,
+    urgency:
+      status.currentStatus === REMOVAL_CONDITIONS_STATUS.OVERDUE
+        ? PRIORITY_LEVEL.CRITICAL
+        : PRIORITY_LEVEL.HIGH,
   };
 }
 
@@ -44,16 +57,16 @@ export function getActiveGreenCardRenewalItem(
   status: GreenCardRenewalStatus,
 ): ActiveComplianceItem | null {
   if (
-    status.currentStatus !== 'renewal_recommended' &&
-    status.currentStatus !== 'renewal_urgent' &&
-    status.currentStatus !== 'expired'
+    status.currentStatus !== GREEN_CARD_RENEWAL_STATUS.RENEWAL_RECOMMENDED &&
+    status.currentStatus !== GREEN_CARD_RENEWAL_STATUS.RENEWAL_URGENT &&
+    status.currentStatus !== GREEN_CARD_RENEWAL_STATUS.EXPIRED
   ) {
     return null;
   }
 
   return {
-    type: 'green_card_renewal',
-    description: 'Renew your green card',
+    type: COMPLIANCE_ITEM_TYPE.GREEN_CARD_RENEWAL,
+    description: COMPLIANCE_ACTIVE_ITEM_MESSAGES.GREEN_CARD_RENEWAL,
     urgency: determineGreenCardRenewalUrgency(status.currentStatus),
   };
 }
@@ -69,9 +82,9 @@ export function getActiveSelectiveServiceItem(
   }
 
   return {
-    type: 'selective_service',
-    description: 'Register with Selective Service System',
-    urgency: 'high',
+    type: COMPLIANCE_ITEM_TYPE.SELECTIVE_SERVICE,
+    description: COMPLIANCE_ACTIVE_ITEM_MESSAGES.SELECTIVE_SERVICE,
+    urgency: PRIORITY_LEVEL.HIGH,
   };
 }
 
@@ -79,13 +92,16 @@ export function getActiveSelectiveServiceItem(
  * Get active tax filing item
  */
 export function getActiveTaxFilingItem(status: TaxReminderStatus): ActiveComplianceItem | null {
-  if (status.reminderDismissed || status.daysUntilDeadline > 45) {
+  if (
+    status.reminderDismissed ||
+    status.daysUntilDeadline > TAX_FILING_THRESHOLDS_DAYS.PRIORITY_ITEM_THRESHOLD
+  ) {
     return null;
   }
 
   return {
-    type: 'tax_filing',
-    description: 'File your US tax return',
+    type: COMPLIANCE_ITEM_TYPE.TAX_FILING,
+    description: COMPLIANCE_ACTIVE_ITEM_MESSAGES.TAX_FILING,
     urgency: determineTaxFilingUrgency(status.daysUntilDeadline, status.isAbroadDuringTaxSeason),
   };
 }
