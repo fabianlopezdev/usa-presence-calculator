@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { TripSchema } from '@schemas/trip';
 import { 
   ComplianceCalculationError,
   DateRangeError,
@@ -26,15 +27,19 @@ import type {
  * Input validation schema for compliance calculations
  */
 const ComplianceCalculationInputSchema = z.object({
-  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
   greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+  greenCardExpirationDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
   birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
   gender: z.enum(['male', 'female', 'other']).optional(),
-  isConditionalResident: z.boolean().optional(),
+  isConditionalResident: z.boolean(),
+  isSelectiveServiceRegistered: z.boolean().optional(),
+  taxReminderDismissed: z.boolean().optional(),
+  trips: z.array(TripSchema),
   hadRemovalOfConditions: z.boolean().optional(),
   renewalFilingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
   lastTaxFilingYear: z.number().int().min(2000).max(2100).optional(),
-});
+}).strict();
 
 /**
  * Safe wrapper for calculateComprehensiveCompliance
@@ -68,15 +73,16 @@ export function safeCalculateComprehensiveCompliance(
  * Validates inputs and handles errors gracefully
  */
 export function safeGetActiveComplianceItems(
-  complianceStatus: unknown
-): Result<ActiveComplianceItem[], ComplianceCalculationError> {
+  params: unknown
+): Result<ActiveComplianceItem[], DateRangeError | ComplianceCalculationError> {
   try {
-    // Validate that complianceStatus has the expected structure
-    if (!complianceStatus || typeof complianceStatus !== 'object') {
-      return err(new ComplianceCalculationError('Invalid compliance status object'));
+    // First calculate comprehensive compliance status
+    const statusResult = safeCalculateComprehensiveCompliance(params);
+    if (!statusResult.success) {
+      return statusResult;
     }
 
-    const result = getActiveComplianceItems(complianceStatus as ComprehensiveComplianceStatus);
+    const result = getActiveComplianceItems(statusResult.data);
     return ok(result);
   } catch (error) {
     if (error instanceof Error) {
@@ -91,15 +97,16 @@ export function safeGetActiveComplianceItems(
  * Validates inputs and handles errors gracefully
  */
 export function safeGetPriorityComplianceItems(
-  complianceStatus: unknown
-): Result<PriorityComplianceItem[], ComplianceCalculationError> {
+  params: unknown
+): Result<PriorityComplianceItem[], DateRangeError | ComplianceCalculationError> {
   try {
-    // Validate that complianceStatus has the expected structure
-    if (!complianceStatus || typeof complianceStatus !== 'object') {
-      return err(new ComplianceCalculationError('Invalid compliance status object'));
+    // First calculate comprehensive compliance status
+    const statusResult = safeCalculateComprehensiveCompliance(params);
+    if (!statusResult.success) {
+      return statusResult;
     }
 
-    const result = getPriorityComplianceItems(complianceStatus as ComprehensiveComplianceStatus);
+    const result = getPriorityComplianceItems(statusResult.data);
     return ok(result);
   } catch (error) {
     if (error instanceof Error) {
@@ -114,13 +121,14 @@ export function safeGetPriorityComplianceItems(
  * Validates inputs and handles errors gracefully
  */
 export function safeGetUpcomingDeadlines(
-  complianceStatus: unknown,
+  params: unknown,
   daysAhead: unknown = 90
-): Result<UpcomingDeadline[], ComplianceCalculationError> {
+): Result<UpcomingDeadline[], DateRangeError | ComplianceCalculationError> {
   try {
-    // Validate inputs
-    if (!complianceStatus || typeof complianceStatus !== 'object') {
-      return err(new ComplianceCalculationError('Invalid compliance status object'));
+    // First calculate comprehensive compliance status
+    const statusResult = safeCalculateComprehensiveCompliance(params);
+    if (!statusResult.success) {
+      return statusResult;
     }
 
     const daysAheadNumber = Number(daysAhead);
@@ -128,11 +136,18 @@ export function safeGetUpcomingDeadlines(
       return err(new ComplianceCalculationError('Invalid daysAhead parameter'));
     }
 
-    const result = getUpcomingDeadlines(
-      complianceStatus as ComprehensiveComplianceStatus,
-      daysAheadNumber
+    // Get all deadlines
+    const allDeadlines = getUpcomingDeadlines(
+      statusResult.data,
+      new Date().toISOString()
     );
-    return ok(result);
+    
+    // Filter by days ahead
+    const filteredDeadlines = allDeadlines.filter(
+      deadline => deadline.daysRemaining <= daysAheadNumber
+    );
+    
+    return ok(filteredDeadlines);
   } catch (error) {
     if (error instanceof Error) {
       return err(new ComplianceCalculationError(error.message));
@@ -164,19 +179,19 @@ export function safeGetFullComplianceReport(
   const status = statusResult.data;
 
   // Get active items
-  const activeItemsResult = safeGetActiveComplianceItems(status);
+  const activeItemsResult = safeGetActiveComplianceItems(params);
   if (!activeItemsResult.success) {
     return activeItemsResult;
   }
 
   // Get priority items
-  const priorityItemsResult = safeGetPriorityComplianceItems(status);
+  const priorityItemsResult = safeGetPriorityComplianceItems(params);
   if (!priorityItemsResult.success) {
     return priorityItemsResult;
   }
 
   // Get upcoming deadlines
-  const deadlinesResult = safeGetUpcomingDeadlines(status, daysAhead);
+  const deadlinesResult = safeGetUpcomingDeadlines(params, daysAhead);
   if (!deadlinesResult.success) {
     return deadlinesResult;
   }

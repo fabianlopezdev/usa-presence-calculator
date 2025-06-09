@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { TripSchema } from '@schemas/trip';
+import { REMOVAL_CONDITIONS_STATUS } from '@constants/compliance';
 import { 
   ComplianceCalculationError,
   DateRangeError,
@@ -86,6 +87,19 @@ export function safeCalculateRemovalOfConditionsStatus(
       validatedData.currentDate
     );
 
+    if (!result) {
+      // Non-conditional residents return null, which is valid
+      return ok({
+        applies: false,
+        greenCardDate: validatedData.greenCardDate,
+        filingWindowStart: '',
+        filingWindowEnd: '',
+        currentStatus: REMOVAL_CONDITIONS_STATUS.NOT_YET,
+        daysUntilWindow: null,
+        daysUntilDeadline: null,
+      });
+    }
+
     return ok(result);
   } catch (error) {
     if (error instanceof Error) {
@@ -158,10 +172,10 @@ export function safeCalculateSelectiveServiceStatus(
 
     const validatedData = parseResult.data;
     const result = calculateSelectiveServiceStatus(
-      validatedData.birthDate,
-      validatedData.gender,
-      validatedData.isSelectiveServiceRegistered,
-      validatedData.currentDate
+      validatedData.birthDate || '',
+      validatedData.gender || 'other',
+      validatedData.isSelectiveServiceRegistered || false,
+      validatedData.currentDate || new Date().toISOString()
     );
 
     return ok(result);
@@ -199,7 +213,7 @@ export function safeCalculateTaxReminderStatus(
     const validatedData = parseResult.data;
     const result = calculateTaxReminderStatus(
       validatedData.trips,
-      validatedData.isDismissed,
+      validatedData.isDismissed || false,
       validatedData.currentDate
     );
 

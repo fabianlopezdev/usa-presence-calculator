@@ -163,7 +163,7 @@
 
 ## Phase 3: Medium Priority Enhancements
 
-### 3.1 Add Zod Validation at Function Boundaries
+### 3.1 Add Zod Validation at Function Boundaries - COMPLETE ✓
 - [x] Identify all exported functions from business-logic modules
   - [x] Presence calculation exports (5 functions - all have safe wrappers)
   - [x] LPR status calculation exports (3 main functions - all have safe wrappers)
@@ -179,11 +179,19 @@
   - [x] Travel analytics
   - [x] Travel risk assessment
   - [x] Utility functions
-- [x] Tests pass
+- [x] Tests pass (727 tests)
 - [x] Checklist verified
 
-### 3.2 Improve Test Coverage for Edge Cases
-- [ ] Analyze coverage report
+### 3.2 Improve Test Coverage for Edge Cases - IN PROGRESS
+- [x] Analyze coverage report (85.91% line coverage)
+- [x] Create comprehensive test files for safe wrapper functions
+  - [x] Presence safe wrapper tests (safe-calculator.test.ts)
+  - [x] Compliance safe wrapper tests (safe-compliance-functions.test.ts)
+  - [x] Compliance coordinator safe wrapper tests (safe-compliance-coordinator.test.ts)
+  - [x] Travel analytics safe wrapper tests (safe-analytics.test.ts)
+  - [x] Travel risk safe wrapper tests (safe-assessment.test.ts)
+  - [x] Utility safe wrapper tests (safe-trip-calculations.test.ts)
+- [ ] Fix failing tests and TypeScript errors
 - [ ] Add malicious input tests
 - [ ] Add boundary value tests
 - [ ] Add performance tests

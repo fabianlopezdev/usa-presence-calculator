@@ -107,8 +107,8 @@ export function safeCalculateTripDaysInPeriod(
     const validatedData = parseResult.data;
     const result = calculateTripDaysInPeriod(
       validatedData.trip,
-      validatedData.startDate,
-      validatedData.endDate,
+      new Date(validatedData.startDate),
+      new Date(validatedData.endDate),
       validatedData.options
     );
 

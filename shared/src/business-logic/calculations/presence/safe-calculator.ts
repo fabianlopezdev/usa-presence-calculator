@@ -23,7 +23,7 @@ import type {
   EligibilityDates,
   PresenceCalculationResult,
   PresenceStatusDetails,
-} from './calculator';
+} from '@schemas/presence';
 
 /**
  * Input validation schema for presence calculations
@@ -47,8 +47,8 @@ const EligibilityDatesInputSchema = z.object({
  * Input validation schema for presence status
  */
 const PresenceStatusInputSchema = z.object({
-  actualDays: z.number().int().nonnegative(),
-  requiredDays: z.number().int().positive(),
+  totalDaysInUSA: z.number().int().nonnegative(),
+  eligibilityCategory: z.enum(['three_year', 'five_year']),
 });
 
 /**
@@ -90,7 +90,7 @@ export function safeCalculateDaysOfPhysicalPresence(
     const result = calculateDaysOfPhysicalPresence(
       validatedData.trips,
       validatedData.startDate,
-      validatedData.endDate
+      validatedData.endDate || new Date().toISOString().split('T')[0]
     );
 
     return ok(result);
@@ -131,8 +131,7 @@ export function safeCalculateEligibilityDates(
     const validatedData = parseResult.data;
     const result = calculateEligibilityDates(
       validatedData.greenCardDate,
-      validatedData.eligibilityCategory,
-      validatedData.targetDate
+      validatedData.eligibilityCategory
     );
 
     return ok(result);
@@ -149,11 +148,11 @@ export function safeCalculateEligibilityDates(
  * Validates inputs and handles errors gracefully
  */
 export function safeCalculatePresenceStatus(
-  actualDays: unknown,
-  requiredDays: unknown
+  totalDaysInUSA: unknown,
+  eligibilityCategory: unknown
 ): Result<PresenceStatusDetails, USCISCalculationError> {
   try {
-    const parseResult = PresenceStatusInputSchema.safeParse({ actualDays, requiredDays });
+    const parseResult = PresenceStatusInputSchema.safeParse({ totalDaysInUSA, eligibilityCategory });
     
     if (!parseResult.success) {
       return err(new USCISCalculationError(
@@ -164,8 +163,8 @@ export function safeCalculatePresenceStatus(
 
     const validatedData = parseResult.data;
     const result = calculatePresenceStatus(
-      validatedData.actualDays,
-      validatedData.requiredDays
+      validatedData.totalDaysInUSA,
+      validatedData.eligibilityCategory
     );
 
     return ok(result);
@@ -233,7 +232,7 @@ export function safeIsEligibleForEarlyFiling(
     const result = isEligibleForEarlyFiling(
       validatedData.greenCardDate,
       validatedData.eligibilityCategory,
-      validatedData.targetDate
+      validatedData.targetDate || new Date().toISOString().split('T')[0]
     );
 
     return ok(result);
@@ -273,13 +272,10 @@ export function safeCalculateComprehensivePresence(
     );
     
     return chainResult(eligibilityResult, (eligibilityDates) => {
-      // Calculate required days based on category
-      const requiredDays = eligibilityCategory === 'three_year' ? 548 : 913;
-      
       // Calculate presence status
       const statusResult = safeCalculatePresenceStatus(
         physicalPresence.totalDaysInUSA,
-        requiredDays
+        eligibilityCategory
       );
       
       return chainResult(statusResult, (presenceStatus) => {
