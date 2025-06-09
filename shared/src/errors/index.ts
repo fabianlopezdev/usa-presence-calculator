@@ -45,7 +45,12 @@ export class USCISValidationError extends USCISError {
 export class DateRangeError extends USCISValidationError {
   constructor(message: string, details?: unknown) {
     super(message, details);
-    this.code = 'DATE_RANGE_ERROR';
+    Object.defineProperty(this, 'code', {
+      value: 'DATE_RANGE_ERROR',
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
   }
 }
 
@@ -55,7 +60,12 @@ export class DateRangeError extends USCISValidationError {
 export class TripValidationError extends USCISValidationError {
   constructor(message: string, details?: unknown) {
     super(message, details);
-    this.code = 'TRIP_VALIDATION_ERROR';
+    Object.defineProperty(this, 'code', {
+      value: 'TRIP_VALIDATION_ERROR',
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
   }
 }
 
@@ -65,7 +75,12 @@ export class TripValidationError extends USCISValidationError {
 export class LPRStatusError extends USCISCalculationError {
   constructor(message: string, details?: unknown) {
     super(message, details);
-    this.code = 'LPR_STATUS_ERROR';
+    Object.defineProperty(this, 'code', {
+      value: 'LPR_STATUS_ERROR',
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
   }
 }
 
@@ -75,7 +90,12 @@ export class LPRStatusError extends USCISCalculationError {
 export class ComplianceCalculationError extends USCISCalculationError {
   constructor(message: string, details?: unknown) {
     super(message, details);
-    this.code = 'COMPLIANCE_ERROR';
+    Object.defineProperty(this, 'code', {
+      value: 'COMPLIANCE_ERROR',
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
   }
 }
 
