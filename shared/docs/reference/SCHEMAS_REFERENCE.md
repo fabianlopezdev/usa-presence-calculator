@@ -6,10 +6,11 @@ This document is the complete reference for ALL Zod schemas and TypeScript types
 
 ### Overall Statistics
 - **Total Schema Files**: 10
-- **Total Zod Schemas**: 89
+- **Total Zod Schemas**: 89 (all using `.strict()` mode)
 - **Total TypeScript Types**: 89 (1:1 mapping with schemas)
 - **Schema Categories**: 8 major categories
 - **Common Validation Patterns**: 7
+- **Security Enhancement**: All schemas use `.strict()` mode to reject unknown properties
 
 ### Schemas by Category
 
@@ -49,7 +50,7 @@ This document is the complete reference for ALL Zod schemas and TypeScript types
 
 #### **TripSchema** *(Complete stored trip)*
 ```typescript
-{
+z.object({
   id: z.string().uuid(),
   userId: z.string().uuid(),
   departureDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -58,10 +59,11 @@ This document is the complete reference for ALL Zod schemas and TypeScript types
   isSimulated: z.boolean(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
-}
+}).strict()  // Rejects any extra properties
 ```
 **Validation**: Return date must be >= departure date
 **Type**: `Trip`
+**Security**: Uses `.strict()` mode - extra properties will be rejected
 
 #### **TripCreateSchema** *(New trip creation)*
 ```typescript
@@ -646,6 +648,12 @@ This document is the complete reference for ALL Zod schemas and TypeScript types
 ---
 
 ## Common Validation Rules
+
+### Security: Strict Mode
+- **All schemas use `.strict()` mode**
+- **Behavior**: Rejects any properties not explicitly defined in the schema
+- **Purpose**: Prevents prototype pollution and injection attacks
+- **Example**: Extra properties in input will cause validation to fail
 
 ### 1. Date Format Validation
 - **Pattern**: `/^\d{4}-\d{2}-\d{2}$/`
