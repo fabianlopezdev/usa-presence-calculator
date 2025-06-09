@@ -13,3 +13,4 @@ export * from './green-card-renewal';
 export * from './selective-service';
 export * from './tax-reminders';
 export * from './compliance-coordinator';
+export * from './safe-compliance-coordinator';
