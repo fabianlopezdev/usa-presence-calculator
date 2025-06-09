@@ -18,6 +18,9 @@ import { GreenCardRenewalStatus } from '@schemas/compliance';
 
 // Internal dependencies - Constants
 import { DOCUMENT_RENEWAL } from '@constants/uscis-rules';
+import { GREEN_CARD_RENEWAL_STATUS } from '@constants/compliance';
+import { PRIORITY_LEVEL, GREEN_CARD_RENEWAL_THRESHOLDS_MONTHS } from '@constants/priority-urgency';
+import { ISO_DATE_UTILS } from '@constants/date-time';
 
 /**
  * Calculate the green card renewal status
@@ -49,15 +52,15 @@ export function calculateGreenCardRenewalStatus(
   let currentStatus: GreenCardRenewalStatus['currentStatus'];
 
   if (isAfter(current, expiration)) {
-    currentStatus = 'expired';
+    currentStatus = GREEN_CARD_RENEWAL_STATUS.EXPIRED;
   } else if (monthsUntilExpiration <= 0) {
-    currentStatus = 'renewal_urgent';
-  } else if (monthsUntilExpiration < 2) {
-    currentStatus = 'renewal_urgent';
+    currentStatus = GREEN_CARD_RENEWAL_STATUS.RENEWAL_URGENT;
+  } else if (monthsUntilExpiration < GREEN_CARD_RENEWAL_THRESHOLDS_MONTHS.URGENT_THRESHOLD) {
+    currentStatus = GREEN_CARD_RENEWAL_STATUS.RENEWAL_URGENT;
   } else if (isInWindow) {
-    currentStatus = 'renewal_recommended';
+    currentStatus = GREEN_CARD_RENEWAL_STATUS.RENEWAL_RECOMMENDED;
   } else {
-    currentStatus = 'valid';
+    currentStatus = GREEN_CARD_RENEWAL_STATUS.VALID;
   }
 
   return {
@@ -105,15 +108,15 @@ export function getRenewalUrgency(
   const monthsRemaining = getMonthsUntilExpiration(expirationDate, currentDate);
 
   if (monthsRemaining < 0) {
-    return 'critical'; // Already expired
-  } else if (monthsRemaining < 2) {
-    return 'high';
-  } else if (monthsRemaining < 4) {
-    return 'medium';
-  } else if (monthsRemaining <= 6) {
-    return 'low';
+    return PRIORITY_LEVEL.CRITICAL; // Already expired
+  } else if (monthsRemaining < GREEN_CARD_RENEWAL_THRESHOLDS_MONTHS.URGENT_THRESHOLD) {
+    return PRIORITY_LEVEL.HIGH;
+  } else if (monthsRemaining < GREEN_CARD_RENEWAL_THRESHOLDS_MONTHS.MEDIUM_THRESHOLD) {
+    return PRIORITY_LEVEL.MEDIUM;
+  } else if (monthsRemaining <= GREEN_CARD_RENEWAL_THRESHOLDS_MONTHS.LOW_THRESHOLD) {
+    return PRIORITY_LEVEL.LOW;
   } else {
-    return 'none';
+    return PRIORITY_LEVEL.NONE;
   }
 }
 
@@ -124,5 +127,5 @@ export function getRenewalWindowStartDate(expirationDate: string): string {
   const expiration = parseISO(expirationDate);
   const windowStart = subMonths(expiration, DOCUMENT_RENEWAL.RENEWAL_WINDOW_MONTHS);
 
-  return windowStart.toISOString().split('T')[0];
+  return windowStart.toISOString().split(ISO_DATE_UTILS.TIME_SEPARATOR)[0];
 }
