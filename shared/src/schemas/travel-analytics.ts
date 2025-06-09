@@ -7,7 +7,7 @@ export const countryStatisticsSchema = z.object({
   tripCount: z.number().int().min(1),
   averageDuration: z.number().int().min(0),
   lastVisited: z.string().nullable(), // ISO date string or null
-});
+}).strict();
 
 export type CountryStatistics = z.infer<typeof countryStatisticsSchema>;
 
@@ -16,7 +16,7 @@ export const yearlyDaysAbroadSchema = z.object({
   year: z.number().int().min(1900).max(2100),
   daysAbroad: z.number().int().min(0),
   tripCount: z.number().int().min(0),
-});
+}).strict();
 
 export type YearlyDaysAbroad = z.infer<typeof yearlyDaysAbroadSchema>;
 
@@ -27,7 +27,7 @@ export const travelStreakSchema = z.object({
   endDate: z.string(), // ISO date string
   duration: z.number().int().min(0), // days
   description: z.string(),
-});
+}).strict();
 
 export type TravelStreak = z.infer<typeof travelStreakSchema>;
 
@@ -38,7 +38,7 @@ export const milestoneInfoSchema = z.object({
   targetDate: z.string(), // ISO date string
   currentProgress: z.number().min(0).max(100), // percentage
   description: z.string(),
-});
+}).strict();
 
 export type MilestoneInfo = z.infer<typeof milestoneInfoSchema>;
 
@@ -48,7 +48,7 @@ export const safeTravelBudgetSchema = z.object({
   untilDate: z.string(), // ISO date string
   recommendation: z.string(),
   riskLevel: z.enum(['safe', 'caution', 'warning']),
-});
+}).strict();
 
 export type SafeTravelBudget = z.infer<typeof safeTravelBudgetSchema>;
 
@@ -58,7 +58,7 @@ export const travelProjectionSchema = z.object({
   averageDaysAbroadPerYear: z.number().int().min(0),
   confidenceLevel: z.enum(['high', 'medium', 'low']),
   assumptions: z.array(z.string()),
-});
+}).strict();
 
 export type TravelProjection = z.infer<typeof travelProjectionSchema>;
 
@@ -69,7 +69,7 @@ export const tripRiskAssessmentSchema = z.object({
   impactDescription: z.string(),
   daysUntilRisk: z.number().int().nullable(), // null if no specific threshold
   recommendation: z.string(),
-});
+}).strict();
 
 export type TripRiskAssessment = z.infer<typeof tripRiskAssessmentSchema>;
 
@@ -83,14 +83,14 @@ export const annualTravelSummarySchema = z.object({
       destination: z.string(),
       duration: z.number().int().min(0),
       dates: z.string(), // formatted date range
-    })
+    }).strict()
     .nullable(),
   topDestinations: z
     .array(
       z.object({
         country: z.string(),
         days: z.number().int().min(0),
-      }),
+      }).strict(),
     )
     .max(5), // top 5 destinations
   comparedToLastYear: z
@@ -98,8 +98,8 @@ export const annualTravelSummarySchema = z.object({
       daysChange: z.number().int(), // positive or negative
       tripsChange: z.number().int(), // positive or negative
       trend: z.enum(['more_travel', 'less_travel', 'similar']),
-    })
+    }).strict()
     .nullable(),
-});
+}).strict();
 
 export type AnnualTravelSummary = z.infer<typeof annualTravelSummarySchema>;
