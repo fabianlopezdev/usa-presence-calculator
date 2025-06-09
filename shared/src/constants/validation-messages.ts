@@ -42,6 +42,7 @@ export const LPR_STATUS_VALIDATION = {
   UNKNOWN_ERROR: 'Unknown error during LPR risk assessment',
   UNKNOWN_ERROR_ADVANCED: 'Unknown error during advanced LPR risk assessment',
   UNKNOWN_ERROR_MAX_DURATION: 'Unknown error during maximum trip duration calculation',
+  UNKNOWN_ERROR_GREEN_CARD_RISK: 'Unknown error during green card risk calculation',
 } as const;
 
 // Compliance messages

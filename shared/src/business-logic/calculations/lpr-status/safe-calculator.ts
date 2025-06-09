@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-import { LPRStatusInputSchema } from '@schemas/lpr-status';
-import { TripSchema } from '@schemas/trip';
+import { DATE_VALIDATION, LPR_STATUS_VALIDATION } from '@constants/validation-messages';
 import { 
   err,
   LPRStatusError,
@@ -10,17 +9,19 @@ import {
   TripValidationError,
   USCISCalculationError
 } from '@errors/index';
+import { 
+  GreenCardRiskResult,
+  LPRStatusAssessment,
+  LPRStatusAssessmentAdvanced,
+  LPRStatusInputSchema,
+  MaximumTripDurationResult,
+} from '@schemas/lpr-status';
+import { TripSchema } from '@schemas/trip';
 
 import {
   assessRiskOfLosingPermanentResidentStatus,
   assessRiskOfLosingPermanentResidentStatusAdvanced,
   calculateMaximumTripDurationWithExemptions,
-} from './calculator';
-import type {
-  GreenCardRiskResult,
-  LPRStatusAssessment,
-  LPRStatusAssessmentAdvanced,
-  MaximumTripDurationResult,
 } from './calculator';
 
 /**
@@ -28,7 +29,7 @@ import type {
  */
 const BasicLPRAssessmentInputSchema = z.object({
   trips: z.array(TripSchema),
-  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
+  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
 });
 
 /**
@@ -36,11 +37,11 @@ const BasicLPRAssessmentInputSchema = z.object({
  */
 const MaximumTripDurationInputSchema = z.object({
   trips: z.array(TripSchema),
-  greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+  greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
   eligibilityCategory: z.enum(['three_year', 'five_year']),
   hasReentryPermit: z.boolean().optional(),
-  permitExpiryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
-  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
+  permitExpiryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
+  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
 });
 
 /**
@@ -56,7 +57,7 @@ export function safeAssessRiskOfLosingPermanentResidentStatus(
     
     if (!parseResult.success) {
       return err(new TripValidationError(
-        'Invalid input for LPR risk assessment',
+        LPR_STATUS_VALIDATION.INVALID_INPUT,
         parseResult.error.format()
       ));
     }
@@ -72,7 +73,7 @@ export function safeAssessRiskOfLosingPermanentResidentStatus(
     if (error instanceof Error) {
       return err(new LPRStatusError(error.message));
     }
-    return err(new LPRStatusError('Unknown error during LPR risk assessment'));
+    return err(new LPRStatusError(LPR_STATUS_VALIDATION.UNKNOWN_ERROR));
   }
 }
 
@@ -88,7 +89,7 @@ export function safeAssessRiskOfLosingPermanentResidentStatusAdvanced(
     
     if (!parseResult.success) {
       return err(new TripValidationError(
-        'Invalid input for advanced LPR risk assessment',
+        LPR_STATUS_VALIDATION.INVALID_ADVANCED,
         parseResult.error.format()
       ));
     }
@@ -99,7 +100,7 @@ export function safeAssessRiskOfLosingPermanentResidentStatusAdvanced(
     if (error instanceof Error) {
       return err(new LPRStatusError(error.message));
     }
-    return err(new LPRStatusError('Unknown error during advanced LPR risk assessment'));
+    return err(new LPRStatusError(LPR_STATUS_VALIDATION.UNKNOWN_ERROR_ADVANCED));
   }
 }
 
@@ -127,7 +128,7 @@ export function safeCalculateMaximumTripDurationWithExemptions(
     
     if (!parseResult.success) {
       return err(new TripValidationError(
-        'Invalid input for maximum trip duration calculation',
+        LPR_STATUS_VALIDATION.INVALID_MAX_DURATION,
         parseResult.error.format()
       ));
     }
@@ -147,7 +148,7 @@ export function safeCalculateMaximumTripDurationWithExemptions(
     if (error instanceof Error) {
       return err(new LPRStatusError(error.message));
     }
-    return err(new LPRStatusError('Unknown error during maximum trip duration calculation'));
+    return err(new LPRStatusError(LPR_STATUS_VALIDATION.UNKNOWN_ERROR_MAX_DURATION));
   }
 }
 
@@ -190,6 +191,6 @@ export function safeCalculateGreenCardAbandonmentRisk(
     if (error instanceof Error) {
       return err(new LPRStatusError(error.message));
     }
-    return err(new LPRStatusError('Unknown error during green card risk calculation'));
+    return err(new LPRStatusError(LPR_STATUS_VALIDATION.UNKNOWN_ERROR_GREEN_CARD_RISK));
   }
 }
