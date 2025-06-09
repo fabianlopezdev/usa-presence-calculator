@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { TripSchema } from '@schemas/trip';
+import { DATE_VALIDATION, PRESENCE_VALIDATION } from '@constants/validation-messages';
 import { 
   chainResult,
   DateRangeError,
@@ -10,6 +10,7 @@ import {
   TripValidationError,
   USCISCalculationError
 } from '@errors/index';
+import { TripSchema } from '@schemas/trip';
 
 import {
   calculateDaysOfPhysicalPresence,
@@ -25,52 +26,33 @@ import type {
   PresenceStatusDetails,
 } from '@schemas/presence';
 
-/**
- * Input validation schema for presence calculations
- */
 const PresenceCalculationInputSchema = z.object({
   trips: z.array(TripSchema),
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
 });
 
-/**
- * Input validation schema for eligibility dates
- */
 const EligibilityDatesInputSchema = z.object({
-  greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+  greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
   eligibilityCategory: z.enum(['three_year', 'five_year']),
-  targetDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
+  targetDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
 });
 
-/**
- * Input validation schema for presence status
- */
 const PresenceStatusInputSchema = z.object({
   totalDaysInUSA: z.number().int().nonnegative(),
   eligibilityCategory: z.enum(['three_year', 'five_year']),
 });
 
-/**
- * Input validation schema for continuous residence check
- */
 const ContinuousResidenceInputSchema = z.object({
   trips: z.array(TripSchema),
 });
 
-/**
- * Input validation schema for early filing eligibility
- */
 const EarlyFilingInputSchema = z.object({
-  greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+  greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
   eligibilityCategory: z.enum(['three_year', 'five_year']),
-  targetDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
+  targetDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
 });
 
-/**
- * Safe wrapper for calculateDaysOfPhysicalPresence
- * Validates inputs and handles errors gracefully
- */
 export function safeCalculateDaysOfPhysicalPresence(
   trips: unknown,
   startDate: unknown,
@@ -81,7 +63,7 @@ export function safeCalculateDaysOfPhysicalPresence(
     
     if (!parseResult.success) {
       return err(new TripValidationError(
-        'Invalid input for presence calculation',
+        PRESENCE_VALIDATION.INVALID_INPUT,
         parseResult.error.format()
       ));
     }
@@ -101,14 +83,10 @@ export function safeCalculateDaysOfPhysicalPresence(
       }
       return err(new USCISCalculationError(error.message));
     }
-    return err(new USCISCalculationError('Unknown error during presence calculation'));
+    return err(new USCISCalculationError(PRESENCE_VALIDATION.UNKNOWN_ERROR));
   }
 }
 
-/**
- * Safe wrapper for calculateEligibilityDates
- * Validates inputs and handles errors gracefully
- */
 export function safeCalculateEligibilityDates(
   greenCardDate: unknown,
   eligibilityCategory: unknown,
@@ -123,7 +101,7 @@ export function safeCalculateEligibilityDates(
     
     if (!parseResult.success) {
       return err(new DateRangeError(
-        'Invalid input for eligibility dates calculation',
+        PRESENCE_VALIDATION.INVALID_ELIGIBILITY_DATES,
         parseResult.error.format()
       ));
     }
@@ -139,14 +117,10 @@ export function safeCalculateEligibilityDates(
     if (error instanceof Error) {
       return err(new USCISCalculationError(error.message));
     }
-    return err(new USCISCalculationError('Unknown error during eligibility dates calculation'));
+    return err(new USCISCalculationError(PRESENCE_VALIDATION.UNKNOWN_ERROR_ELIGIBILITY));
   }
 }
 
-/**
- * Safe wrapper for calculatePresenceStatus
- * Validates inputs and handles errors gracefully
- */
 export function safeCalculatePresenceStatus(
   totalDaysInUSA: unknown,
   eligibilityCategory: unknown
@@ -156,7 +130,7 @@ export function safeCalculatePresenceStatus(
     
     if (!parseResult.success) {
       return err(new USCISCalculationError(
-        'Invalid input for presence status calculation',
+        PRESENCE_VALIDATION.INVALID_STATUS,
         parseResult.error.format()
       ));
     }
@@ -172,14 +146,10 @@ export function safeCalculatePresenceStatus(
     if (error instanceof Error) {
       return err(new USCISCalculationError(error.message));
     }
-    return err(new USCISCalculationError('Unknown error during presence status calculation'));
+    return err(new USCISCalculationError(PRESENCE_VALIDATION.UNKNOWN_ERROR_STATUS));
   }
 }
 
-/**
- * Safe wrapper for checkContinuousResidence
- * Validates inputs and handles errors gracefully
- */
 export function safeCheckContinuousResidence(
   trips: unknown
 ): Result<ContinuousResidenceWarningSimple[], TripValidationError | USCISCalculationError> {
@@ -188,7 +158,7 @@ export function safeCheckContinuousResidence(
     
     if (!parseResult.success) {
       return err(new TripValidationError(
-        'Invalid input for continuous residence check',
+        PRESENCE_VALIDATION.INVALID_CONTINUOUS_RESIDENCE,
         parseResult.error.format()
       ));
     }
@@ -201,14 +171,10 @@ export function safeCheckContinuousResidence(
     if (error instanceof Error) {
       return err(new USCISCalculationError(error.message));
     }
-    return err(new USCISCalculationError('Unknown error during continuous residence check'));
+    return err(new USCISCalculationError(PRESENCE_VALIDATION.UNKNOWN_ERROR_CONTINUOUS));
   }
 }
 
-/**
- * Safe wrapper for isEligibleForEarlyFiling
- * Validates inputs and handles errors gracefully
- */
 export function safeIsEligibleForEarlyFiling(
   greenCardDate: unknown,
   eligibilityCategory: unknown,
@@ -223,7 +189,7 @@ export function safeIsEligibleForEarlyFiling(
     
     if (!parseResult.success) {
       return err(new DateRangeError(
-        'Invalid input for early filing eligibility check',
+        PRESENCE_VALIDATION.INVALID_EARLY_FILING,
         parseResult.error.format()
       ));
     }
@@ -240,14 +206,10 @@ export function safeIsEligibleForEarlyFiling(
     if (error instanceof Error) {
       return err(new USCISCalculationError(error.message));
     }
-    return err(new USCISCalculationError('Unknown error during early filing eligibility check'));
+    return err(new USCISCalculationError(PRESENCE_VALIDATION.UNKNOWN_ERROR_EARLY_FILING));
   }
 }
 
-/**
- * Comprehensive safe presence calculation that chains multiple operations
- * Returns all presence-related data or appropriate errors
- */
 export function safeCalculateComprehensivePresence(
   trips: unknown,
   greenCardDate: unknown,
@@ -260,11 +222,9 @@ export function safeCalculateComprehensivePresence(
   continuousResidenceWarnings: ContinuousResidenceWarningSimple[];
   isEligibleForEarlyFiling: boolean;
 }, DateRangeError | TripValidationError | USCISCalculationError> {
-  // First calculate physical presence
   const presenceResult = safeCalculateDaysOfPhysicalPresence(trips, greenCardDate, targetDate);
   
   return chainResult(presenceResult, (physicalPresence) => {
-    // Then calculate eligibility dates
     const eligibilityResult = safeCalculateEligibilityDates(
       greenCardDate,
       eligibilityCategory,
@@ -272,18 +232,15 @@ export function safeCalculateComprehensivePresence(
     );
     
     return chainResult(eligibilityResult, (eligibilityDates) => {
-      // Calculate presence status
       const statusResult = safeCalculatePresenceStatus(
         physicalPresence.totalDaysInUSA,
         eligibilityCategory
       );
       
       return chainResult(statusResult, (presenceStatus) => {
-        // Check continuous residence
         const residenceResult = safeCheckContinuousResidence(trips);
         
         return chainResult(residenceResult, (continuousResidenceWarnings) => {
-          // Check early filing eligibility
           const earlyFilingResult = safeIsEligibleForEarlyFiling(
             greenCardDate,
             eligibilityCategory,
