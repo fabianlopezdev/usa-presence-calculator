@@ -62,6 +62,7 @@ export const EARLY_FILING_WINDOW_DAYS = 90;
 export const REMOVAL_OF_CONDITIONS = {
   FILING_WINDOW_DAYS: 90, // Can file 90 days before 2-year anniversary
   CONDITIONAL_PERIOD_DAYS: 730, // 2 years (365 * 2)
+  CONDITIONAL_PERIOD_YEARS: 2, // Conditional resident period duration
 } as const;
 
 // Document Renewal Constants

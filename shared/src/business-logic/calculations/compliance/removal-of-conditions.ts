@@ -138,7 +138,7 @@ export function getFilingWindowDates(greenCardDate: string): {
   const gcDate = parseISO(greenCardDate);
 
   // Calculate 2-year anniversary (end of filing window)
-  const windowEnd = addYears(gcDate, 2);
+  const windowEnd = addYears(gcDate, REMOVAL_OF_CONDITIONS.CONDITIONAL_PERIOD_YEARS);
 
   // Calculate 90 days before anniversary (start of filing window)
   const windowStart = addDays(windowEnd, -REMOVAL_OF_CONDITIONS.FILING_WINDOW_DAYS);
@@ -154,6 +154,6 @@ export function getFilingWindowDates(greenCardDate: string): {
  */
 export function getRemovalOfConditionsDeadline(greenCardDate: string): string {
   const gcDate = parseISO(greenCardDate);
-  const deadline = addYears(gcDate, 2);
+  const deadline = addYears(gcDate, REMOVAL_OF_CONDITIONS.CONDITIONAL_PERIOD_YEARS);
   return deadline.toISOString().split(ISO_DATE_UTILS.TIME_SEPARATOR)[0];
 }

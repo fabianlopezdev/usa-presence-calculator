@@ -20,6 +20,9 @@ import {
   UpcomingDeadline,
 } from '@schemas/compliance-helpers';
 
+// Internal dependencies - Constants
+import { REMOVAL_CONDITIONS_STATUS } from '@constants/compliance';
+
 // Internal dependencies - Business Logic
 import {
   getActiveGreenCardRenewalItem,
@@ -193,7 +196,7 @@ function getRemovalOfConditionsStatus(
       greenCardDate,
       filingWindowStart: '',
       filingWindowEnd: '',
-      currentStatus: 'not_yet',
+      currentStatus: REMOVAL_CONDITIONS_STATUS.NOT_YET,
       daysUntilWindow: null,
       daysUntilDeadline: null,
     }

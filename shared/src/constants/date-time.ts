@@ -73,6 +73,27 @@ export const ISO_DATE_UTILS = {
 } as const;
 
 // ============================================================================
+// TAX DEADLINE CONSTANTS
+// ============================================================================
+
+/**
+ * DC Emancipation Day Constants
+ * DC Emancipation Day (April 16) affects IRS tax deadlines nationwide
+ */
+export const DC_EMANCIPATION_DAY = {
+  /** Standard tax deadline day */
+  TAX_DEADLINE_DAY: 15,
+  /** DC Emancipation Day */
+  HOLIDAY_DAY: 16,
+  /** Day after DC Emancipation Day */
+  DAY_AFTER_HOLIDAY: 17,
+  /** Monday after weekend + holiday */
+  MONDAY_AFTER_WEEKEND_HOLIDAY: 18,
+  /** Days to skip when April 15 is Friday and April 16 is Emancipation Day */
+  FRIDAY_SKIP_DAYS: 3,
+} as const;
+
+// ============================================================================
 // TYPE EXPORTS
 // ============================================================================
 

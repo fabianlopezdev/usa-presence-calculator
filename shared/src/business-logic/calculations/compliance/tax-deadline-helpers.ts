@@ -9,7 +9,7 @@
 import { addDays, getDay } from 'date-fns';
 
 // Internal dependencies - Constants
-import { DAY_OF_WEEK, MONTH_INDEX } from '@constants/date-time';
+import { DAY_OF_WEEK, MONTH_INDEX, DC_EMANCIPATION_DAY } from '@constants/date-time';
 
 /**
  * Adjust date to next business day if it falls on weekend or DC Emancipation Day
@@ -36,21 +36,21 @@ export function adjustForWeekend(date: Date): Date {
     const year = adjustedDate.getFullYear();
 
     // Check if adjusted date falls on April 16
-    if (day === 16) {
+    if (day === DC_EMANCIPATION_DAY.HOLIDAY_DAY) {
       // Move to April 17
       adjustedDate = addDays(adjustedDate, 1);
-    } else if (day === 15) {
+    } else if (day === DC_EMANCIPATION_DAY.TAX_DEADLINE_DAY) {
       // Special case: If April 15 is Friday, check if we need to skip to April 18
       // because April 16 (Saturday) is Emancipation Day
       const dayOfWeek15 = getDay(adjustedDate);
       if (dayOfWeek15 === DAY_OF_WEEK.FRIDAY) {
         // Friday - skip weekend AND Emancipation Day
-        adjustedDate = addDays(adjustedDate, 3); // Move to Monday April 18
+        adjustedDate = addDays(adjustedDate, DC_EMANCIPATION_DAY.FRIDAY_SKIP_DAYS); // Move to Monday April 18
       }
-    } else if (day === 17) {
+    } else if (day === DC_EMANCIPATION_DAY.DAY_AFTER_HOLIDAY) {
       // Special case: If we moved to April 17 (Monday),
       // check if Emancipation Day is being observed on this day
-      const april16 = new Date(year, 3, 16);
+      const april16 = new Date(year, MONTH_INDEX.APRIL, DC_EMANCIPATION_DAY.HOLIDAY_DAY);
       const april16DayOfWeek = getDay(april16);
 
       // If April 16 was Sunday, it's observed on Monday (April 17)

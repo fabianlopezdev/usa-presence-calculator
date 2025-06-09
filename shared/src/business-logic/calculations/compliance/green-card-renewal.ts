@@ -19,7 +19,11 @@ import { GreenCardRenewalStatus } from '@schemas/compliance';
 // Internal dependencies - Constants
 import { DOCUMENT_RENEWAL } from '@constants/uscis-rules';
 import { GREEN_CARD_RENEWAL_STATUS } from '@constants/compliance';
-import { PRIORITY_LEVEL, GREEN_CARD_RENEWAL_THRESHOLDS_MONTHS } from '@constants/priority-urgency';
+import {
+  PRIORITY_LEVEL,
+  GREEN_CARD_RENEWAL_THRESHOLDS_MONTHS,
+  PriorityLevel,
+} from '@constants/priority-urgency';
 import { ISO_DATE_UTILS } from '@constants/date-time';
 
 /**
@@ -104,7 +108,7 @@ export function isInRenewalWindow(
 export function getRenewalUrgency(
   expirationDate: string,
   currentDate: string = new Date().toISOString(),
-): 'none' | 'low' | 'medium' | 'high' | 'critical' {
+): PriorityLevel {
   const monthsRemaining = getMonthsUntilExpiration(expirationDate, currentDate);
 
   if (monthsRemaining < 0) {
