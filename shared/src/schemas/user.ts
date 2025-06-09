@@ -10,7 +10,7 @@ export const UserProfileSchema = z.object({
   eligibilityCategory: z.enum(['three_year', 'five_year']),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
-});
+}).strict();
 
 /**
  * Authentication user schema - OAuth provider information
@@ -21,8 +21,8 @@ export const AuthUserSchema = z.object({
   providers: z.object({
     apple: z.string().optional(),
     google: z.string().optional(),
-  }),
-});
+  }).strict(),
+}).strict();
 
 /**
  * User settings schema - App preferences
@@ -32,11 +32,11 @@ export const UserSettingsSchema = z.object({
     milestones: z.boolean(),
     warnings: z.boolean(),
     reminders: z.boolean(),
-  }),
+  }).strict(),
   biometricAuthEnabled: z.boolean(),
   theme: z.enum(['light', 'dark', 'system']),
   language: z.enum(['en', 'es']),
-});
+}).strict();
 
 // Type exports
 export type UserProfile = z.infer<typeof UserProfileSchema>;
