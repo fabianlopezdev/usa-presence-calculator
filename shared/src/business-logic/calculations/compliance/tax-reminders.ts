@@ -19,6 +19,12 @@ import { Trip } from '@schemas/trip';
 
 // Internal dependencies - Constants
 import { TAX_FILING } from '@constants/uscis-rules';
+import {
+  TAX_DEADLINE_TYPE,
+  TAX_EXTENSION_DEADLINE_DISPLAY,
+  GOVERNMENT_FORM_NAMES,
+} from '@constants/compliance';
+import { DAY_OF_WEEK, MONTH_INDEX, ISO_DATE_UTILS } from '@constants/date-time';
 
 /**
  * Calculate the tax filing reminder status
@@ -31,7 +37,9 @@ export function calculateTaxReminderStatus(
   const isAbroadDuringTaxSeason = willBeAbroadDuringTaxSeason(trips, currentDate);
 
   // Determine which deadline applies
-  const applicableDeadline = isAbroadDuringTaxSeason ? 'abroad_extension' : 'standard';
+  const applicableDeadline = isAbroadDuringTaxSeason
+    ? TAX_DEADLINE_TYPE.ABROAD_EXTENSION
+    : TAX_DEADLINE_TYPE.STANDARD;
 
   // Get the actual deadline (adjusted for weekends/holidays)
   const actualDeadline = getActualTaxDeadline(currentDate, applicableDeadline);
@@ -55,7 +63,7 @@ export function calculateTaxReminderStatus(
  */
 export function getActualTaxDeadline(
   currentDate: string = new Date().toISOString(),
-  deadlineType: 'standard' | 'abroad_extension' | 'october_extension' = 'standard',
+  deadlineType: 'standard' | 'abroad_extension' | 'october_extension' = TAX_DEADLINE_TYPE.STANDARD,
 ): string {
   const current = parseISO(currentDate);
   const currentYear = getYear(current);
@@ -70,7 +78,7 @@ export function getActualTaxDeadline(
 
   // Adjust for weekends
   const adjustedDeadline = adjustForWeekend(baseDeadline);
-  return adjustedDeadline.toISOString().split('T')[0];
+  return adjustedDeadline.toISOString().split(ISO_DATE_UTILS.TIME_SEPARATOR)[0];
 }
 
 /**
@@ -81,11 +89,11 @@ function getBaseDeadlineForYear(
   deadlineType: 'standard' | 'abroad_extension' | 'october_extension',
 ): Date {
   switch (deadlineType) {
-    case 'abroad_extension':
+    case TAX_DEADLINE_TYPE.ABROAD_EXTENSION:
       return parseISO(
         `${year}-${TAX_FILING.ABROAD_EXTENSION_MONTH}-${TAX_FILING.ABROAD_EXTENSION_DAY}`,
       );
-    case 'october_extension':
+    case TAX_DEADLINE_TYPE.OCTOBER_EXTENSION:
       return parseISO(
         `${year}-${TAX_FILING.OCTOBER_EXTENSION_MONTH}-${TAX_FILING.OCTOBER_EXTENSION_DAY}`,
       );
@@ -103,17 +111,17 @@ function adjustForWeekend(date: Date): Date {
   const dayOfWeek = getDay(adjustedDate);
 
   // First, adjust for weekend
-  if (dayOfWeek === 6) {
+  if (dayOfWeek === DAY_OF_WEEK.SATURDAY) {
     // Saturday - move to Monday
     adjustedDate = addDays(adjustedDate, 2);
-  } else if (dayOfWeek === 0) {
+  } else if (dayOfWeek === DAY_OF_WEEK.SUNDAY) {
     // Sunday - move to Monday
     adjustedDate = addDays(adjustedDate, 1);
   }
 
   // Check if we need to account for DC Emancipation Day (April 16)
   // Only relevant for April tax deadlines
-  if (adjustedDate.getMonth() === 3) {
+  if (adjustedDate.getMonth() === MONTH_INDEX.APRIL) {
     // April (0-indexed)
     const day = adjustedDate.getDate();
     const year = adjustedDate.getFullYear();
@@ -126,7 +134,7 @@ function adjustForWeekend(date: Date): Date {
       // Special case: If April 15 is Friday, check if we need to skip to April 18
       // because April 16 (Saturday) is Emancipation Day
       const dayOfWeek15 = getDay(adjustedDate);
-      if (dayOfWeek15 === 5) {
+      if (dayOfWeek15 === DAY_OF_WEEK.FRIDAY) {
         // Friday - skip weekend AND Emancipation Day
         adjustedDate = addDays(adjustedDate, 3); // Move to Monday April 18
       }
@@ -137,7 +145,7 @@ function adjustForWeekend(date: Date): Date {
       const april16DayOfWeek = getDay(april16);
 
       // If April 16 was Sunday, it's observed on Monday (April 17)
-      if (april16DayOfWeek === 0) {
+      if (april16DayOfWeek === DAY_OF_WEEK.SUNDAY) {
         // Move to Tuesday
         adjustedDate = addDays(adjustedDate, 1);
       }
@@ -285,7 +293,7 @@ export function getExtensionInfo(isAbroad: boolean): {
   if (isAbroad) {
     return {
       automaticExtension: true,
-      extensionDeadline: 'June 15',
+      extensionDeadline: TAX_EXTENSION_DEADLINE_DISPLAY.JUNE,
       requiresForm: false,
       formNumber: null,
     };
@@ -293,8 +301,8 @@ export function getExtensionInfo(isAbroad: boolean): {
 
   return {
     automaticExtension: false,
-    extensionDeadline: 'October 15',
+    extensionDeadline: TAX_EXTENSION_DEADLINE_DISPLAY.OCTOBER,
     requiresForm: true,
-    formNumber: 'Form 4868',
+    formNumber: GOVERNMENT_FORM_NAMES.TAX_EXTENSION,
   };
 }
