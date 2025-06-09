@@ -5,23 +5,26 @@ This document provides a complete reference for ALL test files in the shared pac
 ## Summary Audit
 
 ### Overall Test Statistics
-- **Total Test Files**: 21
-- **Total Test Cases**: ~650+
-- **Test Categories**: 7 major areas
+- **Total Test Files**: 29
+- **Total Test Cases**: 878
+- **Test Categories**: 9 major areas
 - **Edge Case Coverage**: Extensive (200+ edge case tests)
 - **USCIS Rule Validation**: Complete coverage
+- **Security Test Coverage**: Comprehensive (safe wrappers, malicious input, strict validation)
 
 ### Test Coverage by Category
 
 | Category | Test Files | Test Cases | Coverage Focus |
 |----------|------------|------------|----------------|
-| **Compliance** | 5 | ~250 | Green card renewal, I-751, selective service, taxes |
+| **Compliance** | 7 | ~300 | Green card renewal, I-751, selective service, taxes, safe wrappers |
 | **LPR Status** | 3 | ~60 | Abandonment risk, reentry permits, pattern analysis |
-| **Presence Calculation** | 3 | ~85 | Physical presence, continuous residence, eligibility |
-| **Travel Risk** | 2 | ~60 | Risk thresholds, permit protection, warnings |
-| **Travel Analytics** | 1 | ~50 | Statistics, projections, budgets, summaries |
-| **Utils** | 3 | ~130 | Date handling, trip calculations, validation |
-| **Schemas** | 4 | ~45 | Data validation, type safety |
+| **Presence Calculation** | 4 | ~110 | Physical presence, continuous residence, eligibility, safe wrappers |
+| **Travel Risk** | 3 | ~80 | Risk thresholds, permit protection, warnings, safe assessment |
+| **Travel Analytics** | 2 | ~80 | Statistics, projections, budgets, summaries, safe analytics |
+| **Utils** | 4 | ~150 | Date handling, trip calculations, validation, safe wrappers |
+| **Schemas** | 5 | ~70 | Data validation, type safety, security validation |
+| **Error Infrastructure** | 1 | ~25 | Result type, error handling utilities |
+| **Security** | 1 | ~25 | Malicious input, strict mode validation |
 
 ## Table of Contents
 
@@ -33,6 +36,9 @@ This document provides a complete reference for ALL test files in the shared pac
    - [Travel Analytics Tests](#travel-analytics-tests)
    - [Utility Tests](#utility-tests)
    - [Schema Tests](#schema-tests)
+   - [Security Tests](#security-tests)
+   - [Safe Wrapper Tests](#safe-wrapper-tests)
+   - [Error Infrastructure Tests](#error-infrastructure-tests)
 2. [Edge Cases Coverage](#edge-cases-coverage)
 3. [USCIS Rules Validation](#uscis-rules-validation)
 4. [Test Files by Path](#test-files-by-path)
@@ -356,6 +362,96 @@ This document provides a complete reference for ALL test files in the shared pac
 - Type constraints
 - Preference settings
 - Timestamp formats
+
+### Security Tests
+
+#### **security-validation.test.ts**
+**Path**: `/schemas/__tests__/`
+**Test Cases**: 25
+
+**Validates**:
+- Strict mode rejection of extra properties
+- Protection against prototype pollution
+- XSS payload handling
+- SQL injection in strings
+- Command injection attempts
+- Invalid type coercion attempts
+
+### Safe Wrapper Tests
+
+#### **safe-calculator.test.ts** (Presence)
+**Path**: `/business-logic/calculations/presence/__tests__/`
+**Test Cases**: 25
+
+**Validates**:
+- Input validation before calculation
+- Result type error handling
+- Invalid date format rejection
+- Malformed trip data handling
+- Type safety enforcement
+
+#### **safe-compliance-coordinator.test.ts**
+**Path**: `/business-logic/calculations/compliance/__tests__/`
+**Test Cases**: 20
+
+**Validates**:
+- Comprehensive compliance validation
+- Invalid parameter rejection
+- Error propagation
+- Result type consistency
+
+#### **safe-compliance-functions.test.ts**
+**Path**: `/business-logic/calculations/compliance/__tests__/`
+**Test Cases**: 30
+
+**Validates**:
+- Individual compliance function validation
+- Date validation for each function
+- Boolean and string parameter validation
+- Proper error messages
+
+#### **safe-analytics.test.ts**
+**Path**: `/business-logic/calculations/travel-analytics/__tests__/`
+**Test Cases**: 30
+
+**Validates**:
+- Trip array validation
+- Analytics parameter validation
+- Result type handling
+- Error message clarity
+
+#### **safe-assessment.test.ts**
+**Path**: `/business-logic/calculations/travel-risk/__tests__/`
+**Test Cases**: 20
+
+**Validates**:
+- Risk assessment input validation
+- Permit info validation
+- Comprehensive error handling
+- Type safety
+
+#### **safe-trip-calculations.test.ts**
+**Path**: `/utils/__tests__/`
+**Test Cases**: 20
+
+**Validates**:
+- Trip duration calculation validation
+- Period validation
+- Year validation
+- Options parameter handling
+
+### Error Infrastructure Tests
+
+#### **error-infrastructure.test.ts**
+**Path**: `/errors/__tests__/`
+**Test Cases**: 25
+
+**Validates**:
+- Result type creation (ok/err)
+- Type guards (isOk/isErr)
+- Functional utilities (map, chain, combine)
+- Error unwrapping
+- Custom error classes
 
 ---
 
