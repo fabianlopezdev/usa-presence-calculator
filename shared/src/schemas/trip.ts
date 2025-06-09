@@ -14,7 +14,7 @@ const BaseTripSchema = z.object({
   departureDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
   returnDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
   location: z.string().optional(),
-});
+}).strict();
 
 /**
  * Complete trip schema - Stored trip data
@@ -25,7 +25,7 @@ export const TripSchema = BaseTripSchema.extend({
   isSimulated: z.boolean(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
-}).refine(dateRangeRefinement, {
+}).strict().refine(dateRangeRefinement, {
   message: 'Return date must be after or equal to departure date',
   path: ['returnDate'],
 });
@@ -65,6 +65,7 @@ export const SimulatedTripSchema = z
     departureDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
     returnDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
   })
+  .strict()
   .refine(dateRangeRefinement, {
     message: 'Return date must be after or equal to departure date',
     path: ['returnDate'],
