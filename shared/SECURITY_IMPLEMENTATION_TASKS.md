@@ -12,159 +12,128 @@
 ### 1.1 Add .strict() to Schemas (89 total)
 
 #### calculation-helpers.ts (2 schemas)
-- [ ] TripDurationOptionsSchema
-- [ ] TripValidationRequirementsSchema
-- [ ] Commit: `fix: add strict to calculation helper schemas`
-- [ ] Tests pass
-- [ ] Checklist verified
+- [x] TripDurationOptionsSchema
+- [x] TripValidationRequirementsSchema
+- [x] Commit: `fix: add strict to calculation helper schemas`
+- [x] Tests pass
+- [x] Checklist verified
 
 #### compliance-helpers.ts (3 schemas)
-- [ ] ActiveComplianceItemSchema
-- [ ] PriorityComplianceItemSchema
-- [ ] UpcomingDeadlineSchema
-- [ ] Commit: `fix: add strict to compliance helper schemas`
-- [ ] Tests pass
-- [ ] Checklist verified
+- [x] ActiveComplianceItemSchema
+- [x] PriorityComplianceItemSchema
+- [x] UpcomingDeadlineSchema
+- [x] Commit: `fix: add strict to compliance helper schemas`
+- [x] Tests pass
+- [x] Checklist verified
 
 #### compliance.ts (7 schemas)
-- [ ] ComplianceCalculationParamsSchema
-- [ ] ComplianceItemSchema
-- [ ] ComplianceStatusSchema
-- [ ] ComprehensiveComplianceStatusSchema
-- [ ] GreenCardRenewalStatusSchema
-- [ ] RemovalOfConditionsStatusSchema
-- [ ] SelectiveServiceStatusSchema
-- [ ] TaxReminderStatusSchema
-- [ ] Commit: `fix: add strict to compliance schemas`
-- [ ] Tests pass
-- [ ] Checklist verified
+- [x] ComplianceCalculationParamsSchema
+- [x] ComplianceStatusSchema
+- [x] ComprehensiveComplianceStatusSchema
+- [x] GreenCardRenewalStatusSchema
+- [x] RemovalOfConditionsStatusSchema
+- [x] SelectiveServiceStatusSchema
+- [x] TaxReminderStatusSchema
+- [x] Commit: `fix: add strict to compliance schemas`
+- [x] Tests pass
+- [x] Checklist verified
 
-#### lpr-status.ts (28 schemas)
-##### Part 1/4 - Status Enums
-- [ ] I751StatusSchema
-- [ ] LPRStatusTypeSchema
-- [ ] N470StatusSchema
-- [ ] ReentryPermitStatusSchema
-- [ ] LPRRiskLevelSchema
-- [ ] ComprehensiveRiskLevelSchema
-- [ ] TravelRiskLevelSchema
-- [ ] Commit: `fix: add strict to lpr status enums`
+#### lpr-status.ts (17 object schemas + 11 enums)
+##### Part 1 - First batch of object schemas
+- [x] TravelRiskDetailsSchema
+- [x] ReentryPermitInfoSchema
+- [x] ReentryPermitProtectionSchema
+- [x] GreenCardRiskResultSchema
+- [x] LongestTripInfoSchema
+- [x] LPRStatusAssessmentSchema
+- [x] MaximumTripDurationResultSchema
+- [x] ComprehensiveRiskAssessmentSchema (with nested objects)
+- [x] Commit: `fix: add strict to lpr status schemas part 1`
 
-##### Part 2/4 - Core Schemas
-- [ ] AnalysisResultSchema
-- [ ] AnalysisSchema
-- [ ] ComprehensiveRiskAssessmentSchema
-- [ ] CurrentLPRStatusSchema
-- [ ] GreenCardRiskResultSchema
-- [ ] LongestTripInfoSchema
-- [ ] LPRStatusAssessmentSchema
-- [ ] Commit: `fix: add strict to lpr core schemas`
-
-##### Part 3/4 - Advanced Schemas
-- [ ] AdvancedLPRStatusParamsSchema
-- [ ] LPRStatusAssessmentAdvancedSchema
-- [ ] LPRStatusInputSchema
-- [ ] LPRStatusRiskFactorsSchema
-- [ ] MaximumTripCalculationParamsSchema
-- [ ] MaximumTripDurationResultSchema
-- [ ] N470ExemptionSchema
-- [ ] Commit: `fix: add strict to lpr advanced schemas`
-
-##### Part 4/4 - Risk & Permit Schemas
-- [ ] PatternOfNonResidenceSchema
-- [ ] PermitProtectedThresholdsSchema
-- [ ] RebuttablePresumptionSchema
-- [ ] ReentryPermitInfoSchema
-- [ ] ReentryPermitProtectionSchema
-- [ ] ReentryPermitSchema
-- [ ] RiskFactorsSchema
-- [ ] TravelRiskDetailsSchema
-- [ ] TripRiskAssessmentParamsSchema
-- [ ] Commit: `fix: add strict to lpr risk schemas`
+##### Part 2 - Second batch of object schemas
+- [x] PermitProtectedThresholdsSchema
+- [x] N470ExemptionSchema
+- [x] PatternOfNonResidenceSchema
+- [x] RebuttablePresumptionSchema
+- [x] ReentryPermitAdvancedSchema
+- [x] LPRStatusRiskFactorsSchema
+- [x] LPRStatusAssessmentAdvancedSchema
+- [x] LPRStatusInputSchema (with nested object)
+- [x] Commit: `fix: add strict to lpr status schemas part 2`
+- [x] Tests pass
+- [x] Checklist verified
 
 #### notification.ts (2 schemas)
-- [ ] NotificationSchema
-- [ ] NotificationPreferencesSchema
-- [ ] Commit: `fix: add strict to notification schemas`
-- [ ] Tests pass
-- [ ] Checklist verified
+- [x] NotificationSchema (also replaced z.any() with secure union type)
+- [x] NotificationPreferencesSchema
+- [x] Commit: `fix: replace any type in notification schema`
+- [x] Tests pass
+- [x] Checklist verified
 
-#### presence.ts (10 schemas)
-- [ ] ContinuousResidenceResultSchema
-- [ ] ContinuousResidenceWarningSchema
-- [ ] ContinuousResidenceWarningSimpleSchema
-- [ ] DateValidationResultSchema
-- [ ] EligibilityDatesSchema
-- [ ] EligibilityMilestoneSchema
-- [ ] PresenceCalculationResultSchema
-- [ ] PresenceCalculationSchema
-- [ ] PresenceStatusDetailsSchema
-- [ ] PresenceStatusSchema
-- [ ] ValidatedDateRangeSchema
-- [ ] Commit: `fix: add strict to presence schemas`
-- [ ] Tests pass
-- [ ] Checklist verified
+#### presence.ts (9 object schemas)
+- [x] PresenceCalculationSchema
+- [x] PresenceStatusSchema
+- [x] ContinuousResidenceWarningSchema
+- [x] EligibilityMilestoneSchema
+- [x] PresenceCalculationResultSchema
+- [x] PresenceStatusDetailsSchema
+- [x] ContinuousResidenceWarningSimpleSchema
+- [x] EligibilityDatesSchema
+- [x] ValidatedDateRangeSchema
+- [x] Commit: `fix: add strict to presence schemas`
+- [x] Tests pass
+- [x] Checklist verified
 
-#### travel-analytics-helpers.ts (11 schemas)
-- [ ] CountryDataSchema
-- [ ] CountryStatisticsOutputSchema
-- [ ] PresenceStreakDataSchema
-- [ ] PresenceStreakSchema
-- [ ] TravelRiskDetailsHelperSchema
-- [ ] TravelStreakOutputSchema
-- [ ] TripDateRangeSchema
-- [ ] TripMetricsSchema
-- [ ] TripRiskAssessmentOutputSchema
-- [ ] TripWithYearSchema
-- [ ] YearBoundariesSchema
-- [ ] Commit: `fix: add strict to travel analytics helper schemas`
-- [ ] Tests pass
-- [ ] Checklist verified
+#### travel-analytics-helpers.ts (7 schemas - file uses camelCase)
+- [x] countryDataSchema
+- [x] tripDateRangeSchema
+- [x] yearBoundariesSchema
+- [x] presenceStreakSchema
+- [x] riskThresholdsSchema
+- [x] travelRiskResultSchema
+- [x] travelBudgetRiskResultSchema
+- [x] Commit: `fix: add strict to travel analytics helper schemas`
+- [x] Tests pass
+- [x] Checklist verified
 
-#### travel-analytics.ts (15 schemas)
-- [ ] AnnualTravelSummarySchema
-- [ ] CountryStatisticsSchema
-- [ ] DaysAbroadByYearOutputSchema
-- [ ] DestinationSummarySchema
-- [ ] MilestoneInfoSchema
-- [ ] SafeTravelBudgetSchema
-- [ ] TravelInsightSchema
-- [ ] TravelProjectionAssumptionsSchema
-- [ ] TravelProjectionSchema
-- [ ] TravelStreakSchema
-- [ ] TripRiskAssessmentSchema
-- [ ] YearComparisonSchema
-- [ ] YearSummaryMetricsSchema
-- [ ] YearlyDaysAbroadSchema
-- [ ] YearlyTravelDataSchema
-- [ ] Commit: `fix: add strict to travel analytics schemas`
-- [ ] Tests pass
-- [ ] Checklist verified
+#### travel-analytics.ts (8 schemas - file uses camelCase)
+- [x] countryStatisticsSchema
+- [x] yearlyDaysAbroadSchema
+- [x] travelStreakSchema
+- [x] milestoneInfoSchema
+- [x] safeTravelBudgetSchema
+- [x] travelProjectionSchema
+- [x] tripRiskAssessmentSchema
+- [x] annualTravelSummarySchema (with nested objects)
+- [x] Commit: `fix: add strict to travel analytics schemas`
+- [x] Tests pass
+- [x] Checklist verified
 
 #### trip.ts (4 schemas)
-- [ ] SimulatedTripSchema
-- [ ] TripCreateSchema
-- [ ] TripSchema
-- [ ] TripUpdateSchema
-- [ ] Commit: `fix: add strict to trip schemas`
-- [ ] Tests pass
-- [ ] Checklist verified
+- [x] BaseTripSchema
+- [x] TripSchema (extends BaseTripSchema)
+- [x] TripCreateSchema (uses BaseTripSchema)
+- [x] TripUpdateSchema (uses BaseTripSchema.partial())
+- [x] SimulatedTripSchema
+- [x] Commit: `fix: add strict to trip schemas`
+- [x] Tests pass
+- [x] Checklist verified
 
 #### user.ts (3 schemas)
-- [ ] AuthUserSchema
-- [ ] UserProfileSchema
-- [ ] UserSettingsSchema
-- [ ] Commit: `fix: add strict to user schemas`
-- [ ] Tests pass
-- [ ] Checklist verified
+- [x] AuthUserSchema (with nested object)
+- [x] UserProfileSchema
+- [x] UserSettingsSchema (with nested object)
+- [x] Commit: `fix: add strict to user schemas`
+- [x] Tests pass
+- [x] Checklist verified
 
 ### 1.2 Replace z.any() in Notification Schema
-- [ ] Define NotificationDataValueSchema union type
-- [ ] Update NotificationSchema to use new type
-- [ ] Update notification tests for security
-- [ ] Commit: `fix: replace any type in notification schema`
-- [ ] Tests pass
-- [ ] Checklist verified
+- [x] Define NotificationDataValueSchema union type
+- [x] Update NotificationSchema to use new type
+- [x] Update notification tests for security
+- [x] Commit: `fix: replace any type in notification schema`
+- [x] Tests pass
+- [x] Checklist verified
 
 ## Phase 2: High Priority Improvements
 
@@ -246,7 +215,7 @@
 - [ ] Task list updated and checked
 
 ## Completion Tracking
-- [ ] Phase 1 Complete
+- [x] Phase 1 Complete
 - [ ] Phase 2 Complete
 - [ ] Phase 3 Complete
 - [ ] Phase 4 Complete
