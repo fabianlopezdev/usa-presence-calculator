@@ -105,24 +105,24 @@ describe('trip-calculations', () => {
       const startDate = new Date('2024-02-01');
       const endDate = new Date('2024-12-31');
       const result = calculateTripDaysInPeriod(mockTrip, startDate, endDate);
-      // Feb 1 to Feb 15 = 15 inclusive days, minus 2 per USCIS = 13 days abroad
-      expect(result).toBe(13);
+      // Feb 1 to Feb 15 = 15 inclusive days, minus 1 (only return day in period) = 14 days abroad
+      expect(result).toBe(14);
     });
 
     it('should handle trip partially overlapping period end', () => {
       const startDate = new Date('2024-01-01');
       const endDate = new Date('2024-01-31');
       const result = calculateTripDaysInPeriod(mockTrip, startDate, endDate);
-      // Jan 15 to Jan 31 = 17 inclusive days, minus 2 per USCIS = 15 days abroad
-      expect(result).toBe(15);
+      // Jan 15 to Jan 31 = 17 inclusive days, minus 1 (only departure day in period) = 16 days abroad
+      expect(result).toBe(16);
     });
 
     it('should handle trip spanning entire period', () => {
       const startDate = new Date('2024-01-20');
       const endDate = new Date('2024-02-10');
       const result = calculateTripDaysInPeriod(mockTrip, startDate, endDate);
-      // Jan 20 to Feb 10 = 22 inclusive days, minus 2 per USCIS = 20 days abroad
-      expect(result).toBe(20);
+      // Jan 20 to Feb 10 = 22 inclusive days, minus 0 (no travel days in period) = 22 days abroad
+      expect(result).toBe(22);
     });
   });
 
@@ -174,12 +174,12 @@ describe('trip-calculations', () => {
 
     it('should calculate days for trip spanning year boundary', () => {
       const result2023 = calculateTripDaysInYear(mockTrip, 2023);
-      // Dec 28-31 = 4 inclusive days, minus 2 per USCIS = 2 days abroad
-      expect(result2023).toBe(2);
+      // Dec 28-31 = 4 inclusive days, minus 1 (only departure day in 2023) = 3 days abroad
+      expect(result2023).toBe(3);
 
       const result2024 = calculateTripDaysInYear(mockTrip, 2024);
-      // Jan 1-5 = 5 inclusive days, minus 2 per USCIS = 3 days abroad
-      expect(result2024).toBe(3);
+      // Jan 1-5 = 5 inclusive days, minus 1 (only return day in 2024) = 4 days abroad
+      expect(result2024).toBe(4);
     });
 
     it('should handle trip completely in one year', () => {
@@ -256,9 +256,9 @@ describe('trip-calculations', () => {
 
       populateTripDaysSet(mockTrip, startDate, endDate, daysSet);
 
-      // Should include Jan 13, 14 (not 12 which is the effective start/departure day)
-      expect(daysSet.size).toBe(2);
-      expect(daysSet.has('2024-01-12')).toBe(false); // Effective departure day
+      // Should include Jan 12, 13, 14 (12 is NOT the original departure day)
+      expect(daysSet.size).toBe(3);
+      expect(daysSet.has('2024-01-12')).toBe(true); // Not a travel day in original trip
       expect(daysSet.has('2024-01-13')).toBe(true);
       expect(daysSet.has('2024-01-14')).toBe(true);
       expect(daysSet.has('2024-01-11')).toBe(false);
@@ -445,8 +445,8 @@ describe('trip-calculations', () => {
           new Date('2024-01-17T00:00:00Z'),
           new Date('2024-01-17T23:59:59.999Z'),
         );
-        // Should be 1 day, but USCIS rules apply to the bounded trip
-        expect(result).toBe(0); // Single day counts as same-day trip
+        // Jan 17 is not a travel day, so it counts as 1 day abroad
+        expect(result).toBe(1);
       });
 
       it('should handle periods with startBoundary and endBoundary options', () => {
@@ -494,11 +494,11 @@ describe('trip-calculations', () => {
 
         // Should count full year 2023
         const result2023 = calculateTripDaysInYear(multiYearTrip, 2023);
-        expect(result2023).toBe(363); // 365 days - 2 (USCIS)
+        expect(result2023).toBe(365); // 365 days - 0 (no travel days in 2023)
 
         // Should count full year 2024 (leap year)
         const result2024 = calculateTripDaysInYear(multiYearTrip, 2024);
-        expect(result2024).toBe(364); // 366 days - 2 (USCIS)
+        expect(result2024).toBe(366); // 366 days - 0 (no travel days in 2024)
       });
 
       it('should handle year 9999', () => {
@@ -529,8 +529,9 @@ describe('trip-calculations', () => {
           updatedAt: '2024-01-01T00:00:00.000Z',
         };
 
-        // Negative year strings are not valid ISO dates and will throw
-        expect(() => calculateTripDaysInYear(bceTrip, -1)).toThrow();
+        // Negative year strings are not valid ISO dates and will return NaN
+        const result = calculateTripDaysInYear(bceTrip, -1);
+        expect(isNaN(result)).toBe(true);
       });
     });
 
@@ -609,8 +610,8 @@ describe('trip-calculations', () => {
           daysSet,
         );
 
-        // Should still count the full day if within trip
-        expect(daysSet.size).toBe(0); // The 15th would normally be included but the period is too specific
+        // Should count the full day since Jan 15 is within the trip and not a travel day
+        expect(daysSet.size).toBe(1);
       });
     });
 

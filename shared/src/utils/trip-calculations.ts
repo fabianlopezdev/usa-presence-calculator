@@ -50,6 +50,8 @@ export function calculateTripDaysInPeriod(
   endDate: Date,
   options: TripDurationOptions = {},
 ): number {
+  const { includeDepartureDay = true, includeReturnDay = true } = options;
+
   const departureDate = parseUTCDate(trip.departureDate);
   const returnDate = parseUTCDate(trip.returnDate);
 
@@ -60,13 +62,18 @@ export function calculateTripDaysInPeriod(
   const effectiveStart = max([departureDate, startDate]);
   const effectiveEnd = min([returnDate, endDate]);
 
-  const boundedTrip: Trip = {
-    ...trip,
-    departureDate: effectiveStart.toISOString().split('T')[0],
-    returnDate: effectiveEnd.toISOString().split('T')[0],
-  };
+  const totalInclusiveDays = differenceInDays(effectiveEnd, effectiveStart) + 1;
 
-  return calculateTripDuration(boundedTrip, options);
+  const travelDayCredits = calculateTravelDayCredits(
+    departureDate,
+    returnDate,
+    startDate,
+    endDate,
+    includeDepartureDay,
+    includeReturnDay,
+  );
+
+  return Math.max(0, totalInclusiveDays - travelDayCredits);
 }
 
 export function calculateTripDaysInYear(
@@ -106,7 +113,6 @@ export function populateTripDaysSet(
         currentDate,
         departureDate,
         returnDate,
-        effectiveStart,
         includeDepartureDay,
         includeReturnDay,
         startDate,
@@ -121,11 +127,30 @@ export function populateTripDaysSet(
 
 // Non-exported functions
 
+function calculateTravelDayCredits(
+  departureDate: Date,
+  returnDate: Date,
+  startDate: Date,
+  endDate: Date,
+  includeDepartureDay: boolean,
+  includeReturnDay: boolean,
+): number {
+  let credits = 0;
+
+  if (includeDepartureDay && departureDate >= startDate && departureDate <= endDate) {
+    credits += 1;
+  }
+  if (includeReturnDay && returnDate >= startDate && returnDate <= endDate) {
+    credits += 1;
+  }
+
+  return credits;
+}
+
 function shouldCountAsAbroad(
   currentDate: Date,
   departureDate: Date,
   returnDate: Date,
-  effectiveStart: Date,
   includeDepartureDay: boolean,
   includeReturnDay: boolean,
   startDate: Date,
@@ -136,8 +161,7 @@ function shouldCountAsAbroad(
   }
 
   const currentTime = currentDate.getTime();
-  const isDepartureDay =
-    currentTime === departureDate.getTime() || currentTime === effectiveStart.getTime();
+  const isDepartureDay = currentTime === departureDate.getTime();
   const isReturnDay = currentTime === returnDate.getTime();
 
   // USCIS rule: only count as abroad if not a travel day that counts as USA
