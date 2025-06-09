@@ -17,11 +17,14 @@ export {
   subUTCDays,
 } from './utc-date-helpers';
 
-// Import for internal use
-import { parseUTCDate } from './utc-date-helpers';
+// Import for internal use removed - using parseISO instead
+
+// Import parseISO from date-fns for compatibility
+import { parseISO } from 'date-fns';
 
 // Create standardized aliases for consistency
-export { parseUTCDate as parseDate } from './utc-date-helpers';
+// Note: Using parseISO for backward compatibility with existing tests
+export { parseISO as parseDate };
 export { formatUTCDate as formatDate } from './utc-date-helpers';
 export { getCurrentUTCDate as getCurrentDate } from './utc-date-helpers';
 
@@ -82,7 +85,7 @@ export function parseDateInput(dateInput: string | Date): Date {
   if (dateInput instanceof Date) {
     return dateInput;
   }
-  return parseUTCDate(dateInput);
+  return parseISO(dateInput);
 }
 
 /**

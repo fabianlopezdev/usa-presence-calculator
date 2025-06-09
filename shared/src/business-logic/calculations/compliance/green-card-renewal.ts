@@ -11,7 +11,7 @@
  */
 
 // External dependencies
-import { differenceInMonths, isAfter, parseISO, subMonths } from 'date-fns';
+import { differenceInMonths, isAfter, subMonths } from 'date-fns';
 
 // Internal dependencies - Schemas & Types
 import { GreenCardRenewalStatus } from '@schemas/compliance';
@@ -25,6 +25,9 @@ import {
   PriorityLevel,
 } from '@constants/priority-urgency';
 import { ISO_DATE_UTILS } from '@constants/date-time';
+
+// Internal dependencies - Utilities
+import { parseDate } from '@utils/date-helpers';
 
 /**
  * Calculate the green card renewal status
@@ -40,8 +43,8 @@ export function calculateGreenCardRenewalStatus(
   expirationDate: string,
   currentDate: string = new Date().toISOString(),
 ): GreenCardRenewalStatus {
-  const current = parseISO(currentDate);
-  const expiration = parseISO(expirationDate);
+  const current = parseDate(currentDate);
+  const expiration = parseDate(expirationDate);
 
   // Calculate renewal window start (6 months before expiration)
   const renewalWindowStart = getRenewalWindowStartDate(expirationDate);
@@ -83,8 +86,8 @@ export function getMonthsUntilExpiration(
   expirationDate: string,
   currentDate: string = new Date().toISOString(),
 ): number {
-  const current = parseISO(currentDate);
-  const expiration = parseISO(expirationDate);
+  const current = parseDate(currentDate);
+  const expiration = parseDate(expirationDate);
 
   return differenceInMonths(expiration, current);
 }
@@ -96,8 +99,8 @@ export function isInRenewalWindow(
   expirationDate: string,
   currentDate: string = new Date().toISOString(),
 ): boolean {
-  const current = parseISO(currentDate);
-  const renewalStart = parseISO(getRenewalWindowStartDate(expirationDate));
+  const current = parseDate(currentDate);
+  const renewalStart = parseDate(getRenewalWindowStartDate(expirationDate));
 
   return isAfter(current, renewalStart) || current.getTime() === renewalStart.getTime();
 }
@@ -128,7 +131,7 @@ export function getRenewalUrgency(
  * Calculate the date when renewal window opens (6 months before expiration)
  */
 export function getRenewalWindowStartDate(expirationDate: string): string {
-  const expiration = parseISO(expirationDate);
+  const expiration = parseDate(expirationDate);
   const windowStart = subMonths(expiration, DOCUMENT_RENEWAL.RENEWAL_WINDOW_MONTHS);
 
   return windowStart.toISOString().split(ISO_DATE_UTILS.TIME_SEPARATOR)[0];

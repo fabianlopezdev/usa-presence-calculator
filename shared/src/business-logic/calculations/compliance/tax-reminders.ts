@@ -11,7 +11,7 @@
  */
 
 // External dependencies
-import { parseISO, differenceInDays, isAfter, isBefore, getYear } from 'date-fns';
+import { differenceInDays, isAfter, isBefore, getYear } from 'date-fns';
 
 // Internal dependencies - Schemas & Types
 import { TaxReminderStatus } from '@schemas/compliance';
@@ -28,6 +28,9 @@ import { ISO_DATE_UTILS } from '@constants/date-time';
 
 // Internal dependencies - Helpers
 import { adjustForWeekend } from './tax-deadline-helpers';
+
+// Internal dependencies - Utilities
+import { parseDate } from '@utils/date-helpers';
 
 /**
  * Calculate the tax filing reminder status
@@ -68,7 +71,7 @@ export function getActualTaxDeadline(
   currentDate: string = new Date().toISOString(),
   deadlineType: 'standard' | 'abroad_extension' | 'october_extension' = TAX_DEADLINE_TYPE.STANDARD,
 ): string {
-  const current = parseISO(currentDate);
+  const current = parseDate(currentDate);
   const currentYear = getYear(current);
 
   // Get base deadline for current year
@@ -93,15 +96,15 @@ function getBaseDeadlineForYear(
 ): Date {
   switch (deadlineType) {
     case TAX_DEADLINE_TYPE.ABROAD_EXTENSION:
-      return parseISO(
+      return parseDate(
         `${year}-${TAX_FILING.ABROAD_EXTENSION_MONTH}-${TAX_FILING.ABROAD_EXTENSION_DAY}`,
       );
     case TAX_DEADLINE_TYPE.OCTOBER_EXTENSION:
-      return parseISO(
+      return parseDate(
         `${year}-${TAX_FILING.OCTOBER_EXTENSION_MONTH}-${TAX_FILING.OCTOBER_EXTENSION_DAY}`,
       );
     default:
-      return parseISO(`${year}-${TAX_FILING.DEADLINE_MONTH}-${TAX_FILING.DEADLINE_DAY}`);
+      return parseDate(`${year}-${TAX_FILING.DEADLINE_MONTH}-${TAX_FILING.DEADLINE_DAY}`);
   }
 }
 
@@ -109,11 +112,11 @@ function getBaseDeadlineForYear(
  * Get the next tax filing deadline (legacy - for backward compatibility)
  */
 export function getNextTaxDeadline(currentDate: string = new Date().toISOString()): string {
-  const current = parseISO(currentDate);
+  const current = parseDate(currentDate);
   const currentYear = getYear(current);
 
   // Tax deadline for current year
-  const currentYearDeadline = parseISO(
+  const currentYearDeadline = parseDate(
     `${currentYear}-${TAX_FILING.DEADLINE_MONTH}-${TAX_FILING.DEADLINE_DAY}`,
   );
 
@@ -132,8 +135,8 @@ export function getDaysUntilSpecificDeadline(
   deadline: string,
   currentDate: string = new Date().toISOString(),
 ): number {
-  const current = parseISO(currentDate);
-  const deadlineDate = parseISO(deadline);
+  const current = parseDate(currentDate);
+  const deadlineDate = parseDate(deadline);
 
   // If it's deadline day, return 0
   if (current.getTime() === deadlineDate.getTime()) {
@@ -147,8 +150,8 @@ export function getDaysUntilSpecificDeadline(
  * Calculate days until the next tax deadline (legacy - for backward compatibility)
  */
 export function getDaysUntilTaxDeadline(currentDate: string = new Date().toISOString()): number {
-  const current = parseISO(currentDate);
-  const nextDeadline = parseISO(getNextTaxDeadline(currentDate));
+  const current = parseDate(currentDate);
+  const nextDeadline = parseDate(getNextTaxDeadline(currentDate));
 
   // If it's deadline day, return 0
   if (current.getTime() === nextDeadline.getTime()) {
@@ -163,11 +166,11 @@ export function getDaysUntilTaxDeadline(currentDate: string = new Date().toISOSt
  * Updated to reflect when IRS actually starts accepting returns
  */
 export function isCurrentlyTaxSeason(currentDate: string = new Date().toISOString()): boolean {
-  const current = parseISO(currentDate);
+  const current = parseDate(currentDate);
   const { start, end } = getTaxSeasonDateRange(currentDate);
 
-  const seasonStart = parseISO(start);
-  const seasonEnd = parseISO(end);
+  const seasonStart = parseDate(start);
+  const seasonEnd = parseDate(end);
 
   return (
     (isAfter(current, seasonStart) || current.getTime() === seasonStart.getTime()) &&
@@ -184,22 +187,22 @@ export function willBeAbroadDuringTaxSeason(
 ): boolean {
   // Get next tax deadline to determine which tax season to check
   const nextDeadline = getNextTaxDeadline(currentDate);
-  const nextDeadlineYear = getYear(parseISO(nextDeadline));
+  const nextDeadlineYear = getYear(parseDate(nextDeadline));
 
   // Get the tax season dates for the year of the next deadline
   const seasonStart = `${nextDeadlineYear}-${TAX_FILING.SEASON_START_MONTH}-${TAX_FILING.SEASON_START_DAY}`;
   const seasonEnd = `${nextDeadlineYear}-${TAX_FILING.DEADLINE_MONTH}-${TAX_FILING.DEADLINE_DAY}`;
 
-  const seasonStartDate = parseISO(seasonStart);
-  const seasonEndDate = parseISO(seasonEnd);
+  const seasonStartDate = parseDate(seasonStart);
+  const seasonEndDate = parseDate(seasonEnd);
 
   // Filter out simulated trips and check only real trips
   const realTrips = trips.filter((trip) => !trip.isSimulated);
 
   // Check if any trip overlaps with tax season
   return realTrips.some((trip) => {
-    const departureDate = parseISO(trip.departureDate);
-    const returnDate = parseISO(trip.returnDate);
+    const departureDate = parseDate(trip.departureDate);
+    const returnDate = parseDate(trip.returnDate);
 
     // Trip overlaps if:
     // 1. Starts before season end AND ends after season start
@@ -222,7 +225,7 @@ export function getTaxSeasonDateRange(currentDate: string = new Date().toISOStri
   start: string;
   end: string;
 } {
-  const current = parseISO(currentDate);
+  const current = parseDate(currentDate);
   const currentYear = getYear(current);
 
   return {

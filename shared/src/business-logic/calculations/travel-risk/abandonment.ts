@@ -1,11 +1,12 @@
 // External imports (alphabetical)
-import { differenceInDays, parseISO } from 'date-fns';
+import { differenceInDays } from 'date-fns';
 
 // Internal imports - schemas/types first (alphabetical)
 import { GreenCardRiskResult, PermitProtectedThresholds } from '@schemas/lpr-status';
 
 // Internal imports - other (alphabetical)
 import { LPR_ABANDONMENT_THRESHOLDS, REENTRY_PERMIT_RULES } from '@constants/index';
+import { parseDate } from '@utils/date-helpers';
 
 /**
  * Calculate risk of green card abandonment based on trip duration
@@ -108,7 +109,7 @@ export function getReentryPermitProtectedThresholds(permitInfo?: {
   let warningMessage: string | undefined;
   if (permitInfo.permitExpiryDate) {
     const today = new Date();
-    const expiryDate = parseISO(permitInfo.permitExpiryDate);
+    const expiryDate = parseDate(permitInfo.permitExpiryDate);
     const daysUntilExpiry = differenceInDays(expiryDate, today);
 
     if (daysUntilExpiry <= REENTRY_PERMIT_RULES.WARNING_BEFORE_EXPIRY_DAYS) {

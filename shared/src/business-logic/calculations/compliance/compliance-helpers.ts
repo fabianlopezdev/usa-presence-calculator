@@ -3,7 +3,7 @@
  */
 
 // External dependencies
-import { parseISO } from 'date-fns';
+// None needed - using internal utilities
 
 // Internal dependencies - Schemas & Types
 import {
@@ -33,6 +33,9 @@ import {
   TAX_FILING_THRESHOLDS_DAYS,
 } from '@constants/priority-urgency';
 import { MILLISECONDS } from '@constants/date-time';
+
+// Internal dependencies - Utilities
+import { parseDate } from '@utils/date-helpers';
 
 /**
  * Determine green card renewal urgency
@@ -164,7 +167,7 @@ export function sortPriorityItems(items: PriorityComplianceItem[]): PriorityComp
     if (priorityDiff !== 0) return priorityDiff;
 
     // If same priority, sort by deadline
-    const deadlineDiff = parseISO(a.deadline).getTime() - parseISO(b.deadline).getTime();
+    const deadlineDiff = parseDate(a.deadline).getTime() - parseDate(b.deadline).getTime();
     if (deadlineDiff !== 0) return deadlineDiff;
 
     // If same deadline, use compliance type sort order
@@ -197,7 +200,7 @@ export function getGreenCardExpirationDeadline(
   status: GreenCardRenewalStatus,
   current: Date,
 ): UpcomingDeadline | null {
-  const expiration = parseISO(status.expirationDate);
+  const expiration = parseDate(status.expirationDate);
 
   if (expiration.getTime() <= current.getTime()) {
     return null;
@@ -222,7 +225,7 @@ export function getSelectiveServiceDeadline(
     return null;
   }
 
-  const deadline = parseISO(status.registrationDeadline);
+  const deadline = parseDate(status.registrationDeadline);
 
   if (deadline.getTime() <= current.getTime()) {
     return null;
@@ -247,7 +250,7 @@ export function getTaxFilingDeadline(
     return null;
   }
 
-  const deadline = parseISO(status.nextDeadline);
+  const deadline = parseDate(status.nextDeadline);
 
   if (deadline.getTime() <= current.getTime()) {
     return null;

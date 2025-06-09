@@ -6,7 +6,7 @@
  */
 
 // External dependencies
-import { addYears, addDays, differenceInDays, isAfter, isBefore, parseISO } from 'date-fns';
+import { addYears, addDays, differenceInDays, isAfter, isBefore } from 'date-fns';
 
 // Internal dependencies - Schemas & Types
 import { RemovalOfConditionsStatus } from '@schemas/compliance';
@@ -15,6 +15,9 @@ import { RemovalOfConditionsStatus } from '@schemas/compliance';
 import { REMOVAL_OF_CONDITIONS } from '@constants/uscis-rules';
 import { REMOVAL_CONDITIONS_STATUS } from '@constants/compliance';
 import { ISO_DATE_UTILS } from '@constants/date-time';
+
+// Internal dependencies - Utilities
+import { parseDate } from '@utils/date-helpers';
 
 /**
  * Determine the current status based on dates and filing status
@@ -54,10 +57,10 @@ export function calculateRemovalOfConditionsStatus(
     return null;
   }
 
-  const current = parseISO(currentDate);
+  const current = parseDate(currentDate);
   const { windowStart, windowEnd } = getFilingWindowDates(greenCardDate);
-  const windowStartDate = parseISO(windowStart);
-  const windowEndDate = parseISO(windowEnd);
+  const windowStartDate = parseDate(windowStart);
+  const windowEndDate = parseDate(windowEnd);
 
   // Determine current status
   const currentStatus = determineCurrentStatus(
@@ -99,9 +102,9 @@ export function getDaysUntilFilingWindow(
   greenCardDate: string,
   currentDate: string = new Date().toISOString(),
 ): number {
-  const current = parseISO(currentDate);
+  const current = parseDate(currentDate);
   const { windowStart } = getFilingWindowDates(greenCardDate);
-  const windowStartDate = parseISO(windowStart);
+  const windowStartDate = parseDate(windowStart);
 
   if (isAfter(current, windowStartDate) || current.getTime() === windowStartDate.getTime()) {
     return 0;
@@ -117,10 +120,10 @@ export function isInFilingWindow(
   greenCardDate: string,
   currentDate: string = new Date().toISOString(),
 ): boolean {
-  const current = parseISO(currentDate);
+  const current = parseDate(currentDate);
   const { windowStart, windowEnd } = getFilingWindowDates(greenCardDate);
-  const windowStartDate = parseISO(windowStart);
-  const windowEndDate = parseISO(windowEnd);
+  const windowStartDate = parseDate(windowStart);
+  const windowEndDate = parseDate(windowEnd);
 
   return (
     (isAfter(current, windowStartDate) || current.getTime() === windowStartDate.getTime()) &&
@@ -135,7 +138,7 @@ export function getFilingWindowDates(greenCardDate: string): {
   windowStart: string;
   windowEnd: string;
 } {
-  const gcDate = parseISO(greenCardDate);
+  const gcDate = parseDate(greenCardDate);
 
   // Calculate 2-year anniversary (end of filing window)
   const windowEnd = addYears(gcDate, REMOVAL_OF_CONDITIONS.CONDITIONAL_PERIOD_YEARS);
@@ -153,7 +156,7 @@ export function getFilingWindowDates(greenCardDate: string): {
  * Get the deadline for filing Form I-751 (2-year anniversary)
  */
 export function getRemovalOfConditionsDeadline(greenCardDate: string): string {
-  const gcDate = parseISO(greenCardDate);
+  const gcDate = parseDate(greenCardDate);
   const deadline = addYears(gcDate, REMOVAL_OF_CONDITIONS.CONDITIONAL_PERIOD_YEARS);
   return deadline.toISOString().split(ISO_DATE_UTILS.TIME_SEPARATOR)[0];
 }

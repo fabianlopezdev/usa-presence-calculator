@@ -6,7 +6,7 @@
  */
 
 // External dependencies
-import { parseISO } from 'date-fns';
+// None needed - using internal utilities
 
 // Internal dependencies - Schemas & Types
 import {
@@ -45,6 +45,9 @@ import { calculateGreenCardRenewalStatus } from '@business-logic/calculations/co
 import { calculateRemovalOfConditionsStatus } from '@business-logic/calculations/compliance/removal-of-conditions';
 import { calculateSelectiveServiceStatus } from '@business-logic/calculations/compliance/selective-service';
 import { calculateTaxReminderStatus } from '@business-logic/calculations/compliance/tax-reminders';
+
+// Internal dependencies - Utilities
+import { parseDate } from '@utils/date-helpers';
 
 /**
  * Calculate comprehensive compliance status
@@ -150,7 +153,7 @@ export function getUpcomingDeadlines(
   currentDate: string = new Date().toISOString(),
 ): UpcomingDeadline[] {
   const deadlines: UpcomingDeadline[] = [];
-  const current = parseISO(currentDate);
+  const current = parseDate(currentDate);
 
   // Add removal of conditions deadline
   const removalDeadline = getRemovalOfConditionsUpcomingDeadline(compliance.removalOfConditions);
@@ -172,7 +175,7 @@ export function getUpcomingDeadlines(
   if (taxDeadline) deadlines.push(taxDeadline);
 
   // Sort by date
-  return deadlines.sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime());
+  return deadlines.sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime());
 }
 
 /**

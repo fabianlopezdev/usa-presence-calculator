@@ -6,14 +6,7 @@
  */
 
 // External dependencies
-import {
-  addYears,
-  addDays,
-  differenceInDays,
-  differenceInYears,
-  parseISO,
-  isAfter,
-} from 'date-fns';
+import { addYears, addDays, differenceInDays, differenceInYears, isAfter } from 'date-fns';
 
 // Internal dependencies - Schemas & Types
 import { SelectiveServiceStatus } from '@schemas/compliance';
@@ -22,6 +15,9 @@ import { SelectiveServiceStatus } from '@schemas/compliance';
 import { SELECTIVE_SERVICE } from '@constants/uscis-rules';
 import { SELECTIVE_SERVICE_STATUS } from '@constants/compliance';
 import { ISO_DATE_UTILS } from '@constants/date-time';
+
+// Internal dependencies - Utilities
+import { parseDate } from '@utils/date-helpers';
 
 /**
  * Calculate the selective service registration status
@@ -94,8 +90,8 @@ export function getAgeInYears(
   birthDate: string,
   currentDate: string = new Date().toISOString(),
 ): number {
-  const birth = parseISO(birthDate);
-  const current = parseISO(currentDate);
+  const birth = parseDate(birthDate);
+  const current = parseDate(currentDate);
 
   return differenceInYears(current, birth);
 }
@@ -109,7 +105,7 @@ export function getRegistrationDeadline(birthDate: string, gender: string): stri
     return null;
   }
 
-  const birth = parseISO(birthDate);
+  const birth = parseDate(birthDate);
   const eighteenthBirthday = addYears(birth, SELECTIVE_SERVICE.MIN_AGE);
   const registrationDeadline = addDays(
     eighteenthBirthday,
@@ -131,14 +127,14 @@ export function getDaysUntilRegistrationRequired(
     return 0;
   }
 
-  const current = parseISO(currentDate);
+  const current = parseDate(currentDate);
   const registrationDate = getRegistrationDeadline(birthDate, gender);
 
   if (!registrationDate) {
     return 0;
   }
 
-  const deadline = parseISO(registrationDate);
+  const deadline = parseDate(registrationDate);
 
   if (isAfter(current, deadline) || current.getTime() === deadline.getTime()) {
     return 0;
@@ -154,8 +150,8 @@ export function getDaysUntilAgedOut(
   birthDate: string,
   currentDate: string = new Date().toISOString(),
 ): number {
-  const current = parseISO(currentDate);
-  const birth = parseISO(birthDate);
+  const current = parseDate(currentDate);
+  const birth = parseDate(birthDate);
   const twentySixthBirthday = addYears(birth, SELECTIVE_SERVICE.MAX_AGE);
 
   if (
