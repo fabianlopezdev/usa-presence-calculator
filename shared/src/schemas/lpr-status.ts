@@ -149,7 +149,7 @@ export const PermitProtectedThresholdsSchema = z.object({
   highRiskThreshold: z.number(),
   criticalThreshold: z.number(),
   warningMessage: z.string().optional(),
-});
+}).strict();
 
 // Advanced schemas for enhanced LPR status assessment
 export const N470ExemptionSchema = z.object({
@@ -159,7 +159,7 @@ export const N470ExemptionSchema = z.object({
   startDate: z.string().optional(),
   status: N470StatusSchema,
   type: z.string().optional(),
-});
+}).strict();
 
 export const PatternOfNonResidenceSchema = z.object({
   avgDaysAbroadPerYear: z.number(),
@@ -170,7 +170,7 @@ export const PatternOfNonResidenceSchema = z.object({
   shortestReturnToUSA: z.number(),
   totalDaysAbroad: z.number(),
   yearsCovered: z.number(),
-});
+}).strict();
 
 export const RebuttablePresumptionSchema = z.object({
   applies: z.boolean(),
@@ -178,14 +178,14 @@ export const RebuttablePresumptionSchema = z.object({
   evidenceProvided: z.boolean().optional(),
   maxDaysAbroad: z.number().optional(),
   reason: z.string().optional(),
-});
+}).strict();
 
 export const ReentryPermitAdvancedSchema = z.object({
   applicationDate: z.string().optional(),
   approvalDate: z.string().optional(),
   expirationDate: z.string().optional(),
   status: ReentryPermitStatusSchema,
-});
+}).strict();
 
 export const LPRStatusRiskFactorsSchema = z.object({
   abandonedTaxResidency: z.boolean(),
@@ -196,7 +196,7 @@ export const LPRStatusRiskFactorsSchema = z.object({
   hasRebuttablePresumption: z.boolean(),
   movedPermanentResidence: z.boolean(),
   totalRiskScore: z.number(),
-});
+}).strict();
 
 export const LPRStatusAssessmentAdvancedSchema = z.object({
   currentStatus: z.enum(['maintained', 'at_risk', 'presumed_abandoned', 'abandoned']),
@@ -209,7 +209,7 @@ export const LPRStatusAssessmentAdvancedSchema = z.object({
   reentryPermit: ReentryPermitAdvancedSchema,
   riskFactors: LPRStatusRiskFactorsSchema,
   suggestions: z.array(z.string()),
-});
+}).strict();
 
 export const LPRStatusInputSchema = z.object({
   currentDate: z.string(),
@@ -225,9 +225,9 @@ export const LPRStatusInputSchema = z.object({
       destinationCountry: z.string(),
       notes: z.string().optional(),
       purpose: z.string().optional(),
-    }),
+    }).strict(),
   ),
-});
+}).strict();
 
 // Export types derived from schemas
 export type ComprehensiveRiskAssessment = z.infer<typeof ComprehensiveRiskAssessmentSchema>;
