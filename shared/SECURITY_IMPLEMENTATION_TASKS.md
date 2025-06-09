@@ -164,13 +164,23 @@
 ## Phase 3: Medium Priority Enhancements
 
 ### 3.1 Add Zod Validation at Function Boundaries
-- [ ] Identify all public API functions
-- [ ] Create input validation schemas
-- [ ] Implement validation at boundaries
-- [ ] Update function signatures
-- [ ] Commit per module
-- [ ] Tests pass
-- [ ] Checklist verified
+- [x] Identify all exported functions from business-logic modules
+  - [x] Presence calculation exports (5 functions - all have safe wrappers)
+  - [x] LPR status calculation exports (3 main functions - all have safe wrappers)
+  - [x] Compliance calculation exports (5 coordinator + 4 individual - all have safe wrappers)
+  - [x] Travel analytics exports (4 main functions - all have safe wrappers)
+  - [x] Travel risk assessment exports (1 main function - has safe wrapper)
+  - [x] Utility function exports (3 trip calculation functions - all have safe wrappers)
+- [x] Create input validation schemas for functions not covered by safe wrappers
+- [x] Implement validation at function boundaries
+- [x] Update function signatures with validated types (via safe wrappers)
+- [x] Commit per module
+  - [x] Compliance functions
+  - [x] Travel analytics
+  - [x] Travel risk assessment
+  - [x] Utility functions
+- [x] Tests pass
+- [x] Checklist verified
 
 ### 3.2 Improve Test Coverage for Edge Cases
 - [ ] Analyze coverage report
