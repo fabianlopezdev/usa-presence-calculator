@@ -138,14 +138,17 @@
 ## Phase 2: High Priority Improvements
 
 ### 2.1 Implement Comprehensive Error Handling
-- [ ] Create error infrastructure file
-- [ ] Define USCISCalculationError class
-- [ ] Define USCISValidationError class
-- [ ] Define Result type pattern
-- [ ] Commit: `feat: create error infrastructure`
-- [ ] Implement safe wrapper functions per domain
-- [ ] Tests for error handling
-- [ ] Checklist verified
+- [x] Create error infrastructure file
+- [x] Define USCISCalculationError class
+- [x] Define USCISValidationError class
+- [x] Define Result type pattern
+- [x] Commit: `feat: create error infrastructure`
+- [x] Implement safe wrapper functions per domain
+  - [x] Presence calculations (safe-calculator.ts)
+  - [x] LPR status calculations (safe-calculator.ts)
+  - [x] Compliance calculations (safe-compliance-coordinator.ts)
+- [x] Tests for error handling
+- [x] Checklist verified
 
 ### 2.2 Add Security-Focused Tests
 - [ ] Create security test infrastructure
