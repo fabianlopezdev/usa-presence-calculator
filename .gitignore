@@ -23,6 +23,14 @@ dist/
 *.orig.*
 web-build/
 
+# Package managers (only pnpm should be used)
+package-lock.json
+yarn.lock
+npm-shrinkwrap.json
+.npmrc
+.yarnrc
+.yarnrc.yml
+
 # React Native
 *.log
 npm-debug.log*
