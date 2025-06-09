@@ -1,12 +1,14 @@
 import { z } from 'zod';
 
+import { DATE_VALIDATION } from '@constants/validation-messages';
+
 /**
  * User profile schema - Core user information
  */
 export const UserProfileSchema = z.object({
   id: z.string().uuid(),
   email: z.string().email(),
-  greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+  greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
   eligibilityCategory: z.enum(['three_year', 'five_year']),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),

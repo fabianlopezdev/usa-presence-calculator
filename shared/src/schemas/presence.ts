@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { DATE_VALIDATION } from '@constants/validation-messages';
+
 /**
  * Presence calculation result schema
  * Contains all calculated values for physical presence tracking
@@ -10,8 +12,8 @@ export const PresenceCalculationSchema = z.object({
   requiredDays: z.number().int().positive(),
   percentageComplete: z.number().min(0).max(100),
   daysRemaining: z.number().int().nonnegative(),
-  eligibilityDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-  earliestFilingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+  eligibilityDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
+  earliestFilingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
 }).strict();
 
 /**
@@ -46,7 +48,7 @@ export const EligibilityMilestoneSchema = z.object({
     'one_year_remaining',
     'six_months_remaining',
   ]),
-  achievedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+  achievedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
   message: z.string(),
 }).strict();
 
@@ -86,8 +88,8 @@ export const ContinuousResidenceWarningSimpleSchema = z.object({
  * Used by calculateEligibilityDates function
  */
 export const EligibilityDatesSchema = z.object({
-  eligibilityDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-  earliestFilingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+  eligibilityDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
+  earliestFilingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
 }).strict();
 
 /**

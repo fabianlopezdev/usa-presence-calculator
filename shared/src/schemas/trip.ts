@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { DATE_VALIDATION } from '@constants/validation-messages';
+
 // Custom refinement to ensure return date is after departure date
 const dateRangeRefinement = (data: { departureDate: string; returnDate: string }): boolean => {
   const departure = new Date(data.departureDate);
@@ -11,8 +13,8 @@ const dateRangeRefinement = (data: { departureDate: string; returnDate: string }
  * Base trip schema with common fields
  */
 const BaseTripSchema = z.object({
-  departureDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-  returnDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+  departureDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
+  returnDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
   location: z.string().optional(),
 }).strict();
 
@@ -26,7 +28,7 @@ export const TripSchema = BaseTripSchema.extend({
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 }).strict().refine(dateRangeRefinement, {
-  message: 'Return date must be after or equal to departure date',
+  message: DATE_VALIDATION.RETURN_BEFORE_DEPARTURE,
   path: ['returnDate'],
 });
 
@@ -34,7 +36,7 @@ export const TripSchema = BaseTripSchema.extend({
  * Trip creation schema - Data required to create a new trip
  */
 export const TripCreateSchema = BaseTripSchema.refine(dateRangeRefinement, {
-  message: 'Return date must be after or equal to departure date',
+  message: DATE_VALIDATION.RETURN_BEFORE_DEPARTURE,
   path: ['returnDate'],
 });
 
@@ -52,7 +54,7 @@ export const TripUpdateSchema = BaseTripSchema.partial().refine(
     return true;
   },
   {
-    message: 'Return date must be after or equal to departure date',
+    message: DATE_VALIDATION.RETURN_BEFORE_DEPARTURE,
     path: ['returnDate'],
   },
 );
@@ -62,12 +64,12 @@ export const TripUpdateSchema = BaseTripSchema.partial().refine(
  */
 export const SimulatedTripSchema = z
   .object({
-    departureDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-    returnDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+    departureDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
+    returnDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
   })
   .strict()
   .refine(dateRangeRefinement, {
-    message: 'Return date must be after or equal to departure date',
+    message: DATE_VALIDATION.RETURN_BEFORE_DEPARTURE,
     path: ['returnDate'],
   });
 
