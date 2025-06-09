@@ -7,10 +7,12 @@
  * - compliance.ts: Compliance statuses, types, and user-facing messages
  * - priority-urgency.ts: Priority levels, thresholds, and sort orders
  * - date-time.ts: Date/time utilities and calendar constants
+ * - validation-messages.ts: Centralized validation error messages
  */
 
-export * from './uscis-rules';
-export * from './travel-analytics';
 export * from './compliance';
-export * from './priority-urgency';
 export * from './date-time';
+export * from './priority-urgency';
+export * from './travel-analytics';
+export * from './uscis-rules';
+export * from './validation-messages';
