@@ -5,11 +5,11 @@ This document is the complete reference for ALL constants, enums, and configurat
 ## Summary Audit
 
 ### Overall Statistics
-- **Total Constant Files**: 6 (5 specific + 1 index)
-- **Total Constants**: 42 main constant objects
+- **Total Constant Files**: 7 (6 specific + 1 index)
+- **Total Constants**: 52 main constant objects
 - **Total Enum Types**: 15 TypeScript enum-like types
-- **Constant Categories**: 5 major categories
-- **Total Individual Values**: ~250+
+- **Constant Categories**: 6 major categories
+- **Total Individual Values**: ~300+
 
 ### Constants by Category
 
@@ -20,6 +20,7 @@ This document is the complete reference for ALL constants, enums, and configurat
 | **Priority & Urgency** | 8 | Time thresholds and sorting priorities |
 | **Travel Analytics** | 8 | Risk assessment and projection configuration |
 | **Date & Time** | 4 | Time conversions and calendar utilities |
+| **Validation Messages** | 10 | Centralized error messages for consistency |
 
 ## Table of Contents
 
@@ -28,9 +29,10 @@ This document is the complete reference for ALL constants, enums, and configurat
 3. [Priority & Urgency Constants](#priority--urgency-constants)
 4. [Travel Analytics Constants](#travel-analytics-constants)
 5. [Date & Time Constants](#date--time-constants)
-6. [Alphabetical Constant Index](#alphabetical-constant-index)
-7. [TypeScript Types Index](#typescript-types-index)
-8. [Constants by Usage](#constants-by-usage)
+6. [Validation Messages](#validation-messages)
+7. [Alphabetical Constant Index](#alphabetical-constant-index)
+8. [TypeScript Types Index](#typescript-types-index)
+9. [Constants by Usage](#constants-by-usage)
 
 ---
 
@@ -525,8 +527,116 @@ DC_EMANCIPATION_DAY = {
 
 ---
 
+## Validation Messages
+**File**: `/constants/validation-messages.ts`
+
+### Date Validation Messages
+```typescript
+DATE_VALIDATION = {
+  INVALID_FORMAT: 'Date must be in YYYY-MM-DD format',
+  RETURN_BEFORE_DEPARTURE: 'Return date must be after or equal to departure date',
+} as const;
+```
+**Purpose**: Consistent date format validation messages
+
+### Presence Validation Messages
+```typescript
+PRESENCE_VALIDATION = {
+  INVALID_INPUT: 'Invalid input for presence calculation',
+  INVALID_GREEN_CARD_DATE: 'Invalid green card date',
+  INVALID_CALCULATION_DATE: 'Invalid calculation date',
+  GREEN_CARD_FUTURE: 'Green card date cannot be in the future',
+  UNKNOWN_ERROR: 'An unknown error occurred during presence calculation',
+} as const;
+```
+**Purpose**: Physical presence calculation error messages
+
+### LPR Status Validation Messages
+```typescript
+LPR_STATUS_VALIDATION = {
+  INVALID_INPUT: 'Invalid input for LPR status assessment',
+  INVALID_PARAMS: 'Invalid parameters for LPR status assessment',
+  INVALID_TRIP_DURATION: 'Invalid parameters for trip duration calculation',
+  UNKNOWN_ERROR_GREEN_CARD_RISK: 'An unknown error occurred during green card risk assessment',
+  UNKNOWN_ERROR: 'An unknown error occurred during LPR status assessment',
+} as const;
+```
+**Purpose**: LPR status assessment error messages
+
+### Compliance Validation Messages
+```typescript
+COMPLIANCE_VALIDATION = {
+  INVALID_INPUT: 'Invalid input for compliance calculation',
+  INVALID_REMOVAL_CONDITIONS: 'Invalid input for removal of conditions calculation',
+  INVALID_GREEN_CARD_RENEWAL: 'Invalid input for green card renewal calculation',
+  INVALID_SELECTIVE_SERVICE: 'Invalid input for selective service calculation',
+  INVALID_TAX_REMINDER: 'Invalid input for tax reminder calculation',
+  UNKNOWN_ERROR: 'An unknown error occurred during compliance calculation',
+} as const;
+```
+**Purpose**: Compliance tracking error messages
+
+### Analytics Validation Messages
+```typescript
+ANALYTICS_VALIDATION = {
+  INVALID_INPUT: 'Invalid input for analytics calculation',
+  UNKNOWN_ERROR: 'An unknown error occurred during analytics calculation',
+} as const;
+```
+**Purpose**: Travel analytics error messages
+
+### Travel Risk Validation Messages
+```typescript
+TRAVEL_RISK_VALIDATION = {
+  INVALID_ASSESSMENT: 'Invalid input for trip risk assessment',
+  UNKNOWN_ERROR: 'An unknown error occurred during trip risk assessment',
+} as const;
+```
+**Purpose**: Travel risk assessment error messages
+
+### Trip Validation Messages
+```typescript
+TRIP_VALIDATION = {
+  INVALID_DURATION: 'Invalid input for trip duration calculation',
+  INVALID_RANGE: 'Invalid input for trip days calculation',
+  UNKNOWN_ERROR: 'An unknown error occurred during trip calculation',
+} as const;
+```
+**Purpose**: Trip calculation error messages
+
+### User Validation Messages
+```typescript
+USER_VALIDATION = {
+  INVALID_PROFILE: 'Invalid user profile data',
+  INVALID_SETTINGS: 'Invalid user settings',
+} as const;
+```
+**Purpose**: User data validation messages
+
+### Notification Validation Messages
+```typescript
+NOTIFICATION_VALIDATION = {
+  INVALID_DATA: 'Invalid notification data',
+  INVALID_PREFERENCES: 'Invalid notification preferences',
+} as const;
+```
+**Purpose**: Notification system error messages
+
+### Schema Validation Messages
+```typescript
+SCHEMA_VALIDATION = {
+  EXTRA_PROPERTIES: 'Object contains unexpected properties',
+  MISSING_REQUIRED: 'Missing required fields',
+  TYPE_MISMATCH: 'Invalid data type',
+} as const;
+```
+**Purpose**: Generic schema validation messages
+
+---
+
 ## Alphabetical Constant Index
 
+- ANALYTICS_VALIDATION - `/constants/validation-messages.ts`
 - ANNUAL_SUMMARY_CONFIG - `/constants/travel-analytics.ts`
 - BUDGET_RECOMMENDATIONS - `/constants/travel-analytics.ts`
 - COMPLIANCE_ACTIVE_ITEM_MESSAGES - `/constants/compliance.ts`
@@ -534,9 +644,11 @@ DC_EMANCIPATION_DAY = {
 - COMPLIANCE_ITEM_TYPE - `/constants/compliance.ts`
 - COMPLIANCE_PRIORITY_MESSAGES - `/constants/compliance.ts`
 - COMPLIANCE_TYPE_SORT_ORDER - `/constants/priority-urgency.ts`
+- COMPLIANCE_VALIDATION - `/constants/validation-messages.ts`
 - CONFIDENCE_THRESHOLDS - `/constants/travel-analytics.ts`
 - CONTINUOUS_RESIDENCE_REQUIREMENTS - `/constants/uscis-rules.ts`
 - CONTINUOUS_RESIDENCE_THRESHOLDS - `/constants/uscis-rules.ts`
+- DATE_VALIDATION - `/constants/validation-messages.ts`
 - DAY_OF_WEEK - `/constants/date-time.ts`
 - DC_EMANCIPATION_DAY - `/constants/date-time.ts`
 - DEFAULT_VALUES - `/constants/travel-analytics.ts`
@@ -548,9 +660,12 @@ DC_EMANCIPATION_DAY = {
 - GREEN_CARD_RENEWAL_THRESHOLDS_MONTHS - `/constants/priority-urgency.ts`
 - ISO_DATE_UTILS - `/constants/date-time.ts`
 - LPR_ABANDONMENT_THRESHOLDS - `/constants/uscis-rules.ts`
+- LPR_STATUS_VALIDATION - `/constants/validation-messages.ts`
 - MILLISECONDS - `/constants/date-time.ts`
 - MONTH_INDEX - `/constants/date-time.ts`
+- NOTIFICATION_VALIDATION - `/constants/validation-messages.ts`
 - PHYSICAL_PRESENCE_REQUIREMENTS - `/constants/uscis-rules.ts`
+- PRESENCE_VALIDATION - `/constants/validation-messages.ts`
 - PRIORITY_LEVEL - `/constants/priority-urgency.ts`
 - PRIORITY_SORT_ORDER - `/constants/priority-urgency.ts`
 - PRIORITY_THRESHOLDS - `/constants/priority-urgency.ts`
@@ -562,6 +677,7 @@ DC_EMANCIPATION_DAY = {
 - RISK_MESSAGES - `/constants/travel-analytics.ts`
 - RISK_RECOMMENDATIONS - `/constants/travel-analytics.ts`
 - RISK_WARNING_THRESHOLDS - `/constants/uscis-rules.ts`
+- SCHEMA_VALIDATION - `/constants/validation-messages.ts`
 - SELECTIVE_SERVICE - `/constants/uscis-rules.ts`
 - SELECTIVE_SERVICE_STATUS - `/constants/compliance.ts`
 - SELECTIVE_SERVICE_URGENCY_DAYS - `/constants/priority-urgency.ts`
@@ -571,7 +687,10 @@ DC_EMANCIPATION_DAY = {
 - TAX_FILING_THRESHOLDS_DAYS - `/constants/priority-urgency.ts`
 - TIME_PERIODS - `/constants/travel-analytics.ts`
 - TRAVEL_BUDGET_BUFFERS - `/constants/travel-analytics.ts`
+- TRAVEL_RISK_VALIDATION - `/constants/validation-messages.ts`
 - TRAVEL_TREND_THRESHOLDS - `/constants/travel-analytics.ts`
+- TRIP_VALIDATION - `/constants/validation-messages.ts`
+- USER_VALIDATION - `/constants/validation-messages.ts`
 
 ---
 

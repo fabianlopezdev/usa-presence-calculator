@@ -5,12 +5,14 @@ This document is the complete, consolidated reference for ALL functions in the s
 ## Summary Audit
 
 ### Overall Statistics
-- **Total Functions**: 194 (145 exported + 49 internal)
+- **Total Functions**: 231 (182 exported + 49 internal)
 - **Business Logic Functions**: 161 (112 exported + 49 internal)
+- **Safe Wrapper Functions**: 27 (all exported)
+- **Error Handling Utilities**: 10 (all exported)
 - **Utility Functions**: 26 (all exported)
 - **Schema Functions**: 7 (all exported)
-- **Total Feature Areas**: 9
-- **Files Documented**: 41
+- **Total Feature Areas**: 11
+- **Files Documented**: 48
 
 ### Functions by Category
 
@@ -22,6 +24,8 @@ This document is the complete, consolidated reference for ALL functions in the s
 | **Travel Analytics** | 19 | 9 | 28 | Travel patterns, projections, statistics |
 | **Travel Risk** | 21 | 9 | 30 | Abandonment risk, comprehensive assessments |
 | **Reporting** | 6 | 2 | 8 | Annual summaries, milestone tracking |
+| **Safe Wrappers** | 27 | 0 | 27 | Validated input wrappers with Result type |
+| **Error Handling** | 10 | 0 | 10 | Result type utilities and error management |
 | **Date Utilities** | 13 | 0 | 13 | Date manipulation and formatting |
 | **Trip Calculations** | 5 | 0 | 5 | USCIS-compliant trip calculations |
 | **Validation Utilities** | 8 | 0 | 8 | Trip validation and filtering |
@@ -36,6 +40,8 @@ This document is the complete, consolidated reference for ALL functions in the s
    - [Travel Analytics](#travel-analytics)
    - [Travel Risk Assessment](#travel-risk-assessment)
    - [Reporting & Milestones](#reporting--milestones)
+   - [Safe Wrapper Functions](#safe-wrapper-functions)
+   - [Error Handling Utilities](#error-handling-utilities)
    - [Date Utilities](#date-utilities)
    - [Trip Calculations](#trip-calculations)
    - [Validation Utilities](#validation-utilities)
@@ -1046,6 +1052,222 @@ This document is the complete, consolidated reference for ALL functions in the s
   ```
   Creates physical presence milestone
 
+### Safe Wrapper Functions
+
+Safe wrapper functions provide validated input handling using the Result type pattern. All safe wrappers follow the pattern `safe<OriginalFunctionName>` and return `Result<T, E>` instead of throwing exceptions.
+
+#### Presence Calculation Safe Wrappers
+**File**: `/business-logic/calculations/presence/safe-calculator.ts`
+
+- **`safeCalculateDaysOfPhysicalPresence`** *(exported)*
+  ```typescript
+  (trips: unknown, greenCardDate: unknown, currentDate?: unknown): Result<number, TripValidationError | DateRangeError>
+  ```
+  Safe wrapper for calculateDaysOfPhysicalPresence with input validation
+
+- **`safeCalculatePresenceStatus`** *(exported)*
+  ```typescript
+  (trips: unknown, eligibilityCategory: unknown, greenCardDate: unknown, currentDate?: unknown): Result<PresenceStatus, TripValidationError | DateRangeError>
+  ```
+  Safe wrapper for calculatePresenceStatus with schema validation
+
+- **`safeCheckContinuousResidence`** *(exported)*
+  ```typescript
+  (trips: unknown): Result<ContinuousResidenceResult, TripValidationError>
+  ```
+  Safe wrapper for checkContinuousResidence with trip validation
+
+- **`safeCalculateEligibilityDates`** *(exported)*
+  ```typescript
+  (totalDaysInUSA: unknown, eligibilityCategory: unknown, greenCardDate: unknown, currentDate?: unknown): Result<EligibilityDates, TripValidationError | DateRangeError>
+  ```
+  Safe wrapper for calculateEligibilityDates with parameter validation
+
+#### LPR Status Safe Wrappers
+**File**: `/business-logic/calculations/lpr-status/safe-calculator.ts`
+
+- **`safeAssessRiskOfLosingPermanentResidentStatus`** *(exported)*
+  ```typescript
+  (trips: unknown, greenCardDate: unknown, asOfDate?: unknown): Result<LPRStatusRiskAssessment, TripValidationError | LPRStatusError>
+  ```
+  Safe wrapper for basic LPR status risk assessment
+
+- **`safeAssessRiskOfLosingPermanentResidentStatusAdvanced`** *(exported)*
+  ```typescript
+  (params: unknown): Result<AdvancedLPRStatusAssessment, TripValidationError | LPRStatusError>
+  ```
+  Safe wrapper for advanced LPR status assessment with all parameters
+
+- **`safeCalculateMaximumTripDurationWithExemptions`** *(exported)*
+  ```typescript
+  (params: unknown): Result<MaximumTripDurationResult, TripValidationError | LPRStatusError>
+  ```
+  Safe wrapper for maximum trip duration calculation
+
+#### Compliance Safe Wrappers
+**File**: `/business-logic/calculations/compliance/safe-compliance-coordinator.ts`
+
+- **`safeCalculateComprehensiveCompliance`** *(exported)*
+  ```typescript
+  (params: unknown): Result<ComprehensiveComplianceStatus, TripValidationError | ComplianceCalculationError>
+  ```
+  Safe wrapper for comprehensive compliance calculation
+
+**File**: `/business-logic/calculations/compliance/safe-compliance-functions.ts`
+
+- **`safeCalculateRemovalOfConditionsStatus`** *(exported)*
+  ```typescript
+  (isConditionalResident: unknown, greenCardDate: unknown, currentDate?: unknown): Result<RemovalOfConditionsStatus, DateRangeError | ComplianceCalculationError>
+  ```
+  Safe wrapper for I-751 status calculation
+
+- **`safeCalculateGreenCardRenewalStatus`** *(exported)*
+  ```typescript
+  (greenCardExpirationDate: unknown, currentDate?: unknown): Result<GreenCardRenewalStatus, DateRangeError | ComplianceCalculationError>
+  ```
+  Safe wrapper for green card renewal status
+
+- **`safeCalculateSelectiveServiceStatus`** *(exported)*
+  ```typescript
+  (birthDate?: unknown, gender?: unknown, isSelectiveServiceRegistered?: unknown, currentDate?: unknown): Result<SelectiveServiceStatus, DateRangeError | ComplianceCalculationError>
+  ```
+  Safe wrapper for selective service status
+
+- **`safeCalculateTaxReminderStatus`** *(exported)*
+  ```typescript
+  (trips: unknown, isDismissed?: unknown, currentDate?: unknown): Result<TaxReminderStatus, DateRangeError | ComplianceCalculationError>
+  ```
+  Safe wrapper for tax reminder status
+
+#### Travel Analytics Safe Wrappers
+**File**: `/business-logic/calculations/travel-analytics/safe-analytics.ts`
+
+- **`safeAssessUpcomingTripRisk`** *(exported)*
+  ```typescript
+  (upcomingTrips: unknown, currentTotalDaysAbroad: unknown, eligibilityCategory: unknown, greenCardDate: unknown, currentDate?: unknown): Result<TripRiskAssessment[], TripValidationError | USCISCalculationError>
+  ```
+  Safe wrapper for upcoming trip risk assessment
+
+- **`safeCalculateCountryStatistics`** *(exported)*
+  ```typescript
+  (trips: unknown): Result<CountryStatistics[], TripValidationError | USCISCalculationError>
+  ```
+  Safe wrapper for country statistics calculation
+
+- **`safeCalculateDaysAbroadByYear`** *(exported)*
+  ```typescript
+  (trips: unknown, greenCardDate: unknown, currentDate?: unknown): Result<YearlyDaysAbroad[], DateRangeError | TripValidationError | USCISCalculationError>
+  ```
+  Safe wrapper for yearly days abroad calculation
+
+- **`safeProjectEligibilityDate`** *(exported)*
+  ```typescript
+  (trips: unknown, totalDaysInUSA: unknown, eligibilityCategory: unknown, greenCardDate: unknown, currentDate?: unknown): Result<TravelProjection, DateRangeError | TripValidationError | USCISCalculationError>
+  ```
+  Safe wrapper for eligibility date projection
+
+#### Travel Risk Safe Wrappers
+**File**: `/business-logic/calculations/travel-risk/safe-assessment.ts`
+
+- **`safeAssessTripRiskForAllLegalThresholds`** *(exported)*
+  ```typescript
+  (trip: unknown, reentryPermitInfo?: unknown): Result<ComprehensiveRiskAssessment, TripValidationError | USCISCalculationError>
+  ```
+  Safe wrapper for comprehensive trip risk assessment
+
+#### Utility Safe Wrappers
+**File**: `/utils/safe-trip-calculations.ts`
+
+- **`safeCalculateTripDuration`** *(exported)*
+  ```typescript
+  (trip: unknown, options?: unknown): Result<number, TripValidationError | DateRangeError>
+  ```
+  Safe wrapper for trip duration calculation
+
+- **`safeCalculateTripDaysInPeriod`** *(exported)*
+  ```typescript
+  (trip: unknown, startDate: unknown, endDate: unknown, options?: unknown): Result<number, TripValidationError | DateRangeError>
+  ```
+  Safe wrapper for trip days in period calculation
+
+- **`safeCalculateTripDaysInYear`** *(exported)*
+  ```typescript
+  (trip: unknown, year: unknown, options?: unknown): Result<number, TripValidationError | DateRangeError>
+  ```
+  Safe wrapper for trip days in year calculation
+
+### Error Handling Utilities
+
+**File**: `/errors/index.ts`
+
+The error handling utilities implement a functional Result type pattern inspired by Rust, enabling explicit error handling without exceptions.
+
+#### Result Type Constructors
+
+- **`ok`** *(exported)*
+  ```typescript
+  <T>(data: T): Result<T, never>
+  ```
+  Creates a successful Result containing data
+
+- **`err`** *(exported)*
+  ```typescript
+  <E>(error: E): Result<never, E>
+  ```
+  Creates a failed Result containing an error
+
+#### Type Guards
+
+- **`isOk`** *(exported)*
+  ```typescript
+  <T, E>(result: Result<T, E>): result is { success: true; data: T }
+  ```
+  Type guard to check if Result is successful
+
+- **`isErr`** *(exported)*
+  ```typescript
+  <T, E>(result: Result<T, E>): result is { success: false; error: E }
+  ```
+  Type guard to check if Result is an error
+
+#### Functional Utilities
+
+- **`mapResult`** *(exported)*
+  ```typescript
+  <T, U, E>(result: Result<T, E>, fn: (value: T) => U): Result<U, E>
+  ```
+  Maps a successful Result value, leaving errors unchanged
+
+- **`mapError`** *(exported)*
+  ```typescript
+  <T, E, F>(result: Result<T, E>, fn: (error: E) => F): Result<T, F>
+  ```
+  Maps an error Result value, leaving success unchanged
+
+- **`chainResult`** *(exported)*
+  ```typescript
+  <T, U, E>(result: Result<T, E>, fn: (value: T) => Result<U, E>): Result<U, E>
+  ```
+  Chains Result operations (flatMap/bind)
+
+- **`combineResults`** *(exported)*
+  ```typescript
+  <T, E>(results: Result<T, E>[]): Result<T[], E>
+  ```
+  Combines multiple Results into a single Result
+
+- **`unwrapResult`** *(exported)*
+  ```typescript
+  <T, E>(result: Result<T, E>): T
+  ```
+  Unwraps a Result or throws the error
+
+- **`unwrapOr`** *(exported)*
+  ```typescript
+  <T, E>(result: Result<T, E>, defaultValue: T): T
+  ```
+  Unwraps a Result or returns a default value
+
 ### Date Utilities
 
 **File**: `/utils/date-helpers.ts`
@@ -1318,7 +1540,7 @@ This document is the complete, consolidated reference for ALL functions in the s
 
 ## Alphabetical Function Index
 
-All 194 functions listed alphabetically with their file locations:
+All 231 functions listed alphabetically with their file locations (including safe wrappers and error utilities):
 
 - `addFinalPresenceStreak` *(internal)* - `/business-logic/calculations/travel-analytics/streak-helpers.ts`
 - `addGapStreaks` *(internal)* - `/business-logic/calculations/travel-analytics/streak-helpers.ts`
@@ -1373,11 +1595,13 @@ All 194 functions listed alphabetically with their file locations:
 - `calculateTripMetrics` *(exported)* - `/business-logic/calculations/lpr-status/helpers.ts`
 - `calculateVariance` *(internal)* - `/business-logic/calculations/travel-risk/helpers.ts`
 - `calculateYearSummaryData` *(exported)* - `/business-logic/calculations/reporting/annual-summary.ts`
+- `chainResult` *(exported)* - `/errors/index.ts`
 - `checkContinuousResidence` *(exported)* - `/business-logic/calculations/presence/calculator.ts`
 - `checkIfTripApproachesContinuousResidenceRisk` *(exported)* - `/business-logic/calculations/travel-risk/abandonment.ts`
 - `checkIfTripApproachesGreenCardLoss` *(exported)* - `/business-logic/calculations/travel-risk/abandonment.ts`
 - `checkIfTripBreaksContinuousResidence` *(exported)* - `/business-logic/calculations/travel-risk/abandonment.ts`
 - `checkIfTripRisksAutomaticGreenCardLoss` *(exported)* - `/business-logic/calculations/travel-risk/abandonment.ts`
+- `combineResults` *(exported)* - `/errors/index.ts`
 - `compareWithPreviousYear` *(exported)* - `/business-logic/calculations/reporting/annual-summary.ts`
 - `createEarlyFilingMilestone` *(internal)* - `/business-logic/calculations/reporting/milestones.ts`
 - `createNoHistoryProjection` *(internal)* - `/business-logic/calculations/travel-analytics/analytics.ts`
@@ -1395,6 +1619,7 @@ All 194 functions listed alphabetically with their file locations:
 - `determineTravelBudgetRisk` *(exported)* - `/business-logic/calculations/travel-risk/helpers.ts`
 - `determineTravelTrend` *(exported)* - `/business-logic/calculations/travel-risk/helpers.ts`
 - `endOfUTCDay` *(exported)* - `/utils/date-helpers.ts`
+- `err` *(exported)* - `/errors/index.ts`
 - `filterValidTrips` *(exported)* - `/utils/validation.ts`
 - `formatDate` *(exported)* - `/utils/date-helpers.ts`
 - `formatDateRange` *(exported)* - `/business-logic/calculations/travel-analytics/helpers.ts`
@@ -1472,9 +1697,11 @@ All 194 functions listed alphabetically with their file locations:
 - `hasRiskyTrips` *(exported)* - `/business-logic/calculations/lpr-status/helpers.ts`
 - `isCurrentlyTaxSeason` *(exported)* - `/business-logic/calculations/compliance/tax-reminders.ts`
 - `isEligibleForEarlyFiling` *(exported)* - `/business-logic/calculations/presence/calculator.ts`
+- `isErr` *(exported)* - `/errors/index.ts`
 - `isInFilingWindow` *(exported)* - `/business-logic/calculations/compliance/removal-of-conditions.ts`
 - `isInRenewalWindow` *(exported)* - `/business-logic/calculations/compliance/green-card-renewal.ts`
 - `isLeapYear` *(exported)* - `/utils/date-helpers.ts`
+- `isOk` *(exported)* - `/errors/index.ts`
 - `isSelectiveServiceRequired` *(exported)* - `/business-logic/calculations/compliance/selective-service.ts`
 - `isValidDate` *(exported)* - `/utils/date-helpers.ts`
 - `isValidDateFormat` *(exported)* - `/utils/date-helpers.ts`
@@ -1483,14 +1710,37 @@ All 194 functions listed alphabetically with their file locations:
 - `isValidTripForRiskAssessment` *(exported)* - `/utils/validation.ts`
 - `isValidTripWithId` *(exported)* - `/utils/validation.ts`
 - `isWithinYearBoundaries` *(internal)* - `/business-logic/calculations/travel-analytics/helpers.ts`
+- `mapError` *(exported)* - `/errors/index.ts`
+- `mapResult` *(exported)* - `/errors/index.ts`
 - `mapRiskLevelToDescription` *(exported)* - `/business-logic/calculations/travel-risk/assessment-helpers.ts`
 - `mapToBasicRiskLevel` *(internal)* - `/business-logic/calculations/lpr-status/helpers.ts`
+- `ok` *(exported)* - `/errors/index.ts`
 - `parseDate` *(exported)* - `/utils/date-helpers.ts`
 - `parseDateInput` *(exported)* - `/utils/date-helpers.ts`
 - `parseTripDates` *(exported)* - `/business-logic/calculations/travel-analytics/helpers.ts`
 - `parseUTCDate` *(exported)* - `/utils/date-helpers.ts`, `/utils/utc-date-helpers.ts`
 - `populateTripDaysSet` *(exported)* - `/utils/trip-calculations.ts`
 - `projectEligibilityDate` *(exported)* - `/business-logic/calculations/travel-analytics/analytics.ts`
+- `safeAssessRiskOfLosingPermanentResidentStatus` *(exported)* - `/business-logic/calculations/lpr-status/safe-calculator.ts`
+- `safeAssessRiskOfLosingPermanentResidentStatusAdvanced` *(exported)* - `/business-logic/calculations/lpr-status/safe-calculator.ts`
+- `safeAssessTripRiskForAllLegalThresholds` *(exported)* - `/business-logic/calculations/travel-risk/safe-assessment.ts`
+- `safeAssessUpcomingTripRisk` *(exported)* - `/business-logic/calculations/travel-analytics/safe-analytics.ts`
+- `safeCalculateComprehensiveCompliance` *(exported)* - `/business-logic/calculations/compliance/safe-compliance-coordinator.ts`
+- `safeCalculateCountryStatistics` *(exported)* - `/business-logic/calculations/travel-analytics/safe-analytics.ts`
+- `safeCalculateDaysAbroadByYear` *(exported)* - `/business-logic/calculations/travel-analytics/safe-analytics.ts`
+- `safeCalculateDaysOfPhysicalPresence` *(exported)* - `/business-logic/calculations/presence/safe-calculator.ts`
+- `safeCalculateEligibilityDates` *(exported)* - `/business-logic/calculations/presence/safe-calculator.ts`
+- `safeCalculateGreenCardRenewalStatus` *(exported)* - `/business-logic/calculations/compliance/safe-compliance-functions.ts`
+- `safeCalculateMaximumTripDurationWithExemptions` *(exported)* - `/business-logic/calculations/lpr-status/safe-calculator.ts`
+- `safeCalculatePresenceStatus` *(exported)* - `/business-logic/calculations/presence/safe-calculator.ts`
+- `safeCalculateRemovalOfConditionsStatus` *(exported)* - `/business-logic/calculations/compliance/safe-compliance-functions.ts`
+- `safeCalculateSelectiveServiceStatus` *(exported)* - `/business-logic/calculations/compliance/safe-compliance-functions.ts`
+- `safeCalculateTaxReminderStatus` *(exported)* - `/business-logic/calculations/compliance/safe-compliance-functions.ts`
+- `safeCalculateTripDaysInPeriod` *(exported)* - `/utils/safe-trip-calculations.ts`
+- `safeCalculateTripDaysInYear` *(exported)* - `/utils/safe-trip-calculations.ts`
+- `safeCalculateTripDuration` *(exported)* - `/utils/safe-trip-calculations.ts`
+- `safeCheckContinuousResidence` *(exported)* - `/business-logic/calculations/presence/safe-calculator.ts`
+- `safeProjectEligibilityDate` *(exported)* - `/business-logic/calculations/travel-analytics/safe-analytics.ts`
 - `sortPriorityItems` *(exported)* - `/business-logic/calculations/compliance/compliance-helpers.ts`
 - `startOfUTCDay` *(exported)* - `/utils/date-helpers.ts`
 - `subUTCDays` *(exported)* - `/utils/date-helpers.ts`, `/utils/utc-date-helpers.ts`
@@ -1501,6 +1751,8 @@ All 194 functions listed alphabetically with their file locations:
 - `toTravelStreakOutput` *(exported)* - `/schemas/travel-analytics-helpers.ts`
 - `toTripRiskAssessmentOutput` *(exported)* - `/schemas/travel-analytics-helpers.ts`
 - `toUpcomingDeadlineOutput` *(exported)* - `/schemas/compliance-helpers.ts`
+- `unwrapOr` *(exported)* - `/errors/index.ts`
+- `unwrapResult` *(exported)* - `/errors/index.ts`
 - `updateCountryData` *(exported)* - `/business-logic/calculations/travel-analytics/helpers.ts`
 - `validateAndParseDates` *(exported)* - `/business-logic/calculations/presence/helpers.ts`
 - `validateTripForCalculation` *(exported)* - `/utils/validation.ts`

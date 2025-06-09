@@ -93,7 +93,6 @@ export {
   ReentryPermitStatusSchema,
   TravelRiskDetails,
   TravelRiskDetailsSchema,
-  TravelRiskLevel,
   TravelRiskLevelSchema,
 } from './lpr-status';
 

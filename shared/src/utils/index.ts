@@ -5,7 +5,7 @@
  */
 
 export * from './date-helpers';
+export * from './safe-trip-calculations';
 export * from './trip-calculations';
 export * from './utc-date-helpers';
 export * from './validation';
-export * from './safe-trip-calculations';

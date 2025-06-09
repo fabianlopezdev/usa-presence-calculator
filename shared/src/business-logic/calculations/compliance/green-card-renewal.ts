@@ -29,16 +29,7 @@ import { ISO_DATE_UTILS } from '@constants/date-time';
 // Internal dependencies - Utilities
 import { parseDate } from '@utils/date-helpers';
 
-/**
- * Calculate the green card renewal status
- *
- * @param expirationDate - The expiration date of the 10-year green card
- * @param currentDate - The current date to check against
- * @returns Green card renewal status
- *
- * NOTE: This function is ONLY for 10-year permanent resident cards.
- * For 2-year conditional resident cards, use the removal of conditions module.
- */
+
 export function calculateGreenCardRenewalStatus(
   expirationDate: string,
   currentDate: string = new Date().toISOString(),
