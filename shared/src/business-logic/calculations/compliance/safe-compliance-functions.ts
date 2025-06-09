@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-import { TripSchema } from '@schemas/trip';
 import { REMOVAL_CONDITIONS_STATUS } from '@constants/compliance';
+import { COMPLIANCE_VALIDATION, DATE_VALIDATION } from '@constants/validation-messages';
 import { 
   ComplianceCalculationError,
   DateRangeError,
@@ -9,6 +9,7 @@ import {
   ok,
   Result
 } from '@errors/index';
+import { TripSchema } from '@schemas/trip';
 
 import { calculateGreenCardRenewalStatus } from './green-card-renewal';
 import { calculateRemovalOfConditionsStatus } from './removal-of-conditions';
@@ -26,26 +27,26 @@ import type {
  */
 const RemovalOfConditionsInputSchema = z.object({
   isConditionalResident: z.boolean(),
-  greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
+  greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
+  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
 });
 
 /**
  * Input validation schema for green card renewal calculation
  */
 const GreenCardRenewalInputSchema = z.object({
-  greenCardExpirationDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
+  greenCardExpirationDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
+  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
 });
 
 /**
  * Input validation schema for selective service calculation
  */
 const SelectiveServiceInputSchema = z.object({
-  birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
+  birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
   gender: z.enum(['male', 'female', 'other']).optional(),
   isSelectiveServiceRegistered: z.boolean().optional(),
-  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
+  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
 });
 
 /**
@@ -54,7 +55,7 @@ const SelectiveServiceInputSchema = z.object({
 const TaxReminderInputSchema = z.object({
   trips: z.array(TripSchema),
   isDismissed: z.boolean().optional(),
-  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
+  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
 });
 
 /**
@@ -75,7 +76,7 @@ export function safeCalculateRemovalOfConditionsStatus(
     
     if (!parseResult.success) {
       return err(new DateRangeError(
-        'Invalid input for removal of conditions calculation',
+        COMPLIANCE_VALIDATION.INVALID_REMOVAL_CONDITIONS,
         parseResult.error.format()
       ));
     }
@@ -105,7 +106,7 @@ export function safeCalculateRemovalOfConditionsStatus(
     if (error instanceof Error) {
       return err(new ComplianceCalculationError(error.message));
     }
-    return err(new ComplianceCalculationError('Unknown error during removal of conditions calculation'));
+    return err(new ComplianceCalculationError(COMPLIANCE_VALIDATION.UNKNOWN_ERROR));
   }
 }
 
@@ -125,7 +126,7 @@ export function safeCalculateGreenCardRenewalStatus(
     
     if (!parseResult.success) {
       return err(new DateRangeError(
-        'Invalid input for green card renewal calculation',
+        COMPLIANCE_VALIDATION.INVALID_GREEN_CARD_RENEWAL,
         parseResult.error.format()
       ));
     }
@@ -141,7 +142,7 @@ export function safeCalculateGreenCardRenewalStatus(
     if (error instanceof Error) {
       return err(new ComplianceCalculationError(error.message));
     }
-    return err(new ComplianceCalculationError('Unknown error during green card renewal calculation'));
+    return err(new ComplianceCalculationError(COMPLIANCE_VALIDATION.UNKNOWN_ERROR));
   }
 }
 
@@ -165,7 +166,7 @@ export function safeCalculateSelectiveServiceStatus(
     
     if (!parseResult.success) {
       return err(new DateRangeError(
-        'Invalid input for selective service calculation',
+        COMPLIANCE_VALIDATION.INVALID_SELECTIVE_SERVICE,
         parseResult.error.format()
       ));
     }
@@ -183,7 +184,7 @@ export function safeCalculateSelectiveServiceStatus(
     if (error instanceof Error) {
       return err(new ComplianceCalculationError(error.message));
     }
-    return err(new ComplianceCalculationError('Unknown error during selective service calculation'));
+    return err(new ComplianceCalculationError(COMPLIANCE_VALIDATION.UNKNOWN_ERROR));
   }
 }
 
@@ -205,7 +206,7 @@ export function safeCalculateTaxReminderStatus(
     
     if (!parseResult.success) {
       return err(new DateRangeError(
-        'Invalid input for tax reminder calculation',
+        COMPLIANCE_VALIDATION.INVALID_TAX_REMINDER,
         parseResult.error.format()
       ));
     }
@@ -222,6 +223,6 @@ export function safeCalculateTaxReminderStatus(
     if (error instanceof Error) {
       return err(new ComplianceCalculationError(error.message));
     }
-    return err(new ComplianceCalculationError('Unknown error during tax reminder calculation'));
+    return err(new ComplianceCalculationError(COMPLIANCE_VALIDATION.UNKNOWN_ERROR));
   }
 }

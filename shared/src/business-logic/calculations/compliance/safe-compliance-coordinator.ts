@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { TripSchema } from '@schemas/trip';
+import { COMPLIANCE_VALIDATION, DATE_VALIDATION } from '@constants/validation-messages';
 import { 
   ComplianceCalculationError,
   DateRangeError,
@@ -8,6 +8,7 @@ import {
   ok,
   Result
 } from '@errors/index';
+import { TripSchema } from '@schemas/trip';
 
 import {
   calculateComprehensiveCompliance,
@@ -27,17 +28,17 @@ import type {
  * Input validation schema for compliance calculations
  */
 const ComplianceCalculationInputSchema = z.object({
-  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
-  greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-  greenCardExpirationDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-  birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
+  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
+  greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
+  greenCardExpirationDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
+  birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
   gender: z.enum(['male', 'female', 'other']).optional(),
   isConditionalResident: z.boolean(),
   isSelectiveServiceRegistered: z.boolean().optional(),
   taxReminderDismissed: z.boolean().optional(),
   trips: z.array(TripSchema),
   hadRemovalOfConditions: z.boolean().optional(),
-  renewalFilingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
+  renewalFilingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
   lastTaxFilingYear: z.number().int().min(2000).max(2100).optional(),
 }).strict();
 
@@ -53,7 +54,7 @@ export function safeCalculateComprehensiveCompliance(
     
     if (!parseResult.success) {
       return err(new DateRangeError(
-        'Invalid input for compliance calculation',
+        COMPLIANCE_VALIDATION.INVALID_COMPREHENSIVE,
         parseResult.error.format()
       ));
     }
@@ -64,7 +65,7 @@ export function safeCalculateComprehensiveCompliance(
     if (error instanceof Error) {
       return err(new ComplianceCalculationError(error.message));
     }
-    return err(new ComplianceCalculationError('Unknown error during compliance calculation'));
+    return err(new ComplianceCalculationError(COMPLIANCE_VALIDATION.UNKNOWN_ERROR));
   }
 }
 
@@ -88,7 +89,7 @@ export function safeGetActiveComplianceItems(
     if (error instanceof Error) {
       return err(new ComplianceCalculationError(error.message));
     }
-    return err(new ComplianceCalculationError('Unknown error getting active compliance items'));
+    return err(new ComplianceCalculationError(COMPLIANCE_VALIDATION.UNKNOWN_ERROR));
   }
 }
 
@@ -112,7 +113,7 @@ export function safeGetPriorityComplianceItems(
     if (error instanceof Error) {
       return err(new ComplianceCalculationError(error.message));
     }
-    return err(new ComplianceCalculationError('Unknown error getting priority compliance items'));
+    return err(new ComplianceCalculationError(COMPLIANCE_VALIDATION.UNKNOWN_ERROR));
   }
 }
 
@@ -152,7 +153,7 @@ export function safeGetUpcomingDeadlines(
     if (error instanceof Error) {
       return err(new ComplianceCalculationError(error.message));
     }
-    return err(new ComplianceCalculationError('Unknown error getting upcoming deadlines'));
+    return err(new ComplianceCalculationError(COMPLIANCE_VALIDATION.UNKNOWN_ERROR));
   }
 }
 
