@@ -9,3 +9,4 @@ export * from './assessment-helpers';
 export * from './helpers';
 // export * from './comprehensive'; // Commenting out to avoid duplicate export
 export * from './abandonment';
+export * from './safe-assessment';
