@@ -1,6 +1,7 @@
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createId } from '@paralleldrive/cuid2';
 
 import { DATABASE } from '@api/constants/database';
 import {
@@ -86,7 +87,7 @@ export function setupTestDatabase(): void {
 }
 
 function generateTestUserId(): string {
-  return `user-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+  return createId();
 }
 
 function generateTestEmail(): string {
@@ -119,7 +120,7 @@ export async function createTestUser(data?: Partial<schema.NewUser>): Promise<sc
 }
 
 function generateTestTripId(): string {
-  return `trip-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+  return createId();
 }
 
 function getDefaultTestTrip(userId: string, timestamp: string): schema.NewTrip {
