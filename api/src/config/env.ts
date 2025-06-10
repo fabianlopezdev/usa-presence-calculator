@@ -45,6 +45,20 @@ const envSchema = z.object({
 export type Env = z.infer<typeof envSchema>;
 
 export function validateEnv(): Env {
+  // In test environment, provide defaults for all required fields
+  if (process.env.NODE_ENV === 'test' && !process.env.CI) {
+    const testDefaults = {
+      NODE_ENV: 'test',
+      DATABASE_URL: ':memory:',
+      DATABASE_ENCRYPTION_KEY: 'test-encryption-key-32-characters-long!!',
+      MASTER_ENCRYPTION_KEY: 'test-master-key-32-characters-long!!!!!!',
+      JWT_SECRET: 'test-jwt-secret-32-characters-long!!!!!!',
+      COOKIE_SECRET: 'test-cookie-secret-32-characters-long!!',
+      ...process.env,
+    };
+    return envSchema.parse(testDefaults);
+  }
+
   const parsed = envSchema.safeParse(process.env);
 
   if (!parsed.success) {
