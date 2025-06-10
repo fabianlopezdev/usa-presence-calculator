@@ -2,6 +2,7 @@ import fastify, { FastifyInstance } from 'fastify';
 
 import { config } from '@api/config/env';
 import swaggerPlugin from '@api/plugins/swagger';
+import authRoute from '@api/routes/auth';
 import healthRoute from '@api/routes/health';
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -24,6 +25,7 @@ export async function buildApp(): Promise<FastifyInstance> {
 
   await app.register(swaggerPlugin);
 
+  await app.register(authRoute);
   await app.register(healthRoute);
 
   return app;
