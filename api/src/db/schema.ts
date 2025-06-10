@@ -120,3 +120,6 @@ export type AuditLog = typeof auditLogs.$inferSelect;
 export type NewAuditLog = typeof auditLogs.$inferInsert;
 export type EncryptionKey = typeof encryptionKeys.$inferSelect;
 export type NewEncryptionKey = typeof encryptionKeys.$inferInsert;
+
+// Re-export auth schema
+export * from './auth-schema';
