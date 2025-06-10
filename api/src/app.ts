@@ -4,6 +4,7 @@ import { config } from '@api/config/env';
 import swaggerPlugin from '@api/plugins/swagger';
 import authRoute from '@api/routes/auth';
 import healthRoute from '@api/routes/health';
+import userRoutes from '@api/routes/users';
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = fastify({
@@ -27,6 +28,7 @@ export async function buildApp(): Promise<FastifyInstance> {
 
   await app.register(authRoute);
   await app.register(healthRoute);
+  await app.register(userRoutes, { prefix: '/users' });
 
   return app;
 }
