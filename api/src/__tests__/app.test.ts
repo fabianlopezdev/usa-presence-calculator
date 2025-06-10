@@ -22,12 +22,12 @@ describe('App Integration', () => {
     });
 
     expect(response.statusCode).toBe(200);
-    
+
     const swagger = JSON.parse(response.body) as {
       openapi: string;
       paths: Record<string, unknown>;
     };
-    
+
     expect(swagger.openapi).toBe('3.0.3');
     expect(swagger.paths).toHaveProperty('/health');
   });
@@ -61,7 +61,7 @@ describe('App Integration', () => {
     });
 
     expect([200, 302]).toContain(response.statusCode);
-    
+
     if (response.statusCode === 302) {
       expect(response.headers.location).toContain('documentation');
     }

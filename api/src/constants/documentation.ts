@@ -1,6 +1,7 @@
 export const SWAGGER_CONFIG = {
   TITLE: 'USA Presence Calculator API',
-  DESCRIPTION: 'Backend API for USA Presence Calculator - Track physical presence for naturalization eligibility',
+  DESCRIPTION:
+    'Backend API for USA Presence Calculator - Track physical presence for naturalization eligibility',
   VERSION: '1.0.0',
   OPENAPI_VERSION: '3.0.3',
   UI_ROUTE: '/documentation',

@@ -24,12 +24,12 @@ describe('Swagger Plugin', () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.headers['content-type']).toContain('application/json');
-    
+
     const swagger = JSON.parse(response.body) as {
       openapi: string;
       info: { title: string; version: string };
     };
-    
+
     expect(swagger.openapi).toBe('3.0.3');
     expect(swagger.info.title).toBe('USA Presence Calculator API');
   });

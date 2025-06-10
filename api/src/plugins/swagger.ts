@@ -17,12 +17,12 @@ const swaggerPlugin: FastifyPluginCallback = (fastify, _opts, done) => {
       },
       servers: [
         {
-          url: config.NODE_ENV === 'production' 
-            ? SWAGGER_CONFIG.PRODUCTION_URL 
-            : SWAGGER_CONFIG.DEVELOPMENT_URL,
-          description: config.NODE_ENV === 'production' 
-            ? 'Production server' 
-            : 'Development server',
+          url:
+            config.NODE_ENV === 'production'
+              ? SWAGGER_CONFIG.PRODUCTION_URL
+              : SWAGGER_CONFIG.DEVELOPMENT_URL,
+          description:
+            config.NODE_ENV === 'production' ? 'Production server' : 'Development server',
         },
       ],
       tags: [...SWAGGER_CONFIG.TAGS],
@@ -49,7 +49,7 @@ const swaggerPlugin: FastifyPluginCallback = (fastify, _opts, done) => {
     transformStaticCSP: (header) => header,
     transformSpecification: (swaggerObject, _request, _reply) => swaggerObject,
   });
-  
+
   done();
 };
 
