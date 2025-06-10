@@ -118,7 +118,7 @@ export const LARGE_NUMBERS = [
   Number.MAX_SAFE_INTEGER + 1,
   Number.MAX_VALUE,
   Infinity,
-  999999999999999999999999999999,
+  9007199254740992, // MAX_SAFE_INTEGER + 1
   1e308,
   -Number.MAX_SAFE_INTEGER,
   -Number.MAX_VALUE,
@@ -132,17 +132,17 @@ export const SPECIAL_NUMBERS = [
   NaN,
   -0,
   0.1 + 0.2, // Floating point precision issue
-  null as any,
-  undefined as any,
-  {} as any,
-  [] as any,
-  '123' as any, // String that looks like number
+  null as unknown as number,
+  undefined as unknown as number,
+  {} as unknown as number,
+  [] as unknown as number,
+  '123' as unknown as number, // String that looks like number
 ];
 
 /**
  * Malicious trip objects with excess properties
  */
-export const MALICIOUS_TRIP_OBJECTS: any[] = [
+export const MALICIOUS_TRIP_OBJECTS: unknown[] = [
   {
     id: '123e4567-e89b-12d3-a456-426614174000',
     userId: '123e4567-e89b-12d3-a456-426614174001',

@@ -160,7 +160,7 @@ export function unwrapResult<T, E>(result: Result<T, E>): T {
   if (isOk(result)) {
     return result.data;
   }
-  throw result.error;
+  throw new Error(result.error instanceof Error ? result.error.message : String(result.error));
 }
 
 /**

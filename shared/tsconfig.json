@@ -1,11 +1,13 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "rootDir": "./",
+    "rootDir": "./src",
     "outDir": "./dist",
+    "composite": true,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
     "lib": ["ES2022"],
     "target": "ES2022",
     "module": "commonjs",
@@ -29,6 +31,6 @@
       "@errors/*": ["src/errors/*"]
     }
   },
-  "include": ["src/**/*.ts", "tsup.config.ts"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }
