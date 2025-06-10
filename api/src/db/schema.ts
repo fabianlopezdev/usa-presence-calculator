@@ -5,7 +5,9 @@ export const users = sqliteTable('users', {
   id: text('id').primaryKey(),
   email: text('email').notNull().unique(),
   greenCardDate: text('green_card_date').notNull(),
-  eligibilityCategory: text('eligibility_category', { enum: ['three_year', 'five_year'] }).notNull(),
+  eligibilityCategory: text('eligibility_category', {
+    enum: ['three_year', 'five_year'],
+  }).notNull(),
   createdAt: text('created_at')
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
@@ -66,9 +68,7 @@ export const trips = sqliteTable('trips', {
   departureDate: text('departure_date').notNull(),
   returnDate: text('return_date').notNull(),
   location: text('location'),
-  isSimulated: integer('is_simulated', { mode: 'boolean' })
-    .notNull()
-    .default(false),
+  isSimulated: integer('is_simulated', { mode: 'boolean' }).notNull().default(false),
   createdAt: text('created_at')
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
