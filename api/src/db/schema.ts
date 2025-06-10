@@ -52,6 +52,12 @@ export const userSettings = sqliteTable('user_settings', {
   language: text('language', { enum: ['en', 'es'] })
     .notNull()
     .default('en'),
+  syncEnabled: integer('sync_enabled', { mode: 'boolean' }).notNull().default(false),
+  syncSubscriptionTier: text('sync_subscription_tier', { enum: ['none', 'basic', 'premium'] })
+    .notNull()
+    .default('none'),
+  syncLastSyncAt: text('sync_last_sync_at'),
+  syncDeviceId: text('sync_device_id'),
   createdAt: text('created_at')
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
@@ -69,6 +75,11 @@ export const trips = sqliteTable('trips', {
   returnDate: text('return_date').notNull(),
   location: text('location'),
   isSimulated: integer('is_simulated', { mode: 'boolean' }).notNull().default(false),
+  syncId: text('sync_id'),
+  deviceId: text('device_id'),
+  syncVersion: integer('sync_version').default(0),
+  syncStatus: text('sync_status', { enum: ['local', 'pending', 'synced'] }).default('local'),
+  deletedAt: text('deleted_at'),
   createdAt: text('created_at')
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
@@ -108,6 +119,37 @@ export const encryptionKeys = sqliteTable('encryption_keys', {
   rotatedAt: text('rotated_at'),
 });
 
+export const syncMetadata = sqliteTable('sync_metadata', {
+  id: text('id').primaryKey(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  deviceId: text('device_id').notNull(),
+  deviceName: text('device_name'),
+  lastModified: text('last_modified').notNull(),
+  syncVersion: integer('sync_version').notNull().default(1),
+  createdAt: text('created_at')
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text('updated_at')
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const syncDevices = sqliteTable('sync_devices', {
+  id: text('id').primaryKey(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  deviceId: text('device_id').notNull().unique(),
+  deviceName: text('device_name').notNull(),
+  deviceType: text('device_type', { enum: ['phone', 'tablet'] }).notNull(),
+  lastActiveAt: text('last_active_at').notNull(),
+  createdAt: text('created_at')
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
+});
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type AuthProvider = typeof authProviders.$inferSelect;
@@ -120,6 +162,10 @@ export type AuditLog = typeof auditLogs.$inferSelect;
 export type NewAuditLog = typeof auditLogs.$inferInsert;
 export type EncryptionKey = typeof encryptionKeys.$inferSelect;
 export type NewEncryptionKey = typeof encryptionKeys.$inferInsert;
+export type SyncMetadata = typeof syncMetadata.$inferSelect;
+export type NewSyncMetadata = typeof syncMetadata.$inferInsert;
+export type SyncDevice = typeof syncDevices.$inferSelect;
+export type NewSyncDevice = typeof syncDevices.$inferInsert;
 
 // Re-export auth schema
 export * from './auth-schema';

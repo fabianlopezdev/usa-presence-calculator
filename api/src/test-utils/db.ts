@@ -24,6 +24,8 @@ export function resetTestDatabase(): void {
 
   // Drop all tables in reverse order of dependencies
   const tableNames = [
+    'sync_devices',
+    'sync_metadata',
     'audit_logs',
     'encryption_keys',
     'trips',
@@ -59,6 +61,8 @@ export async function cleanupTestDatabase(): Promise<void> {
   const db = getDatabase();
 
   // Delete all data from tables in reverse order of dependencies
+  await db.delete(schema.syncDevices);
+  await db.delete(schema.syncMetadata);
   await db.delete(schema.auditLogs);
   await db.delete(schema.encryptionKeys);
   await db.delete(schema.trips);
