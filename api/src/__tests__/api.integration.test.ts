@@ -10,12 +10,12 @@ describe('API Integration Tests', () => {
 
   beforeAll(async () => {
     resetTestDatabase();
-    
-    app = fastify({ 
+
+    app = fastify({
       logger: false,
       forceCloseConnections: true,
     });
-    
+
     await app.register(healthRoute);
     await app.ready();
   });
@@ -37,7 +37,7 @@ describe('API Integration Tests', () => {
       });
 
       expect(response.statusCode).toBe(200);
-      
+
       const body = JSON.parse(response.body) as { status: string; timestamp: string };
       expect(body.status).toBe('ok');
     });
@@ -48,7 +48,7 @@ describe('API Integration Tests', () => {
       const testApp = fastify({ logger: false });
       await testApp.register(healthRoute);
       await testApp.ready();
-      
+
       const closePromise = testApp.close();
       await expect(closePromise).resolves.toBeUndefined();
     });
