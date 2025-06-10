@@ -17,7 +17,37 @@ import { AUTH_CONFIG, AUTH_ERRORS } from '@api/constants/auth';
 import { getDatabase } from '@api/db/connection';
 import { users, authUsers, passkeys, type Passkey } from '@api/db/schema';
 
+interface SecurityNotificationPayload {
+  type: 'new_passkey_enrolled' | 'passkey_removed';
+  deviceInfo?: string;
+  timestamp?: Date;
+}
+
 export class PasskeyService {
+  private parseTransports(
+    transportsJson: string | null,
+  ): AuthenticatorTransportFuture[] | undefined {
+    if (!transportsJson) return undefined;
+
+    try {
+      return JSON.parse(transportsJson) as AuthenticatorTransportFuture[];
+    } catch {
+      // Invalid JSON, ignore transports
+      return undefined;
+    }
+  }
+
+  private mapPasskeyToCredentialDescriptor(passkey: typeof passkeys.$inferSelect): {
+    id: string;
+    type: 'public-key';
+    transports?: AuthenticatorTransportFuture[];
+  } {
+    return {
+      id: passkey.credentialId,
+      type: 'public-key' as const,
+      transports: this.parseTransports(passkey.transports),
+    };
+  }
   async generateRegistrationOptions(
     userId: string,
   ): Promise<ReturnType<typeof generateRegistrationOptions>> {
@@ -33,13 +63,9 @@ export class PasskeyService {
     // Get existing passkeys to exclude
     const existingPasskeys = db.select().from(passkeys).where(eq(passkeys.userId, userId)).all();
 
-    const excludeCredentials = existingPasskeys.map((passkey) => ({
-      id: passkey.credentialId,
-      type: 'public-key' as const,
-      transports: passkey.transports
-        ? (JSON.parse(passkey.transports) as AuthenticatorTransportFuture[])
-        : undefined,
-    }));
+    const excludeCredentials = existingPasskeys.map((passkey) =>
+      this.mapPasskeyToCredentialDescriptor(passkey),
+    );
 
     const options: GenerateRegistrationOptionsOpts = {
       rpName: AUTH_CONFIG.RP_NAME,
@@ -89,6 +115,13 @@ export class PasskeyService {
         deviceType: credentialType,
         backed_up: credentialBackedUp,
       });
+
+      // Send security notification about new passkey enrollment
+      this.sendSecurityNotification(userId, {
+        type: 'new_passkey_enrolled',
+        deviceInfo: `${credentialType} authenticator`,
+        timestamp: new Date(),
+      });
     }
 
     return verification;
@@ -107,13 +140,9 @@ export class PasskeyService {
       const db = getDatabase();
       const userPasskeys = db.select().from(passkeys).where(eq(passkeys.userId, userId)).all();
 
-      opts.allowCredentials = userPasskeys.map((passkey) => ({
-        id: passkey.credentialId,
-        type: 'public-key' as const,
-        transports: passkey.transports
-          ? (JSON.parse(passkey.transports) as AuthenticatorTransportFuture[])
-          : undefined,
-      }));
+      opts.allowCredentials = userPasskeys.map((passkey) =>
+        this.mapPasskeyToCredentialDescriptor(passkey),
+      );
     }
 
     return await generateAuthenticationOptions(opts);
@@ -133,6 +162,8 @@ export class PasskeyService {
       throw new Error(AUTH_ERRORS.PASSKEY_NOT_FOUND || 'Passkey not found');
     }
 
+    const transports = this.parseTransports(passkey.transports);
+
     const opts: VerifyAuthenticationResponseOpts = {
       response,
       expectedChallenge,
@@ -143,7 +174,7 @@ export class PasskeyService {
         id: passkey.credentialId,
         publicKey: Buffer.from(passkey.publicKey, 'base64'),
         counter: passkey.counter,
-        transports: passkey.transports ? (JSON.parse(passkey.transports) as AuthenticatorTransportFuture[]) : undefined,
+        transports,
       },
     };
 
@@ -222,5 +253,14 @@ export class PasskeyService {
     if (!result.changes) {
       throw new Error('Passkey not found or not owned by user');
     }
+  }
+
+  private sendSecurityNotification(userId: string, payload: SecurityNotificationPayload): void {
+    // This will be implemented when we have the email service
+    // For now, we'll just log it
+    console.warn(`Security notification for user ${userId}:`, payload);
+
+    // TODO: When MagicLinkService is implemented with email capability,
+    // send an actual email notification to the user about the security event
   }
 }

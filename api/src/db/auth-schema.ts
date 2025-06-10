@@ -65,10 +65,13 @@ export const magicLinks = sqliteTable(
     id: text('id')
       .primaryKey()
       .$defaultFn(() => createId()),
-    userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     email: text('email').notNull(),
     token: text('token').notNull().unique(),
     expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+    used: integer('used', { mode: 'boolean' }).notNull().default(false),
     usedAt: integer('used_at', { mode: 'timestamp' }),
     ipAddress: text('ip_address'),
     userAgent: text('user_agent'),
@@ -80,6 +83,7 @@ export const magicLinks = sqliteTable(
     tokenIdx: index('magic_link_token_idx').on(table.token),
     emailIdx: index('magic_link_email_idx').on(table.email),
     expiresAtIdx: index('magic_link_expires_at_idx').on(table.expiresAt),
+    userIdIdx: index('magic_link_user_id_idx').on(table.userId),
   }),
 );
 
@@ -118,18 +122,25 @@ export const authAttempts = sqliteTable(
     id: text('id')
       .primaryKey()
       .$defaultFn(() => createId()),
+    userId: text('user_id'), // Can be null for failed attempts
     identifier: text('identifier').notNull(), // email or IP
-    attemptType: text('attempt_type').notNull(), // 'login', 'register', 'magic_link'
+    attemptType: text('attempt_type').notNull(), // 'login', 'register', 'magic_link', 'magic_link_verify'
     success: integer('success', { mode: 'boolean' }).notNull().default(false),
     ipAddress: text('ip_address'),
     userAgent: text('user_agent'),
+    metadata: text('metadata'), // JSON string for additional data
+    attemptedAt: integer('attempted_at', { mode: 'timestamp' })
+      .notNull()
+      .$defaultFn(() => new Date()),
     createdAt: integer('created_at', { mode: 'timestamp' })
       .notNull()
       .$defaultFn(() => new Date()),
   },
   (table) => ({
+    userIdIdx: index('auth_attempt_user_id_idx').on(table.userId),
     identifierIdx: index('auth_attempt_identifier_idx').on(table.identifier),
     createdAtIdx: index('auth_attempt_created_at_idx').on(table.createdAt),
+    attemptedAtIdx: index('auth_attempt_attempted_at_idx').on(table.attemptedAt),
     identifierTypeIdx: index('auth_attempt_identifier_type_idx').on(
       table.identifier,
       table.attemptType,

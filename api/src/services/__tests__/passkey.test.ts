@@ -163,6 +163,56 @@ describe('PasskeyService', () => {
       expect(savedPasskey?.publicKey).toBe(Buffer.from('public-key').toString('base64'));
     });
 
+    it('should send security notification when new passkey is registered', async () => {
+      const mockVerification = {
+        verified: true,
+        registrationInfo: {
+          credential: {
+            id: 'new-credential-id',
+            publicKey: Buffer.from('public-key'),
+            counter: 0,
+          },
+          credentialType: 'public-key',
+          credentialBackedUp: false,
+          attestationObject: Buffer.from('attestation'),
+          userVerified: true,
+        },
+      };
+
+      vi.mocked(verifyRegistrationResponse).mockResolvedValue(mockVerification as any);
+
+      const response = {
+        id: 'new-credential-id',
+        rawId: 'new-credential-id',
+        response: {
+          attestationObject: 'attestation-base64',
+          clientDataJSON: 'client-data-base64',
+        },
+        type: 'public-key' as const,
+        clientExtensionResults: {},
+      };
+
+      // Mock the notification service
+      const sendSecurityNotificationSpy = vi
+        .spyOn(passkeyService as any, 'sendSecurityNotification')
+        .mockResolvedValue(undefined);
+
+      await passkeyService.verifyRegistrationResponse(
+        testUserId,
+        response,
+        'test-challenge',
+        'localhost',
+      );
+
+      expect(sendSecurityNotificationSpy).toHaveBeenCalledWith(
+        testUserId,
+        expect.objectContaining({
+          type: 'new_passkey_enrolled',
+          deviceInfo: expect.any(String) as string,
+        }),
+      );
+    });
+
     it('should not save passkey if verification fails', async () => {
       const mockVerification = {
         verified: false,
@@ -507,6 +557,284 @@ describe('PasskeyService', () => {
       await expect(
         passkeyService.updatePasskeyName(passkey.id, testUserId, 'New Name'),
       ).rejects.toThrow('Passkey not found or not owned by user');
+    });
+
+    it('should handle empty name', async () => {
+      const db = getDatabase();
+      const [passkey] = await db
+        .insert(passkeys)
+        .values({
+          userId: testUserId,
+          credentialId: 'empty-name-test',
+          publicKey: 'key',
+          counter: 0,
+          name: 'Original Name',
+        })
+        .returning();
+
+      await passkeyService.updatePasskeyName(passkey.id, testUserId, '');
+
+      const updatedPasskey = await db
+        .select()
+        .from(passkeys)
+        .where(eq(passkeys.id, passkey.id))
+        .get();
+
+      expect(updatedPasskey?.name).toBe('');
+    });
+
+    it('should handle very long names', async () => {
+      const db = getDatabase();
+      const veryLongName = 'A'.repeat(1000);
+      const [passkey] = await db
+        .insert(passkeys)
+        .values({
+          userId: testUserId,
+          credentialId: 'long-name-test',
+          publicKey: 'key',
+          counter: 0,
+        })
+        .returning();
+
+      await passkeyService.updatePasskeyName(passkey.id, testUserId, veryLongName);
+
+      const updatedPasskey = await db
+        .select()
+        .from(passkeys)
+        .where(eq(passkeys.id, passkey.id))
+        .get();
+
+      expect(updatedPasskey?.name).toBe(veryLongName);
+    });
+  });
+
+  describe('edge cases and security scenarios', () => {
+    it('should handle concurrent passkey registrations', async () => {
+      const mockOptions = {
+        challenge: 'test-challenge',
+        rp: { name: 'USA Presence Calculator', id: 'localhost' },
+        user: { id: testUserId, name: 'test@example.com', displayName: 'test@example.com' },
+        excludeCredentials: [],
+      };
+
+      vi.mocked(generateRegistrationOptions).mockResolvedValue(mockOptions as any);
+
+      // Simulate concurrent registration attempts
+      const promises = Array(5)
+        .fill(null)
+        .map(() => passkeyService.generateRegistrationOptions(testUserId));
+
+      const results = await Promise.all(promises);
+
+      // All should succeed and return same structure
+      results.forEach((result) => {
+        expect(result).toHaveProperty('challenge');
+        expect(result).toHaveProperty('rp');
+      });
+    });
+
+    it('should handle malformed transports JSON', async () => {
+      const db = getDatabase();
+
+      // Insert passkey with invalid transports JSON
+      await db.insert(passkeys).values({
+        userId: testUserId,
+        credentialId: 'malformed-transports',
+        publicKey: 'key',
+        counter: 0,
+        transports: 'invalid-json-{]',
+      });
+
+      // Should not throw when generating options
+      const mockOptions = {
+        challenge: 'test-challenge',
+        allowCredentials: [],
+      };
+
+      vi.mocked(generateAuthenticationOptions).mockResolvedValue(mockOptions as any);
+
+      await expect(passkeyService.generateAuthenticationOptions(testUserId)).resolves.toBeDefined();
+    });
+
+    it('should handle passkey with maximum counter value', async () => {
+      const db = getDatabase();
+      const maxCounter = 2147483647; // Max 32-bit integer
+
+      await db
+        .insert(passkeys)
+        .values({
+          userId: testUserId,
+          credentialId: 'max-counter',
+          publicKey: Buffer.from('public-key').toString('base64'),
+          counter: maxCounter,
+        })
+        .returning();
+
+      const mockVerification = {
+        verified: true,
+        authenticationInfo: {
+          newCounter: maxCounter + 1,
+          userVerified: true,
+        },
+      };
+
+      vi.mocked(verifyAuthenticationResponse).mockResolvedValue(mockVerification as any);
+
+      const response = {
+        id: 'max-counter',
+        rawId: 'max-counter',
+        response: {
+          authenticatorData: 'auth-data',
+          clientDataJSON: 'client-data',
+          signature: 'signature',
+        },
+        type: 'public-key' as const,
+        clientExtensionResults: {},
+      };
+
+      // Should handle counter overflow gracefully
+      await expect(
+        passkeyService.verifyAuthenticationResponse(response, 'challenge', 'localhost'),
+      ).resolves.toMatchObject({ verified: true });
+    });
+
+    it('should handle user with many passkeys', async () => {
+      const db = getDatabase();
+
+      // Create 50 passkeys for the user
+      const manyPasskeys = Array(50)
+        .fill(null)
+        .map((_, i) => ({
+          userId: testUserId,
+          credentialId: `credential-${i}`,
+          publicKey: 'key',
+          counter: i,
+          name: `Device ${i}`,
+          createdAt: new Date(Date.now() - i * 1000 * 60 * 60), // Different times
+        }));
+
+      await db.insert(passkeys).values(manyPasskeys);
+
+      // List should return all passkeys ordered correctly
+      const userPasskeys = await passkeyService.listUserPasskeys(testUserId);
+
+      expect(userPasskeys).toHaveLength(50);
+      // Check ordering - newest first
+      expect(userPasskeys[0].name).toBe('Device 0');
+      expect(userPasskeys[49].name).toBe('Device 49');
+    });
+
+    it('should handle database transaction failures', async () => {
+      const mockVerification = {
+        verified: true,
+        registrationInfo: {
+          credential: {
+            id: 'tx-fail-credential',
+            publicKey: Buffer.from('public-key'),
+            counter: 0,
+          },
+          credentialType: 'public-key',
+          credentialBackedUp: false,
+          attestationObject: Buffer.from('attestation'),
+          userVerified: true,
+        },
+      };
+
+      vi.mocked(verifyRegistrationResponse).mockResolvedValue(mockVerification as any);
+
+      // Close database to simulate connection failure
+      closeDatabase();
+
+      const response = {
+        id: 'tx-fail-credential',
+        rawId: 'tx-fail-credential',
+        response: {
+          attestationObject: 'attestation-base64',
+          clientDataJSON: 'client-data-base64',
+        },
+        type: 'public-key' as const,
+        clientExtensionResults: {},
+      };
+
+      await expect(
+        passkeyService.verifyRegistrationResponse(
+          testUserId,
+          response,
+          'test-challenge',
+          'localhost',
+        ),
+      ).rejects.toThrow();
+
+      // Reinitialize for other tests
+      resetTestDatabase();
+    });
+
+    it('should handle passkey deletion race conditions', async () => {
+      const db = getDatabase();
+      const [passkey] = await db
+        .insert(passkeys)
+        .values({
+          userId: testUserId,
+          credentialId: 'race-condition',
+          publicKey: 'key',
+          counter: 0,
+        })
+        .returning();
+
+      // Simulate concurrent deletion attempts
+      const promises = Array(3)
+        .fill(null)
+        .map(() => passkeyService.deletePasskey(passkey.id, testUserId));
+
+      const results = await Promise.allSettled(promises);
+
+      // First should succeed, others should fail
+      const successes = results.filter((r) => r.status === 'fulfilled').length;
+      const failures = results.filter((r) => r.status === 'rejected').length;
+
+      expect(successes).toBe(1);
+      expect(failures).toBe(2);
+    });
+
+    it('should validate authenticator attachment properly', async () => {
+      const mockOptions = {
+        challenge: 'test-challenge',
+        rp: { name: 'USA Presence Calculator', id: 'localhost' },
+        user: { id: testUserId, name: 'test@example.com', displayName: 'test@example.com' },
+        authenticatorSelection: {
+          authenticatorAttachment: 'platform',
+          requireResidentKey: false,
+          residentKey: 'preferred',
+          userVerification: 'preferred',
+        },
+      };
+
+      vi.mocked(generateRegistrationOptions).mockResolvedValue(mockOptions as any);
+
+      const result = await passkeyService.generateRegistrationOptions(testUserId);
+
+      expect(result.authenticatorSelection?.authenticatorAttachment).toBe('platform');
+    });
+
+    it('should handle special characters in passkey names', async () => {
+      const db = getDatabase();
+      const specialName = '🔐 My "Special" <Passkey> & More!';
+
+      const [passkey] = await db
+        .insert(passkeys)
+        .values({
+          userId: testUserId,
+          credentialId: 'special-chars',
+          publicKey: 'key',
+          counter: 0,
+        })
+        .returning();
+
+      await passkeyService.updatePasskeyName(passkey.id, testUserId, specialName);
+
+      const updated = await db.select().from(passkeys).where(eq(passkeys.id, passkey.id)).get();
+
+      expect(updated?.name).toBe(specialName);
     });
   });
 });

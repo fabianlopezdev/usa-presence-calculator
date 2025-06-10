@@ -28,6 +28,11 @@ export function resetTestDatabase(): void {
     'trips',
     'user_settings',
     'auth_providers',
+    'auth_attempts',
+    'sessions',
+    'magic_links',
+    'passkeys',
+    'auth_users',
     'users',
   ];
 
@@ -58,6 +63,11 @@ export async function cleanupTestDatabase(): Promise<void> {
   await db.delete(schema.trips);
   await db.delete(schema.userSettings);
   await db.delete(schema.authProviders);
+  await db.delete(schema.authAttempts);
+  await db.delete(schema.sessions);
+  await db.delete(schema.magicLinks);
+  await db.delete(schema.passkeys);
+  await db.delete(schema.authUsers);
   await db.delete(schema.users);
 }
 

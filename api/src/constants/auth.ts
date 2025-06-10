@@ -46,6 +46,7 @@ export const AUTH_ERRORS = {
   RATE_LIMIT_EXCEEDED: 'Too many attempts. Please try again later',
   PASSKEY_REGISTRATION_FAILED: 'Failed to register passkey',
   PASSKEY_AUTHENTICATION_FAILED: 'Failed to authenticate with passkey',
+  PASSKEY_ALREADY_REGISTERED: 'Authenticator was probably already registered by user',
   MAGIC_LINK_EXPIRED: 'Magic link has expired',
   MAGIC_LINK_ALREADY_USED: 'Magic link has already been used',
   SESSION_EXPIRED: 'Session has expired',
