@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/await-thenable */
 
 import { describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest';
