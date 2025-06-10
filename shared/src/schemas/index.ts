@@ -185,3 +185,13 @@ export {
   UserSettings,
   UserSettingsSchema,
 } from './user';
+
+// Sync
+export {
+  SyncConflict,
+  SyncConflictSchema,
+  SyncDevice,
+  SyncDeviceSchema,
+  SyncMetadata,
+  SyncMetadataSchema,
+} from './sync';

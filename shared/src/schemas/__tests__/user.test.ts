@@ -135,5 +135,105 @@ describe('User Schemas', () => {
       const result = UserSettingsSchema.safeParse(settings);
       expect(result.success).toBe(true);
     });
+
+    it('should validate settings with sync disabled', () => {
+      const settings = {
+        notifications: {
+          milestones: true,
+          warnings: true,
+          reminders: false,
+        },
+        biometricAuthEnabled: true,
+        theme: 'light' as const,
+        language: 'en' as const,
+        sync: {
+          enabled: false,
+          subscriptionTier: 'none' as const,
+        },
+      };
+
+      const result = UserSettingsSchema.safeParse(settings);
+      expect(result.success).toBe(true);
+    });
+
+    it('should validate settings with basic sync enabled', () => {
+      const settings = {
+        notifications: {
+          milestones: true,
+          warnings: true,
+          reminders: true,
+        },
+        biometricAuthEnabled: false,
+        theme: 'dark' as const,
+        language: 'es' as const,
+        sync: {
+          enabled: true,
+          subscriptionTier: 'basic' as const,
+          lastSyncAt: new Date().toISOString(),
+          deviceId: 'device_123e4567-e89b-12d3-a456-426614174000',
+        },
+      };
+
+      const result = UserSettingsSchema.safeParse(settings);
+      expect(result.success).toBe(true);
+    });
+
+    it('should validate settings with premium sync', () => {
+      const settings = {
+        notifications: {
+          milestones: false,
+          warnings: true,
+          reminders: true,
+        },
+        biometricAuthEnabled: true,
+        theme: 'system' as const,
+        language: 'en' as const,
+        sync: {
+          enabled: true,
+          subscriptionTier: 'premium' as const,
+          lastSyncAt: '2024-01-15T10:30:00.000Z',
+          deviceId: 'device_987e6543-e89b-12d3-a456-426614174000',
+        },
+      };
+
+      const result = UserSettingsSchema.safeParse(settings);
+      expect(result.success).toBe(true);
+    });
+
+    it('should reject invalid subscription tier', () => {
+      const settings = {
+        notifications: {
+          milestones: true,
+          warnings: true,
+          reminders: true,
+        },
+        biometricAuthEnabled: false,
+        theme: 'light' as const,
+        language: 'en' as const,
+        sync: {
+          enabled: true,
+          subscriptionTier: 'invalid_tier',
+        },
+      };
+
+      const result = UserSettingsSchema.safeParse(settings);
+      expect(result.success).toBe(false);
+    });
+
+    it('should allow sync settings to be optional', () => {
+      const settings = {
+        notifications: {
+          milestones: true,
+          warnings: true,
+          reminders: true,
+        },
+        biometricAuthEnabled: false,
+        theme: 'light' as const,
+        language: 'en' as const,
+      };
+
+      const result = UserSettingsSchema.safeParse(settings);
+      expect(result.success).toBe(true);
+    });
   });
 });

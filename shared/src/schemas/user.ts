@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { DATE_VALIDATION } from '@constants/validation-messages';
+import { DATE_VALIDATION } from '../constants/validation-messages';
 
 /**
  * User profile schema - Core user information
@@ -47,6 +47,15 @@ export const UserSettingsSchema = z
     biometricAuthEnabled: z.boolean(),
     theme: z.enum(['light', 'dark', 'system']),
     language: z.enum(['en', 'es']),
+    sync: z
+      .object({
+        enabled: z.boolean(),
+        subscriptionTier: z.enum(['none', 'basic', 'premium']),
+        lastSyncAt: z.string().datetime().optional(),
+        deviceId: z.string().optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 
