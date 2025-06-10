@@ -1,9 +1,4 @@
-import { 
-  ComplianceCalculationError,
-  DateRangeError,
-  isErr,
-  isOk
-} from '@errors/index';
+import { ComplianceCalculationError, DateRangeError, isErr, isOk } from '@errors/index';
 
 import {
   safeCalculateComprehensiveCompliance,
@@ -46,7 +41,7 @@ describe('Safe Compliance Coordinator Functions', () => {
       expect(isOk(result)).toBe(true);
       if (isOk(result)) {
         expect(Array.isArray(result.data)).toBe(true);
-        result.data.forEach(item => {
+        result.data.forEach((item) => {
           expect(item).toHaveProperty('type');
           expect(item).toHaveProperty('description');
           expect(item).toHaveProperty('urgency');
@@ -175,7 +170,7 @@ describe('Safe Compliance Coordinator Functions', () => {
       expect(isOk(result)).toBe(true);
       if (isOk(result)) {
         expect(Array.isArray(result.data)).toBe(true);
-        result.data.forEach(item => {
+        result.data.forEach((item) => {
           expect(item).toHaveProperty('type');
           expect(item).toHaveProperty('description');
           expect(item).toHaveProperty('deadline');
@@ -189,12 +184,22 @@ describe('Safe Compliance Coordinator Functions', () => {
 
       if (isOk(result) && result.data.length > 1) {
         for (let i = 1; i < result.data.length; i++) {
-          const prevPriority = result.data[i - 1].priority === 'critical' ? 4 :
-                               result.data[i - 1].priority === 'high' ? 3 : 
-                               result.data[i - 1].priority === 'medium' ? 2 : 1;
-          const currPriority = result.data[i].priority === 'critical' ? 4 :
-                               result.data[i].priority === 'high' ? 3 : 
-                               result.data[i].priority === 'medium' ? 2 : 1;
+          const prevPriority =
+            result.data[i - 1].priority === 'critical'
+              ? 4
+              : result.data[i - 1].priority === 'high'
+                ? 3
+                : result.data[i - 1].priority === 'medium'
+                  ? 2
+                  : 1;
+          const currPriority =
+            result.data[i].priority === 'critical'
+              ? 4
+              : result.data[i].priority === 'high'
+                ? 3
+                : result.data[i].priority === 'medium'
+                  ? 2
+                  : 1;
           expect(prevPriority).toBeGreaterThanOrEqual(currPriority);
         }
       }
@@ -208,7 +213,7 @@ describe('Safe Compliance Coordinator Functions', () => {
       expect(isOk(result)).toBe(true);
       if (isOk(result)) {
         expect(Array.isArray(result.data)).toBe(true);
-        result.data.forEach(deadline => {
+        result.data.forEach((deadline) => {
           expect(deadline).toHaveProperty('type');
           expect(deadline).toHaveProperty('description');
           expect(deadline).toHaveProperty('date');
@@ -221,7 +226,7 @@ describe('Safe Compliance Coordinator Functions', () => {
       const result = safeGetUpcomingDeadlines(validParams, 30);
 
       if (isOk(result)) {
-        result.data.forEach(deadline => {
+        result.data.forEach((deadline) => {
           expect(deadline.daysRemaining).toBeLessThanOrEqual(30);
         });
       }

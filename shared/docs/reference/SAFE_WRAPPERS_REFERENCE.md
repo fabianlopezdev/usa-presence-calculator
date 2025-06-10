@@ -5,6 +5,7 @@ This document provides a comprehensive reference for all safe wrapper functions 
 ## Overview
 
 Safe wrapper functions provide a secure layer between external input and core business logic by:
+
 - Validating all inputs against strict Zod schemas
 - Returning `Result<T, E>` instead of throwing exceptions
 - Providing detailed error messages for debugging
@@ -13,9 +14,7 @@ Safe wrapper functions provide a secure layer between external input and core bu
 ## Result Type Pattern
 
 ```typescript
-type Result<T, E = Error> = 
-  | { success: true; data: T }
-  | { success: false; error: E };
+type Result<T, E = Error> = { success: true; data: T } | { success: false; error: E };
 ```
 
 ## Usage Pattern
@@ -23,11 +22,7 @@ type Result<T, E = Error> =
 ```typescript
 import { safeCalculateDaysOfPhysicalPresence } from '@usa-presence/shared';
 
-const result = safeCalculateDaysOfPhysicalPresence(
-  trips,
-  greenCardDate,
-  currentDate
-);
+const result = safeCalculateDaysOfPhysicalPresence(trips, greenCardDate, currentDate);
 
 if (result.success) {
   console.log(`Days in USA: ${result.data}`);
@@ -39,168 +34,226 @@ if (result.success) {
 ## Safe Wrapper Functions by Module
 
 ### Presence Calculation (4 functions)
+
 **File**: `/business-logic/calculations/presence/safe-calculator.ts`
 
 #### `safeCalculateDaysOfPhysicalPresence`
+
 ```typescript
-(trips: unknown, greenCardDate: unknown, currentDate?: unknown) 
-  => Result<number, TripValidationError | DateRangeError>
+(trips: unknown, greenCardDate: unknown, currentDate?: unknown) =>
+  Result<number, TripValidationError | DateRangeError>;
 ```
+
 Validates inputs and calculates total days physically present in USA.
 
 #### `safeCalculatePresenceStatus`
+
 ```typescript
-(trips: unknown, eligibilityCategory: unknown, greenCardDate: unknown, currentDate?: unknown) 
-  => Result<PresenceStatus, TripValidationError | DateRangeError>
+(trips: unknown, eligibilityCategory: unknown, greenCardDate: unknown, currentDate?: unknown) =>
+  Result<PresenceStatus, TripValidationError | DateRangeError>;
 ```
+
 Validates inputs and calculates comprehensive presence status.
 
 #### `safeCheckContinuousResidence`
+
 ```typescript
-(trips: unknown) 
-  => Result<ContinuousResidenceResult, TripValidationError>
+(trips: unknown) => Result<ContinuousResidenceResult, TripValidationError>;
 ```
+
 Validates trips and checks for continuous residence violations.
 
 #### `safeCalculateEligibilityDates`
+
 ```typescript
-(totalDaysInUSA: unknown, eligibilityCategory: unknown, greenCardDate: unknown, currentDate?: unknown) 
-  => Result<EligibilityDates, TripValidationError | DateRangeError>
+(
+  totalDaysInUSA: unknown,
+  eligibilityCategory: unknown,
+  greenCardDate: unknown,
+  currentDate?: unknown,
+) => Result<EligibilityDates, TripValidationError | DateRangeError>;
 ```
+
 Validates inputs and calculates citizenship eligibility dates.
 
 ### LPR Status Assessment (3 functions)
+
 **File**: `/business-logic/calculations/lpr-status/safe-calculator.ts`
 
 #### `safeAssessRiskOfLosingPermanentResidentStatus`
+
 ```typescript
-(trips: unknown, greenCardDate: unknown, asOfDate?: unknown) 
-  => Result<LPRStatusRiskAssessment, TripValidationError | LPRStatusError>
+(trips: unknown, greenCardDate: unknown, asOfDate?: unknown) =>
+  Result<LPRStatusRiskAssessment, TripValidationError | LPRStatusError>;
 ```
+
 Validates inputs for basic LPR status risk assessment.
 
 #### `safeAssessRiskOfLosingPermanentResidentStatusAdvanced`
+
 ```typescript
-(params: unknown) 
-  => Result<AdvancedLPRStatusAssessment, TripValidationError | LPRStatusError>
+(params: unknown) => Result<AdvancedLPRStatusAssessment, TripValidationError | LPRStatusError>;
 ```
+
 Validates comprehensive parameters for advanced LPR assessment.
 
 #### `safeCalculateMaximumTripDurationWithExemptions`
+
 ```typescript
-(params: unknown) 
-  => Result<MaximumTripDurationResult, TripValidationError | LPRStatusError>
+(params: unknown) => Result<MaximumTripDurationResult, TripValidationError | LPRStatusError>;
 ```
+
 Validates parameters for maximum trip duration calculation.
 
 ### Compliance Tracking (5 functions)
 
 #### Coordinator
+
 **File**: `/business-logic/calculations/compliance/safe-compliance-coordinator.ts`
 
 ##### `safeCalculateComprehensiveCompliance`
+
 ```typescript
-(params: unknown) 
-  => Result<ComprehensiveComplianceStatus, TripValidationError | ComplianceCalculationError>
+(params: unknown) =>
+  Result<ComprehensiveComplianceStatus, TripValidationError | ComplianceCalculationError>;
 ```
+
 Validates parameters for comprehensive compliance calculation.
 
 #### Individual Functions
+
 **File**: `/business-logic/calculations/compliance/safe-compliance-functions.ts`
 
 ##### `safeCalculateRemovalOfConditionsStatus`
+
 ```typescript
-(isConditionalResident: unknown, greenCardDate: unknown, currentDate?: unknown) 
-  => Result<RemovalOfConditionsStatus, DateRangeError | ComplianceCalculationError>
+(isConditionalResident: unknown, greenCardDate: unknown, currentDate?: unknown) =>
+  Result<RemovalOfConditionsStatus, DateRangeError | ComplianceCalculationError>;
 ```
+
 Validates inputs for I-751 status calculation.
 
 ##### `safeCalculateGreenCardRenewalStatus`
+
 ```typescript
-(greenCardExpirationDate: unknown, currentDate?: unknown) 
-  => Result<GreenCardRenewalStatus, DateRangeError | ComplianceCalculationError>
+(greenCardExpirationDate: unknown, currentDate?: unknown) =>
+  Result<GreenCardRenewalStatus, DateRangeError | ComplianceCalculationError>;
 ```
+
 Validates inputs for green card renewal status.
 
 ##### `safeCalculateSelectiveServiceStatus`
+
 ```typescript
-(birthDate?: unknown, gender?: unknown, isSelectiveServiceRegistered?: unknown, currentDate?: unknown) 
-  => Result<SelectiveServiceStatus, DateRangeError | ComplianceCalculationError>
+(
+  birthDate?: unknown,
+  gender?: unknown,
+  isSelectiveServiceRegistered?: unknown,
+  currentDate?: unknown,
+) => Result<SelectiveServiceStatus, DateRangeError | ComplianceCalculationError>;
 ```
+
 Validates inputs for selective service status.
 
 ##### `safeCalculateTaxReminderStatus`
+
 ```typescript
-(trips: unknown, isDismissed?: unknown, currentDate?: unknown) 
-  => Result<TaxReminderStatus, DateRangeError | ComplianceCalculationError>
+(trips: unknown, isDismissed?: unknown, currentDate?: unknown) =>
+  Result<TaxReminderStatus, DateRangeError | ComplianceCalculationError>;
 ```
+
 Validates inputs for tax reminder status.
 
 ### Travel Analytics (4 functions)
+
 **File**: `/business-logic/calculations/travel-analytics/safe-analytics.ts`
 
 #### `safeAssessUpcomingTripRisk`
+
 ```typescript
-(upcomingTrips: unknown, currentTotalDaysAbroad: unknown, eligibilityCategory: unknown, 
- greenCardDate: unknown, currentDate?: unknown) 
-  => Result<TripRiskAssessment[], TripValidationError | USCISCalculationError>
+(
+  upcomingTrips: unknown,
+  currentTotalDaysAbroad: unknown,
+  eligibilityCategory: unknown,
+  greenCardDate: unknown,
+  currentDate?: unknown,
+) => Result<TripRiskAssessment[], TripValidationError | USCISCalculationError>;
 ```
+
 Validates inputs for upcoming trip risk assessment.
 
 #### `safeCalculateCountryStatistics`
+
 ```typescript
-(trips: unknown) 
-  => Result<CountryStatistics[], TripValidationError | USCISCalculationError>
+(trips: unknown) => Result<CountryStatistics[], TripValidationError | USCISCalculationError>;
 ```
+
 Validates trips for country statistics calculation.
 
 #### `safeCalculateDaysAbroadByYear`
+
 ```typescript
-(trips: unknown, greenCardDate: unknown, currentDate?: unknown) 
-  => Result<YearlyDaysAbroad[], DateRangeError | TripValidationError | USCISCalculationError>
+(trips: unknown, greenCardDate: unknown, currentDate?: unknown) =>
+  Result<YearlyDaysAbroad[], DateRangeError | TripValidationError | USCISCalculationError>;
 ```
+
 Validates inputs for yearly days abroad calculation.
 
 #### `safeProjectEligibilityDate`
+
 ```typescript
-(trips: unknown, totalDaysInUSA: unknown, eligibilityCategory: unknown, 
- greenCardDate: unknown, currentDate?: unknown) 
-  => Result<TravelProjection, DateRangeError | TripValidationError | USCISCalculationError>
+(
+  trips: unknown,
+  totalDaysInUSA: unknown,
+  eligibilityCategory: unknown,
+  greenCardDate: unknown,
+  currentDate?: unknown,
+) => Result<TravelProjection, DateRangeError | TripValidationError | USCISCalculationError>;
 ```
+
 Validates inputs for eligibility date projection.
 
 ### Travel Risk Assessment (1 function)
+
 **File**: `/business-logic/calculations/travel-risk/safe-assessment.ts`
 
 #### `safeAssessTripRiskForAllLegalThresholds`
+
 ```typescript
-(trip: unknown, reentryPermitInfo?: unknown) 
-  => Result<ComprehensiveRiskAssessment, TripValidationError | USCISCalculationError>
+(trip: unknown, reentryPermitInfo?: unknown) =>
+  Result<ComprehensiveRiskAssessment, TripValidationError | USCISCalculationError>;
 ```
+
 Validates inputs for comprehensive trip risk assessment.
 
 ### Utility Functions (3 functions)
+
 **File**: `/utils/safe-trip-calculations.ts`
 
 #### `safeCalculateTripDuration`
+
 ```typescript
-(trip: unknown, options?: unknown) 
-  => Result<number, TripValidationError | DateRangeError>
+(trip: unknown, options?: unknown) => Result<number, TripValidationError | DateRangeError>;
 ```
+
 Validates trip for duration calculation.
 
 #### `safeCalculateTripDaysInPeriod`
+
 ```typescript
-(trip: unknown, startDate: unknown, endDate: unknown, options?: unknown) 
-  => Result<number, TripValidationError | DateRangeError>
+(trip: unknown, startDate: unknown, endDate: unknown, options?: unknown) =>
+  Result<number, TripValidationError | DateRangeError>;
 ```
+
 Validates inputs for trip days in period calculation.
 
 #### `safeCalculateTripDaysInYear`
+
 ```typescript
-(trip: unknown, year: unknown, options?: unknown) 
-  => Result<number, TripValidationError | DateRangeError>
+(trip: unknown, year: unknown, options?: unknown) =>
+  Result<number, TripValidationError | DateRangeError>;
 ```
+
 Validates inputs for trip days in year calculation.
 
 ## Error Types
@@ -224,6 +277,7 @@ All safe wrappers return specific error types:
 ## Performance
 
 Safe wrappers add minimal overhead:
+
 - Schema validation: ~1-2ms per operation
 - Result wrapping: <0.1ms
 - Total overhead: <3ms typical

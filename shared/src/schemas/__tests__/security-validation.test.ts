@@ -21,7 +21,7 @@ describe('Security Validation Tests', () => {
       MALICIOUS_TRIP_OBJECTS.forEach((maliciousTrip) => {
         const fullTripResult = TripSchema.safeParse(maliciousTrip);
         const createTripResult = TripCreateSchema.safeParse(maliciousTrip);
-        
+
         // At least one should fail due to excess properties or invalid data
         const bothPass = fullTripResult.success && createTripResult.success;
         expect(bothPass).toBe(false);
@@ -45,9 +45,7 @@ describe('Security Validation Tests', () => {
       const result = UserProfileSchema.safeParse(maliciousUser);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues.some(issue => 
-          issue.code === 'unrecognized_keys'
-        )).toBe(true);
+        expect(result.error.issues.some((issue) => issue.code === 'unrecognized_keys')).toBe(true);
       }
     });
 
@@ -168,7 +166,7 @@ describe('Security Validation Tests', () => {
         const tripWithXSS = {
           departureDate: '2024-01-01',
           returnDate: '2024-01-10',
-          location: xssString,  // Optional field can contain any string
+          location: xssString, // Optional field can contain any string
         };
 
         const result = TripCreateSchema.safeParse(tripWithXSS);
@@ -183,7 +181,7 @@ describe('Security Validation Tests', () => {
     it('should reject XSS in required format fields', () => {
       XSS_STRINGS.forEach((xssString) => {
         const maliciousTrip = {
-          departureDate: xssString,  // Must be YYYY-MM-DD
+          departureDate: xssString, // Must be YYYY-MM-DD
           returnDate: '2024-01-10',
         };
 
@@ -202,7 +200,7 @@ describe('Security Validation Tests', () => {
         };
 
         const result = TripCreateSchema.safeParse(tripWithInvalidDate);
-        
+
         // All invalid dates should be rejected
         expect(result.success).toBe(false);
       });
@@ -216,7 +214,7 @@ describe('Security Validation Tests', () => {
         };
 
         const result = TripCreateSchema.safeParse(trip);
-        
+
         // Valid dates should pass, invalid should fail
         if (name === 'nonLeapDay') {
           expect(result.success).toBe(true); // Zod date regex allows this, actual date validation happens elsewhere
@@ -231,16 +229,16 @@ describe('Security Validation Tests', () => {
     it('should reject all invalid UUID formats', () => {
       const invalidUuids = [
         'not-a-uuid',
-        '12345678-1234-5234-1234-123456789012',  // Wrong version (not v4)
-        'g2345678-1234-4234-1234-123456789012',  // Invalid character
-        '12345678-1234-4234-1234-12345678901',   // Too short
+        '12345678-1234-5234-1234-123456789012', // Wrong version (not v4)
+        'g2345678-1234-4234-1234-123456789012', // Invalid character
+        '12345678-1234-4234-1234-12345678901', // Too short
         '12345678-1234-4234-1234-1234567890123', // Too long
-        '123456781234423412341234567890123',     // No dashes
-        '',                                       // Empty
-        'null',                                   // String "null"
-        'undefined',                              // String "undefined"
+        '123456781234423412341234567890123', // No dashes
+        '', // Empty
+        'null', // String "null"
+        'undefined', // String "undefined"
       ];
-      
+
       invalidUuids.forEach((invalidUuid) => {
         const userWithInvalidId = {
           id: invalidUuid,
@@ -252,12 +250,12 @@ describe('Security Validation Tests', () => {
         };
 
         const result = UserProfileSchema.safeParse(userWithInvalidId);
-        
+
         // Zod might accept some UUIDs that aren't v4
         if (result.success && invalidUuid) {
           console.log(`Unexpected pass for UUID: "${invalidUuid}"`);
         }
-        
+
         // Most should fail, but Zod's uuid() might be more permissive
         if (invalidUuid === '' || invalidUuid.includes('g') || invalidUuid.length < 36) {
           expect(result.success).toBe(false);
@@ -280,7 +278,7 @@ describe('Security Validation Tests', () => {
         };
 
         const result = PresenceCalculationSchema.safeParse(presenceWithLargeNumber);
-        
+
         // Negative numbers should fail (nonnegative constraint)
         // Non-integers should fail (int constraint)
         // Infinity should fail
@@ -306,7 +304,7 @@ describe('Security Validation Tests', () => {
         };
 
         const result = PresenceCalculationSchema.safeParse(presenceWithSpecialNumber);
-        
+
         // Only valid integers should pass
         if (!Number.isInteger(specialNumber) || specialNumber < 0) {
           expect(result.success).toBe(false);
@@ -324,7 +322,7 @@ describe('Security Validation Tests', () => {
           id: '123e4567-e89b-12d3-a456-426614174000',
           userId: '123e4567-e89b-12d3-a456-426614174001',
           type: 'reminder' as const,
-          title: pathTraversal,  // Title can be any string
+          title: pathTraversal, // Title can be any string
           body: 'Test',
           read: false,
           createdAt: '2024-01-01T00:00:00Z',
@@ -356,7 +354,7 @@ describe('Security Validation Tests', () => {
   describe('Whitespace and Empty String Handling', () => {
     it('should properly validate whitespace in required fields', () => {
       const whitespaceTests = ['', ' ', '  ', '\t', '\n', '\r\n'];
-      
+
       whitespaceTests.forEach((whitespace) => {
         const tripWithWhitespace = {
           departureDate: whitespace,
@@ -373,23 +371,29 @@ describe('Security Validation Tests', () => {
     it('should maintain strict mode on all schemas', () => {
       // Test that schemas reject any extra properties
       const schemasToTest = [
-        { schema: TripSchema, validData: {
-          id: '123e4567-e89b-12d3-a456-426614174000',
-          userId: '123e4567-e89b-12d3-a456-426614174001',
-          departureDate: '2024-01-01',
-          returnDate: '2024-01-10',
-          isSimulated: false,
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-01-01T00:00:00Z',
-        }},
-        { schema: UserProfileSchema, validData: {
-          id: '123e4567-e89b-12d3-a456-426614174000',
-          email: 'test@example.com',
-          greenCardDate: '2020-01-01',
-          eligibilityCategory: 'five_year' as const,
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-01-01T00:00:00Z',
-        }},
+        {
+          schema: TripSchema,
+          validData: {
+            id: '123e4567-e89b-12d3-a456-426614174000',
+            userId: '123e4567-e89b-12d3-a456-426614174001',
+            departureDate: '2024-01-01',
+            returnDate: '2024-01-10',
+            isSimulated: false,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+          },
+        },
+        {
+          schema: UserProfileSchema,
+          validData: {
+            id: '123e4567-e89b-12d3-a456-426614174000',
+            email: 'test@example.com',
+            greenCardDate: '2020-01-01',
+            eligibilityCategory: 'five_year' as const,
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+          },
+        },
       ];
 
       schemasToTest.forEach(({ schema, validData }) => {

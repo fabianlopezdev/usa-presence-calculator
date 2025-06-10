@@ -1,15 +1,15 @@
 import { z } from 'zod';
 
 import { DATE_VALIDATION, LPR_STATUS_VALIDATION } from '@constants/validation-messages';
-import { 
+import {
   err,
   LPRStatusError,
   ok,
   Result,
   TripValidationError,
-  USCISCalculationError
+  USCISCalculationError,
 } from '@errors/index';
-import { 
+import {
   GreenCardRiskResult,
   LPRStatusAssessment,
   LPRStatusAssessmentAdvanced,
@@ -29,7 +29,10 @@ import {
  */
 const BasicLPRAssessmentInputSchema = z.object({
   trips: z.array(TripSchema),
-  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
+  currentDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT)
+    .optional(),
 });
 
 /**
@@ -40,8 +43,14 @@ const MaximumTripDurationInputSchema = z.object({
   greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
   eligibilityCategory: z.enum(['three_year', 'five_year']),
   hasReentryPermit: z.boolean().optional(),
-  permitExpiryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
-  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
+  permitExpiryDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT)
+    .optional(),
+  currentDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT)
+    .optional(),
 });
 
 /**
@@ -50,22 +59,21 @@ const MaximumTripDurationInputSchema = z.object({
  */
 export function safeAssessRiskOfLosingPermanentResidentStatus(
   trips: unknown,
-  currentDate?: unknown
+  currentDate?: unknown,
 ): Result<LPRStatusAssessment, TripValidationError | LPRStatusError> {
   try {
     const parseResult = BasicLPRAssessmentInputSchema.safeParse({ trips, currentDate });
-    
+
     if (!parseResult.success) {
-      return err(new TripValidationError(
-        LPR_STATUS_VALIDATION.INVALID_INPUT,
-        parseResult.error.format()
-      ));
+      return err(
+        new TripValidationError(LPR_STATUS_VALIDATION.INVALID_INPUT, parseResult.error.format()),
+      );
     }
 
     const validatedData = parseResult.data;
     const result = assessRiskOfLosingPermanentResidentStatus(
       validatedData.trips,
-      validatedData.currentDate
+      validatedData.currentDate,
     );
 
     return ok(result);
@@ -82,16 +90,15 @@ export function safeAssessRiskOfLosingPermanentResidentStatus(
  * Validates inputs and handles errors gracefully
  */
 export function safeAssessRiskOfLosingPermanentResidentStatusAdvanced(
-  input: unknown
+  input: unknown,
 ): Result<LPRStatusAssessmentAdvanced, TripValidationError | LPRStatusError> {
   try {
     const parseResult = LPRStatusInputSchema.safeParse(input);
-    
+
     if (!parseResult.success) {
-      return err(new TripValidationError(
-        LPR_STATUS_VALIDATION.INVALID_ADVANCED,
-        parseResult.error.format()
-      ));
+      return err(
+        new TripValidationError(LPR_STATUS_VALIDATION.INVALID_ADVANCED, parseResult.error.format()),
+      );
     }
 
     const result = assessRiskOfLosingPermanentResidentStatusAdvanced(parseResult.data);
@@ -114,7 +121,7 @@ export function safeCalculateMaximumTripDurationWithExemptions(
   eligibilityCategory: unknown,
   hasReentryPermit?: unknown,
   permitExpiryDate?: unknown,
-  currentDate?: unknown
+  currentDate?: unknown,
 ): Result<MaximumTripDurationResult, TripValidationError | LPRStatusError> {
   try {
     const parseResult = MaximumTripDurationInputSchema.safeParse({
@@ -125,12 +132,14 @@ export function safeCalculateMaximumTripDurationWithExemptions(
       permitExpiryDate,
       currentDate,
     });
-    
+
     if (!parseResult.success) {
-      return err(new TripValidationError(
-        LPR_STATUS_VALIDATION.INVALID_MAX_DURATION,
-        parseResult.error.format()
-      ));
+      return err(
+        new TripValidationError(
+          LPR_STATUS_VALIDATION.INVALID_MAX_DURATION,
+          parseResult.error.format(),
+        ),
+      );
     }
 
     const validatedData = parseResult.data;
@@ -140,7 +149,7 @@ export function safeCalculateMaximumTripDurationWithExemptions(
       validatedData.eligibilityCategory,
       validatedData.hasReentryPermit,
       validatedData.permitExpiryDate,
-      validatedData.currentDate
+      validatedData.currentDate,
     );
 
     return ok(result);
@@ -159,29 +168,30 @@ export function safeCalculateMaximumTripDurationWithExemptions(
 export function safeCalculateGreenCardAbandonmentRisk(
   trips: unknown,
   hasReentryPermit: boolean = false,
-  permitExpiryDate?: unknown
+  permitExpiryDate?: unknown,
 ): Result<GreenCardRiskResult, TripValidationError | LPRStatusError> {
   try {
     // First perform basic assessment
     const assessmentResult = safeAssessRiskOfLosingPermanentResidentStatus(trips);
-    
+
     if (!assessmentResult.success) {
       return assessmentResult;
     }
 
     const assessment = assessmentResult.data;
-    
+
     // Extract risk information
     const riskResult: GreenCardRiskResult = {
-      riskLevel: assessment.overallRisk === 'automatic_loss' 
-        ? 'automatic_loss'
-        : assessment.overallRisk === 'high_risk'
-        ? 'high_risk'
-        : assessment.overallRisk === 'presumption_of_abandonment'
-        ? 'presumption_of_abandonment'
-        : assessment.overallRisk === 'warning'
-        ? 'warning'
-        : 'none',
+      riskLevel:
+        assessment.overallRisk === 'automatic_loss'
+          ? 'automatic_loss'
+          : assessment.overallRisk === 'high_risk'
+            ? 'high_risk'
+            : assessment.overallRisk === 'presumption_of_abandonment'
+              ? 'presumption_of_abandonment'
+              : assessment.overallRisk === 'warning'
+                ? 'warning'
+                : 'none',
       daysUntilNextThreshold: 0, // Would need additional calculation
       message: assessment.recommendations[0] || 'Monitor your travel patterns',
     };

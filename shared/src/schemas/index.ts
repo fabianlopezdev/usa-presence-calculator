@@ -1,9 +1,9 @@
 /**
  * Barrel Export for All Schemas
- * 
+ *
  * This file consolidates all schema exports from the schemas directory
  * for easier importing throughout the application.
- * 
+ *
  * Usage: import { TripSchema, UserSchema, etc } from '@schemas'
  */
 

@@ -49,7 +49,7 @@ export class DateRangeError extends USCISValidationError {
       value: 'DATE_RANGE_ERROR',
       writable: false,
       enumerable: true,
-      configurable: false
+      configurable: false,
     });
   }
 }
@@ -64,7 +64,7 @@ export class TripValidationError extends USCISValidationError {
       value: 'TRIP_VALIDATION_ERROR',
       writable: false,
       enumerable: true,
-      configurable: false
+      configurable: false,
     });
   }
 }
@@ -79,7 +79,7 @@ export class LPRStatusError extends USCISCalculationError {
       value: 'LPR_STATUS_ERROR',
       writable: false,
       enumerable: true,
-      configurable: false
+      configurable: false,
     });
   }
 }
@@ -94,7 +94,7 @@ export class ComplianceCalculationError extends USCISCalculationError {
       value: 'COMPLIANCE_ERROR',
       writable: false,
       enumerable: true,
-      configurable: false
+      configurable: false,
     });
   }
 }
@@ -103,9 +103,7 @@ export class ComplianceCalculationError extends USCISCalculationError {
  * Result type for functional error handling
  * Inspired by Rust's Result type
  */
-export type Result<T, E = Error> = 
-  | { success: true; data: T }
-  | { success: false; error: E };
+export type Result<T, E = Error> = { success: true; data: T } | { success: false; error: E };
 
 /**
  * Creates a successful Result
@@ -138,10 +136,7 @@ export function isErr<T, E>(result: Result<T, E>): result is { success: false; e
 /**
  * Maps a successful Result value
  */
-export function mapResult<T, U, E>(
-  result: Result<T, E>,
-  fn: (value: T) => U
-): Result<U, E> {
+export function mapResult<T, U, E>(result: Result<T, E>, fn: (value: T) => U): Result<U, E> {
   if (isOk(result)) {
     return ok(fn(result.data));
   }
@@ -151,10 +146,7 @@ export function mapResult<T, U, E>(
 /**
  * Maps an error Result value
  */
-export function mapError<T, E, F>(
-  result: Result<T, E>,
-  fn: (error: E) => F
-): Result<T, F> {
+export function mapError<T, E, F>(result: Result<T, E>, fn: (error: E) => F): Result<T, F> {
   if (isErr(result)) {
     return err(fn(result.error));
   }
@@ -186,7 +178,7 @@ export function unwrapOr<T, E>(result: Result<T, E>, defaultValue: T): T {
  */
 export function chainResult<T, U, E>(
   result: Result<T, E>,
-  fn: (value: T) => Result<U, E>
+  fn: (value: T) => Result<U, E>,
 ): Result<U, E> {
   if (isOk(result)) {
     return fn(result.data);
@@ -199,13 +191,13 @@ export function chainResult<T, U, E>(
  */
 export function combineResults<T, E>(results: Result<T, E>[]): Result<T[], E> {
   const values: T[] = [];
-  
+
   for (const result of results) {
     if (isErr(result)) {
       return result;
     }
     values.push(result.data);
   }
-  
+
   return ok(values);
 }

@@ -5,6 +5,7 @@ This document is the complete reference for ALL constants, enums, and configurat
 ## Summary Audit
 
 ### Overall Statistics
+
 - **Total Constant Files**: 7 (6 specific + 1 index)
 - **Total Constants**: 52 main constant objects
 - **Total Enum Types**: 15 TypeScript enum-like types
@@ -13,14 +14,14 @@ This document is the complete reference for ALL constants, enums, and configurat
 
 ### Constants by Category
 
-| Category | Constant Count | Primary Purpose |
-|----------|----------------|-----------------|
-| **USCIS Rules** | 12 | Official immigration requirements and thresholds |
-| **Compliance** | 10 | Status tracking, forms, and user messages |
-| **Priority & Urgency** | 8 | Time thresholds and sorting priorities |
-| **Travel Analytics** | 8 | Risk assessment and projection configuration |
-| **Date & Time** | 4 | Time conversions and calendar utilities |
-| **Validation Messages** | 10 | Centralized error messages for consistency |
+| Category                | Constant Count | Primary Purpose                                  |
+| ----------------------- | -------------- | ------------------------------------------------ |
+| **USCIS Rules**         | 12             | Official immigration requirements and thresholds |
+| **Compliance**          | 10             | Status tracking, forms, and user messages        |
+| **Priority & Urgency**  | 8              | Time thresholds and sorting priorities           |
+| **Travel Analytics**    | 8              | Risk assessment and projection configuration     |
+| **Date & Time**         | 4              | Time conversions and calendar utilities          |
+| **Validation Messages** | 10             | Centralized error messages for consistency       |
 
 ## Table of Contents
 
@@ -37,134 +38,159 @@ This document is the complete reference for ALL constants, enums, and configurat
 ---
 
 ## USCIS Official Rules
+
 **File**: `/constants/uscis-rules.ts`
 
 ### Physical Presence Requirements
+
 ```typescript
 PHYSICAL_PRESENCE_REQUIREMENTS = {
-  FIVE_YEAR_PATH: 913,    // days (2.5 years out of 5)
-  THREE_YEAR_PATH: 548,   // days (1.5 years out of 3)
+  FIVE_YEAR_PATH: 913, // days (2.5 years out of 5)
+  THREE_YEAR_PATH: 548, // days (1.5 years out of 3)
 } as const;
 ```
+
 **Purpose**: Minimum days physically present in USA for naturalization
 
 ### Continuous Residence Requirements
+
 ```typescript
 CONTINUOUS_RESIDENCE_REQUIREMENTS = {
-  FIVE_YEAR_PATH: 5,      // years
-  THREE_YEAR_PATH: 3,     // years
+  FIVE_YEAR_PATH: 5, // years
+  THREE_YEAR_PATH: 3, // years
 } as const;
 ```
+
 **Purpose**: Years of continuous residence required for naturalization
 
 ### Continuous Residence Thresholds
+
 ```typescript
 CONTINUOUS_RESIDENCE_THRESHOLDS = {
-  RESETS_CLOCK: 365,      // days - Breaks continuous residence
-  CRITICAL: 365,          // days - Same as RESETS_CLOCK
-  HIGH_RISK: 180,         // days - Presumed to break residence
-  MEDIUM_RISK: 150,       // days - Approaching dangerous territory
-  LOW_RISK: 90,           // days - Safe but notable absence
+  RESETS_CLOCK: 365, // days - Breaks continuous residence
+  CRITICAL: 365, // days - Same as RESETS_CLOCK
+  HIGH_RISK: 180, // days - Presumed to break residence
+  MEDIUM_RISK: 150, // days - Approaching dangerous territory
+  LOW_RISK: 90, // days - Safe but notable absence
 } as const;
 ```
+
 **Purpose**: Trip duration thresholds affecting continuous residence
 
 ### LPR Abandonment Thresholds
+
 ```typescript
 LPR_ABANDONMENT_THRESHOLDS = {
-  AUTOMATIC_LOSS: 365,              // days - Risk of automatic green card loss
-  HIGH_RISK: 330,                   // days - Very high risk of abandonment
-  CRITICAL: 270,                    // days - Critical risk level
-  SEVERE: 210,                      // days - Severe risk level
-  PRESUMPTION_OF_ABANDONMENT: 180,  // days - Rebuttable presumption triggered
-  WARNING: 150,                     // days - Warning level
+  AUTOMATIC_LOSS: 365, // days - Risk of automatic green card loss
+  HIGH_RISK: 330, // days - Very high risk of abandonment
+  CRITICAL: 270, // days - Critical risk level
+  SEVERE: 210, // days - Severe risk level
+  PRESUMPTION_OF_ABANDONMENT: 180, // days - Rebuttable presumption triggered
+  WARNING: 150, // days - Warning level
 } as const;
 ```
+
 **Purpose**: Trip duration thresholds affecting permanent resident status
 
 ### Reentry Permit Rules
+
 ```typescript
 REENTRY_PERMIT_RULES = {
-  MAXIMUM_PROTECTION_DAYS: 730,     // days (2 years max protection)
-  WARNING_BEFORE_EXPIRY_DAYS: 60,   // days before permit expires
-  APPROACHING_LIMIT_DAYS: 670,      // days approaching max protection
+  MAXIMUM_PROTECTION_DAYS: 730, // days (2 years max protection)
+  WARNING_BEFORE_EXPIRY_DAYS: 60, // days before permit expires
+  APPROACHING_LIMIT_DAYS: 670, // days approaching max protection
 } as const;
 ```
+
 **Purpose**: Rules for reentry permit protection periods
 
 ### Early Filing Window
+
 ```typescript
-EARLY_FILING_WINDOW_DAYS = 90;     // Can file N-400 90 days early
+EARLY_FILING_WINDOW_DAYS = 90; // Can file N-400 90 days early
 ```
+
 **Purpose**: Days before eligibility date when N-400 can be filed
 
 ### Removal of Conditions
+
 ```typescript
 REMOVAL_OF_CONDITIONS = {
-  FILING_WINDOW_DAYS: 90,           // Days before 2-year anniversary
-  CONDITIONAL_PERIOD_YEARS: 2,      // Duration of conditional status
-  FILING_DEADLINE_DAYS: 0,          // Must file by 2-year anniversary
+  FILING_WINDOW_DAYS: 90, // Days before 2-year anniversary
+  CONDITIONAL_PERIOD_YEARS: 2, // Duration of conditional status
+  FILING_DEADLINE_DAYS: 0, // Must file by 2-year anniversary
   LATE_FILING_GRACE_PERIOD_DAYS: 0, // No grace period
 } as const;
 ```
+
 **Purpose**: I-751 filing requirements for conditional residents
 
 ### Document Renewal
+
 ```typescript
 DOCUMENT_RENEWAL = {
-  GREEN_CARD_VALIDITY_YEARS: 10,    // 10-year green cards
-  RENEWAL_WINDOW_MONTHS: 6,         // Can renew 6 months before expiry
+  GREEN_CARD_VALIDITY_YEARS: 10, // 10-year green cards
+  RENEWAL_WINDOW_MONTHS: 6, // Can renew 6 months before expiry
 } as const;
 ```
+
 **Purpose**: Green card validity and renewal timing
 
 ### Selective Service
+
 ```typescript
 SELECTIVE_SERVICE = {
-  MIN_AGE: 18,                      // Must register at 18
-  MAX_AGE: 26,                      // No longer required at 26
-  GENDER_REQUIRED: 'male',          // Only males must register
+  MIN_AGE: 18, // Must register at 18
+  MAX_AGE: 26, // No longer required at 26
+  GENDER_REQUIRED: 'male', // Only males must register
   REGISTRATION_GRACE_PERIOD_DAYS: 30, // 30 days after 18th birthday
 } as const;
 ```
+
 **Purpose**: Selective service registration requirements
 
 ### Tax Filing
+
 ```typescript
 TAX_FILING = {
-  STANDARD_DEADLINE_MONTH: 3,       // April (0-indexed)
-  STANDARD_DEADLINE_DAY: 15,        // April 15
-  ABROAD_EXTENSION_MONTH: 5,        // June (0-indexed)
-  ABROAD_EXTENSION_DAY: 15,         // June 15
-  OCTOBER_EXTENSION_MONTH: 9,       // October (0-indexed)
-  OCTOBER_EXTENSION_DAY: 15,        // October 15
-  TAX_SEASON_START_MONTH: 0,        // January (0-indexed)
-  TAX_SEASON_START_DAY: 29,         // Late January
+  STANDARD_DEADLINE_MONTH: 3, // April (0-indexed)
+  STANDARD_DEADLINE_DAY: 15, // April 15
+  ABROAD_EXTENSION_MONTH: 5, // June (0-indexed)
+  ABROAD_EXTENSION_DAY: 15, // June 15
+  OCTOBER_EXTENSION_MONTH: 9, // October (0-indexed)
+  OCTOBER_EXTENSION_DAY: 15, // October 15
+  TAX_SEASON_START_MONTH: 0, // January (0-indexed)
+  TAX_SEASON_START_DAY: 29, // Late January
 } as const;
 ```
+
 **Purpose**: IRS tax filing deadlines and extensions
 
 ### Risk Warning Thresholds
+
 ```typescript
 RISK_WARNING_THRESHOLDS = {
   CONTINUOUS_RESIDENCE: {
-    DAYS_BEFORE_SIX_MONTHS: 30,    // Warn 30 days before 180-day mark
-    DAYS_BEFORE_ONE_YEAR: 30,      // Warn 30 days before 365-day mark
+    DAYS_BEFORE_SIX_MONTHS: 30, // Warn 30 days before 180-day mark
+    DAYS_BEFORE_ONE_YEAR: 30, // Warn 30 days before 365-day mark
   },
   LPR_STATUS: {
-    DAYS_BEFORE_SIX_MONTHS: 30,    // Warn 30 days before 180-day mark
-    DAYS_BEFORE_ONE_YEAR: 60,      // Warn 60 days before 365-day mark
+    DAYS_BEFORE_SIX_MONTHS: 30, // Warn 30 days before 180-day mark
+    DAYS_BEFORE_ONE_YEAR: 60, // Warn 60 days before 365-day mark
   },
 } as const;
 ```
+
 **Purpose**: When to warn users about approaching risk thresholds
 
 ---
 
 ## Compliance Constants
+
 **File**: `/constants/compliance.ts`
 
 ### Compliance Item Types
+
 ```typescript
 COMPLIANCE_ITEM_TYPE = {
   removal_of_conditions: 'removal_of_conditions',
@@ -173,53 +199,63 @@ COMPLIANCE_ITEM_TYPE = {
   tax_filing: 'tax_filing',
 } as const;
 ```
+
 **Type**: `ComplianceItemType`
 
 ### Removal of Conditions Status
+
 ```typescript
 REMOVAL_CONDITIONS_STATUS = {
-  not_yet: 'not_yet',         // Before filing window
-  in_window: 'in_window',     // Can file now
-  filed: 'filed',             // Application submitted
-  approved: 'approved',       // USCIS approved
-  overdue: 'overdue',         // Past deadline
+  not_yet: 'not_yet', // Before filing window
+  in_window: 'in_window', // Can file now
+  filed: 'filed', // Application submitted
+  approved: 'approved', // USCIS approved
+  overdue: 'overdue', // Past deadline
 } as const;
 ```
+
 **Type**: `RemovalConditionsStatus`
 
 ### Green Card Renewal Status
+
 ```typescript
 GREEN_CARD_RENEWAL_STATUS = {
-  valid: 'valid',                           // 6+ months remaining
+  valid: 'valid', // 6+ months remaining
   renewal_recommended: 'renewal_recommended', // Within 6-month window
-  renewal_urgent: 'renewal_urgent',         // < 2 months remaining
-  expired: 'expired',                       // Already expired
+  renewal_urgent: 'renewal_urgent', // < 2 months remaining
+  expired: 'expired', // Already expired
 } as const;
 ```
+
 **Type**: `GreenCardRenewalStatus`
 
 ### Selective Service Status
+
 ```typescript
 SELECTIVE_SERVICE_STATUS = {
-  not_applicable: 'not_applicable',   // Not male or wrong age
-  must_register: 'must_register',     // Required but not registered
-  registered: 'registered',           // Completed registration
-  aged_out: 'aged_out',              // Over 26, no longer required
+  not_applicable: 'not_applicable', // Not male or wrong age
+  must_register: 'must_register', // Required but not registered
+  registered: 'registered', // Completed registration
+  aged_out: 'aged_out', // Over 26, no longer required
 } as const;
 ```
+
 **Type**: `SelectiveServiceStatus`
 
 ### Tax Deadline Type
+
 ```typescript
 TAX_DEADLINE_TYPE = {
-  standard: 'standard',               // April 15
+  standard: 'standard', // April 15
   abroad_extension: 'abroad_extension', // June 15 (automatic)
   october_extension: 'october_extension', // October 15 (with form)
 } as const;
 ```
+
 **Type**: `TaxDeadlineType`
 
 ### Gender
+
 ```typescript
 GENDER = {
   male: 'male',
@@ -227,11 +263,13 @@ GENDER = {
   other: 'other',
 } as const;
 ```
+
 **Type**: `Gender`
 
 ### User-Facing Messages
 
 #### Active Item Messages
+
 ```typescript
 COMPLIANCE_ACTIVE_ITEM_MESSAGES = {
   [COMPLIANCE_ITEM_TYPE.removal_of_conditions]: 'File Form I-751 to remove conditions',
@@ -242,6 +280,7 @@ COMPLIANCE_ACTIVE_ITEM_MESSAGES = {
 ```
 
 #### Priority Messages
+
 ```typescript
 COMPLIANCE_PRIORITY_MESSAGES = {
   [COMPLIANCE_ITEM_TYPE.removal_of_conditions]: 'I-751 filing deadline approaching',
@@ -252,6 +291,7 @@ COMPLIANCE_PRIORITY_MESSAGES = {
 ```
 
 #### Deadline Descriptions
+
 ```typescript
 COMPLIANCE_DEADLINE_DESCRIPTIONS = {
   [COMPLIANCE_ITEM_TYPE.removal_of_conditions]: 'I-751 must be filed by',
@@ -262,6 +302,7 @@ COMPLIANCE_DEADLINE_DESCRIPTIONS = {
 ```
 
 ### Government Forms
+
 ```typescript
 GOVERNMENT_FORM_NAMES = {
   removal_of_conditions: 'Form I-751',
@@ -270,6 +311,7 @@ GOVERNMENT_FORM_NAMES = {
 ```
 
 ### Tax Extension Display
+
 ```typescript
 TAX_EXTENSION_DEADLINE_DISPLAY = {
   abroad_extension: 'June 15',
@@ -280,59 +322,67 @@ TAX_EXTENSION_DEADLINE_DISPLAY = {
 ---
 
 ## Priority & Urgency Constants
+
 **File**: `/constants/priority-urgency.ts`
 
 ### Priority Levels
+
 ```typescript
 PRIORITY_LEVEL = {
-  critical: 'critical',   // Immediate action required
-  high: 'high',          // Urgent action needed
-  medium: 'medium',      // Action recommended soon
-  low: 'low',            // Action can be planned
-  none: 'none',          // No priority
+  critical: 'critical', // Immediate action required
+  high: 'high', // Urgent action needed
+  medium: 'medium', // Action recommended soon
+  low: 'low', // Action can be planned
+  none: 'none', // No priority
 } as const;
 ```
+
 **Type**: `PriorityLevel`
 
 ### Tax Filing Thresholds
+
 ```typescript
 TAX_FILING_THRESHOLDS_DAYS = {
-  ACTIVE_ITEM_THRESHOLD: 45,    // Show as active item
-  PRIORITY_ITEM_THRESHOLD: 30,  // Show as priority item
-  CRITICAL_URGENCY: 7,          // Critical priority
-  HIGH_URGENCY: 14,             // High priority
+  ACTIVE_ITEM_THRESHOLD: 45, // Show as active item
+  PRIORITY_ITEM_THRESHOLD: 30, // Show as priority item
+  CRITICAL_URGENCY: 7, // Critical priority
+  HIGH_URGENCY: 14, // High priority
 } as const;
 ```
 
 ### Green Card Renewal Thresholds
+
 ```typescript
 GREEN_CARD_RENEWAL_THRESHOLDS_MONTHS = {
-  URGENT_THRESHOLD: 2,          // Urgent renewal needed
-  MEDIUM_THRESHOLD: 4,          // Medium priority
-  LOW_THRESHOLD: 6,             // Low priority (renewal window)
+  URGENT_THRESHOLD: 2, // Urgent renewal needed
+  MEDIUM_THRESHOLD: 4, // Medium priority
+  LOW_THRESHOLD: 6, // Low priority (renewal window)
 } as const;
 ```
 
 ### Removal of Conditions Urgency
+
 ```typescript
 REMOVAL_CONDITIONS_URGENCY_DAYS = {
-  CRITICAL: 7,                  // 1 week before deadline
-  HIGH: 14,                     // 2 weeks
-  MEDIUM: 30,                   // 1 month
-  LOW: 60,                      // 2 months
+  CRITICAL: 7, // 1 week before deadline
+  HIGH: 14, // 2 weeks
+  MEDIUM: 30, // 1 month
+  LOW: 60, // 2 months
 } as const;
 ```
 
 ### Selective Service Urgency
+
 ```typescript
 SELECTIVE_SERVICE_URGENCY_DAYS = {
-  CRITICAL: 7,                  // 1 week to register
-  HIGH: 14,                     // 2 weeks
-  MEDIUM: 20,                   // ~3 weeks
+  CRITICAL: 7, // 1 week to register
+  HIGH: 14, // 2 weeks
+  MEDIUM: 20, // ~3 weeks
 } as const;
 ```
 
 ### Sort Orders
+
 ```typescript
 PRIORITY_SORT_ORDER = {
   [PRIORITY_LEVEL.critical]: 0,
@@ -351,6 +401,7 @@ COMPLIANCE_TYPE_SORT_ORDER = {
 ```
 
 ### Consolidated Priority Thresholds
+
 ```typescript
 PRIORITY_THRESHOLDS = {
   tax_filing: TAX_FILING_THRESHOLDS_DAYS,
@@ -363,47 +414,53 @@ PRIORITY_THRESHOLDS = {
 ---
 
 ## Travel Analytics Constants
+
 **File**: `/constants/travel-analytics.ts`
 
 ### Travel Budget Buffers
+
 ```typescript
 TRAVEL_BUDGET_BUFFERS = {
-  WARNING: 30,          // 30-day critical buffer
-  CAUTION: 90,          // 90-day reasonable buffer
+  WARNING: 30, // 30-day critical buffer
+  CAUTION: 90, // 90-day reasonable buffer
 } as const;
 ```
 
 ### Confidence Thresholds
+
 ```typescript
 CONFIDENCE_THRESHOLDS = {
-  HIGH_VARIANCE: 900,                      // 30 days std deviation squared
-  MEDIUM_VARIANCE: 400,                    // 20 days std deviation squared
-  MINIMUM_YEARS_FOR_HIGH_CONFIDENCE: 3,    // Need 3 years of data
+  HIGH_VARIANCE: 900, // 30 days std deviation squared
+  MEDIUM_VARIANCE: 400, // 20 days std deviation squared
+  MINIMUM_YEARS_FOR_HIGH_CONFIDENCE: 3, // Need 3 years of data
 } as const;
 ```
 
 ### Travel Trend Thresholds
+
 ```typescript
 TRAVEL_TREND_THRESHOLDS = {
-  SIGNIFICANT_CHANGE_DAYS: 20,   // 20+ day change is significant
+  SIGNIFICANT_CHANGE_DAYS: 20, // 20+ day change is significant
 } as const;
 ```
 
 ### Configuration
+
 ```typescript
 ANNUAL_SUMMARY_CONFIG = {
-  TOP_DESTINATIONS_LIMIT: 5,     // Show top 5 destinations
+  TOP_DESTINATIONS_LIMIT: 5, // Show top 5 destinations
 } as const;
 
 TIME_PERIODS = {
-  DAYS_IN_YEAR: 365,            // Standard year length
+  DAYS_IN_YEAR: 365, // Standard year length
 } as const;
 ```
 
 ### Default Values
+
 ```typescript
 DEFAULT_VALUES = {
-  UNKNOWN_LOCATION: 'Unknown',   // When location not specified
+  UNKNOWN_LOCATION: 'Unknown', // When location not specified
 } as const;
 
 PROJECTION_DEFAULTS = {
@@ -412,6 +469,7 @@ PROJECTION_DEFAULTS = {
 ```
 
 ### Risk Messages
+
 ```typescript
 RISK_MESSAGES = {
   CONTINUOUS_RESIDENCE: {
@@ -431,6 +489,7 @@ RISK_MESSAGES = {
 ```
 
 ### Risk Recommendations
+
 ```typescript
 RISK_RECOMMENDATIONS = {
   CONTINUOUS_RESIDENCE: {
@@ -450,6 +509,7 @@ RISK_RECOMMENDATIONS = {
 ```
 
 ### Budget Recommendations
+
 ```typescript
 BUDGET_RECOMMENDATIONS = {
   WARNING: 'Critical: You have very few travel days remaining',
@@ -461,9 +521,11 @@ BUDGET_RECOMMENDATIONS = {
 ---
 
 ## Date & Time Constants
+
 **File**: `/constants/date-time.ts`
 
 ### Time Conversions
+
 ```typescript
 MILLISECONDS = {
   PER_SECOND: 1_000,
@@ -474,6 +536,7 @@ MILLISECONDS = {
 ```
 
 ### Days of Week
+
 ```typescript
 DAY_OF_WEEK = {
   SUNDAY: 0,
@@ -485,9 +548,11 @@ DAY_OF_WEEK = {
   SATURDAY: 6,
 } as const;
 ```
+
 **Type**: `DayOfWeek`
 
 ### Month Indices
+
 ```typescript
 MONTH_INDEX = {
   JANUARY: 0,
@@ -504,9 +569,11 @@ MONTH_INDEX = {
   DECEMBER: 11,
 } as const;
 ```
+
 **Type**: `MonthIndex`
 
 ### ISO Date Utilities
+
 ```typescript
 ISO_DATE_UTILS = {
   DATE_ONLY_REGEX: /^\d{4}-\d{2}-\d{2}/,
@@ -515,31 +582,36 @@ ISO_DATE_UTILS = {
 ```
 
 ### DC Emancipation Day (Tax Adjustments)
+
 ```typescript
 DC_EMANCIPATION_DAY = {
-  TAX_DEADLINE_DAY: 15,              // Normal April 15
-  HOLIDAY_DAY: 16,                   // DC Emancipation Day
-  DAY_AFTER_HOLIDAY: 17,             // Day after holiday
-  MONDAY_AFTER_WEEKEND_HOLIDAY: 18,  // If holiday on weekend
-  FRIDAY_SKIP_DAYS: 3,               // Skip weekend + Monday
+  TAX_DEADLINE_DAY: 15, // Normal April 15
+  HOLIDAY_DAY: 16, // DC Emancipation Day
+  DAY_AFTER_HOLIDAY: 17, // Day after holiday
+  MONDAY_AFTER_WEEKEND_HOLIDAY: 18, // If holiday on weekend
+  FRIDAY_SKIP_DAYS: 3, // Skip weekend + Monday
 } as const;
 ```
 
 ---
 
 ## Validation Messages
+
 **File**: `/constants/validation-messages.ts`
 
 ### Date Validation Messages
+
 ```typescript
 DATE_VALIDATION = {
   INVALID_FORMAT: 'Date must be in YYYY-MM-DD format',
   RETURN_BEFORE_DEPARTURE: 'Return date must be after or equal to departure date',
 } as const;
 ```
+
 **Purpose**: Consistent date format validation messages
 
 ### Presence Validation Messages
+
 ```typescript
 PRESENCE_VALIDATION = {
   INVALID_INPUT: 'Invalid input for presence calculation',
@@ -549,9 +621,11 @@ PRESENCE_VALIDATION = {
   UNKNOWN_ERROR: 'An unknown error occurred during presence calculation',
 } as const;
 ```
+
 **Purpose**: Physical presence calculation error messages
 
 ### LPR Status Validation Messages
+
 ```typescript
 LPR_STATUS_VALIDATION = {
   INVALID_INPUT: 'Invalid input for LPR status assessment',
@@ -561,9 +635,11 @@ LPR_STATUS_VALIDATION = {
   UNKNOWN_ERROR: 'An unknown error occurred during LPR status assessment',
 } as const;
 ```
+
 **Purpose**: LPR status assessment error messages
 
 ### Compliance Validation Messages
+
 ```typescript
 COMPLIANCE_VALIDATION = {
   INVALID_INPUT: 'Invalid input for compliance calculation',
@@ -574,27 +650,33 @@ COMPLIANCE_VALIDATION = {
   UNKNOWN_ERROR: 'An unknown error occurred during compliance calculation',
 } as const;
 ```
+
 **Purpose**: Compliance tracking error messages
 
 ### Analytics Validation Messages
+
 ```typescript
 ANALYTICS_VALIDATION = {
   INVALID_INPUT: 'Invalid input for analytics calculation',
   UNKNOWN_ERROR: 'An unknown error occurred during analytics calculation',
 } as const;
 ```
+
 **Purpose**: Travel analytics error messages
 
 ### Travel Risk Validation Messages
+
 ```typescript
 TRAVEL_RISK_VALIDATION = {
   INVALID_ASSESSMENT: 'Invalid input for trip risk assessment',
   UNKNOWN_ERROR: 'An unknown error occurred during trip risk assessment',
 } as const;
 ```
+
 **Purpose**: Travel risk assessment error messages
 
 ### Trip Validation Messages
+
 ```typescript
 TRIP_VALIDATION = {
   INVALID_DURATION: 'Invalid input for trip duration calculation',
@@ -602,27 +684,33 @@ TRIP_VALIDATION = {
   UNKNOWN_ERROR: 'An unknown error occurred during trip calculation',
 } as const;
 ```
+
 **Purpose**: Trip calculation error messages
 
 ### User Validation Messages
+
 ```typescript
 USER_VALIDATION = {
   INVALID_PROFILE: 'Invalid user profile data',
   INVALID_SETTINGS: 'Invalid user settings',
 } as const;
 ```
+
 **Purpose**: User data validation messages
 
 ### Notification Validation Messages
+
 ```typescript
 NOTIFICATION_VALIDATION = {
   INVALID_DATA: 'Invalid notification data',
   INVALID_PREFERENCES: 'Invalid notification preferences',
 } as const;
 ```
+
 **Purpose**: Notification system error messages
 
 ### Schema Validation Messages
+
 ```typescript
 SCHEMA_VALIDATION = {
   EXTRA_PROPERTIES: 'Object contains unexpected properties',
@@ -630,6 +718,7 @@ SCHEMA_VALIDATION = {
   TYPE_MISMATCH: 'Invalid data type',
 } as const;
 ```
+
 **Purpose**: Generic schema validation messages
 
 ---
@@ -713,6 +802,7 @@ All TypeScript types derived from constants:
 ## Constants by Usage
 
 ### User Interface Display
+
 - COMPLIANCE_ACTIVE_ITEM_MESSAGES - Action button text
 - COMPLIANCE_PRIORITY_MESSAGES - Alert/warning messages
 - COMPLIANCE_DEADLINE_DESCRIPTIONS - Deadline labels
@@ -723,6 +813,7 @@ All TypeScript types derived from constants:
 - BUDGET_RECOMMENDATIONS - Travel budget status
 
 ### Business Logic Calculations
+
 - PHYSICAL_PRESENCE_REQUIREMENTS - Naturalization requirements
 - CONTINUOUS_RESIDENCE_THRESHOLDS - Trip risk thresholds
 - LPR_ABANDONMENT_THRESHOLDS - Green card risk levels
@@ -731,11 +822,13 @@ All TypeScript types derived from constants:
 - All urgency/threshold constants - Priority calculations
 
 ### Sorting and Prioritization
+
 - PRIORITY_SORT_ORDER - UI list ordering
 - COMPLIANCE_TYPE_SORT_ORDER - Type precedence
 - PRIORITY_LEVEL - Urgency classification
 
 ### Date/Time Operations
+
 - MILLISECONDS - Time conversions
 - DAY_OF_WEEK - Calendar operations
 - MONTH_INDEX - Month references
@@ -743,6 +836,7 @@ All TypeScript types derived from constants:
 - TAX_FILING - IRS deadline dates
 
 ### Configuration
+
 - TRAVEL_BUDGET_BUFFERS - Safety margins
 - CONFIDENCE_THRESHOLDS - Projection confidence
 - ANNUAL_SUMMARY_CONFIG - Report settings
@@ -751,6 +845,7 @@ All TypeScript types derived from constants:
 ---
 
 This comprehensive reference provides:
+
 - Complete constant definitions with exact values
 - Purpose and usage context for each constant
 - TypeScript type mappings

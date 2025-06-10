@@ -1,9 +1,9 @@
-import { 
+import {
   DateRangeError,
   isErr,
   isOk,
   TripValidationError,
-  USCISCalculationError
+  USCISCalculationError,
 } from '@errors/index';
 
 import {
@@ -30,11 +30,7 @@ describe('Safe Presence Calculator Functions', () => {
 
   describe('safeCalculateDaysOfPhysicalPresence', () => {
     it('should return success result for valid inputs', () => {
-      const result = safeCalculateDaysOfPhysicalPresence(
-        validTrips,
-        '2022-01-01',
-        '2023-12-31'
-      );
+      const result = safeCalculateDaysOfPhysicalPresence(validTrips, '2022-01-01', '2023-12-31');
 
       expect(isOk(result)).toBe(true);
       if (isOk(result)) {
@@ -44,10 +40,7 @@ describe('Safe Presence Calculator Functions', () => {
     });
 
     it('should return error for invalid trip data', () => {
-      const result = safeCalculateDaysOfPhysicalPresence(
-        [{ invalidTrip: true }],
-        '2022-01-01'
-      );
+      const result = safeCalculateDaysOfPhysicalPresence([{ invalidTrip: true }], '2022-01-01');
 
       expect(isErr(result)).toBe(true);
       if (isErr(result)) {
@@ -56,10 +49,7 @@ describe('Safe Presence Calculator Functions', () => {
     });
 
     it('should return error for invalid date format', () => {
-      const result = safeCalculateDaysOfPhysicalPresence(
-        validTrips,
-        'not-a-date'
-      );
+      const result = safeCalculateDaysOfPhysicalPresence(validTrips, 'not-a-date');
 
       expect(isErr(result)).toBe(true);
       if (isErr(result)) {
@@ -68,10 +58,7 @@ describe('Safe Presence Calculator Functions', () => {
     });
 
     it('should handle null/undefined inputs', () => {
-      const result = safeCalculateDaysOfPhysicalPresence(
-        null,
-        '2022-01-01'
-      );
+      const result = safeCalculateDaysOfPhysicalPresence(null, '2022-01-01');
 
       expect(isErr(result)).toBe(true);
     });
@@ -79,10 +66,7 @@ describe('Safe Presence Calculator Functions', () => {
 
   describe('safeCalculateEligibilityDates', () => {
     it('should return success result for valid inputs', () => {
-      const result = safeCalculateEligibilityDates(
-        '2020-01-01',
-        'five_year'
-      );
+      const result = safeCalculateEligibilityDates('2020-01-01', 'five_year');
 
       expect(isOk(result)).toBe(true);
       if (isOk(result)) {
@@ -92,10 +76,7 @@ describe('Safe Presence Calculator Functions', () => {
     });
 
     it('should return error for invalid date format', () => {
-      const result = safeCalculateEligibilityDates(
-        '01/01/2020',
-        'five_year'
-      );
+      const result = safeCalculateEligibilityDates('01/01/2020', 'five_year');
 
       expect(isErr(result)).toBe(true);
       if (isErr(result)) {
@@ -104,10 +85,7 @@ describe('Safe Presence Calculator Functions', () => {
     });
 
     it('should return error for invalid category', () => {
-      const result = safeCalculateEligibilityDates(
-        '2020-01-01',
-        'invalid_category'
-      );
+      const result = safeCalculateEligibilityDates('2020-01-01', 'invalid_category');
 
       expect(isErr(result)).toBe(true);
     });
@@ -153,11 +131,13 @@ describe('Safe Presence Calculator Functions', () => {
     });
 
     it('should return warnings for long trips', () => {
-      const longTrips = [{
-        ...validTrips[0],
-        departureDate: '2023-01-01',
-        returnDate: '2023-07-15', // > 180 days
-      }];
+      const longTrips = [
+        {
+          ...validTrips[0],
+          departureDate: '2023-01-01',
+          returnDate: '2023-07-15', // > 180 days
+        },
+      ];
 
       const result = safeCheckContinuousResidence(longTrips);
 
@@ -177,11 +157,7 @@ describe('Safe Presence Calculator Functions', () => {
 
   describe('safeIsEligibleForEarlyFiling', () => {
     it('should return success result for valid inputs', () => {
-      const result = safeIsEligibleForEarlyFiling(
-        '2020-01-01',
-        'five_year',
-        '2024-11-01'
-      );
+      const result = safeIsEligibleForEarlyFiling('2020-01-01', 'five_year', '2024-11-01');
 
       expect(isOk(result)).toBe(true);
       if (isOk(result)) {
@@ -190,10 +166,7 @@ describe('Safe Presence Calculator Functions', () => {
     });
 
     it('should return error for invalid inputs', () => {
-      const result = safeIsEligibleForEarlyFiling(
-        'invalid-date',
-        'five_year'
-      );
+      const result = safeIsEligibleForEarlyFiling('invalid-date', 'five_year');
 
       expect(isErr(result)).toBe(true);
     });
@@ -205,7 +178,7 @@ describe('Safe Presence Calculator Functions', () => {
         validTrips,
         '2020-01-01',
         'five_year',
-        '2023-12-31'
+        '2023-12-31',
       );
 
       expect(isOk(result)).toBe(true);
@@ -219,27 +192,21 @@ describe('Safe Presence Calculator Functions', () => {
     });
 
     it('should propagate errors from any calculation', () => {
-      const result = safeCalculateComprehensivePresence(
-        'invalid-trips',
-        '2020-01-01',
-        'five_year'
-      );
+      const result = safeCalculateComprehensivePresence('invalid-trips', '2020-01-01', 'five_year');
 
       expect(isErr(result)).toBe(true);
     });
 
     it('should handle malicious input', () => {
-      const maliciousTrips = [{
-        ...validTrips[0],
-        __proto__: { isAdmin: true },
-        extraProperty: 'should-be-rejected',
-      }];
+      const maliciousTrips = [
+        {
+          ...validTrips[0],
+          __proto__: { isAdmin: true },
+          extraProperty: 'should-be-rejected',
+        },
+      ];
 
-      const result = safeCalculateComprehensivePresence(
-        maliciousTrips,
-        '2020-01-01',
-        'five_year'
-      );
+      const result = safeCalculateComprehensivePresence(maliciousTrips, '2020-01-01', 'five_year');
 
       expect(isErr(result)).toBe(true);
     });
@@ -247,19 +214,13 @@ describe('Safe Presence Calculator Functions', () => {
 
   describe('Edge Cases and Error Handling', () => {
     it('should handle undefined gracefully', () => {
-      const result = safeCalculateDaysOfPhysicalPresence(
-        undefined,
-        undefined
-      );
+      const result = safeCalculateDaysOfPhysicalPresence(undefined, undefined);
 
       expect(isErr(result)).toBe(true);
     });
 
     it('should handle empty arrays', () => {
-      const result = safeCalculateDaysOfPhysicalPresence(
-        [],
-        '2022-01-01'
-      );
+      const result = safeCalculateDaysOfPhysicalPresence([], '2022-01-01');
 
       expect(isOk(result)).toBe(true);
       if (isOk(result)) {
@@ -271,7 +232,7 @@ describe('Safe Presence Calculator Functions', () => {
       const result = safeCalculateDaysOfPhysicalPresence(
         validTrips,
         '2023-12-31',
-        '2022-01-01' // End before start
+        '2022-01-01', // End before start
       );
 
       // The underlying function may handle this differently

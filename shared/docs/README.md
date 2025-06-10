@@ -5,6 +5,7 @@ Welcome to the comprehensive documentation for the USA Presence Calculator share
 ## 📁 Documentation Structure
 
 ### 🏗️ Architecture & Design
+
 Documentation about system architecture, design decisions, and implementation patterns.
 
 - **[Technical Architecture](./architecture/TECHNICAL_ARCHITECTURE.md)** - Complete system architecture overview
@@ -12,6 +13,7 @@ Documentation about system architecture, design decisions, and implementation pa
 - **[Error Handling](./architecture/ERROR_HANDLING.md)** - Result type pattern and error management
 
 ### 📚 API & Code References
+
 Detailed references for constants, functions, schemas, and other code elements.
 
 - **[Constants Reference](./reference/CONSTANTS_REFERENCE.md)** - All constants and configuration values
@@ -20,6 +22,7 @@ Detailed references for constants, functions, schemas, and other code elements.
 - **[Safe Wrappers Reference](./reference/SAFE_WRAPPERS_REFERENCE.md)** - Security wrapper functions
 
 ### 🧪 Testing Documentation
+
 Information about test coverage, testing strategies, and test organization.
 
 - **[Tests Reference](./testing/TESTS_REFERENCE.md)** - Comprehensive test documentation
@@ -28,16 +31,19 @@ Information about test coverage, testing strategies, and test organization.
 ## 🚀 Quick Links
 
 ### For New Developers
+
 1. Start with [Technical Architecture](./architecture/TECHNICAL_ARCHITECTURE.md)
 2. Review [Schemas Reference](./reference/SCHEMAS_REFERENCE.md) for data structures
 3. Check [Functions Reference](./reference/FUNCTIONS_REFERENCE.md) for available APIs
 
 ### For Contributing
+
 1. Read [Error Handling](./architecture/ERROR_HANDLING.md) for error patterns
 2. Review [Security Implementation](./architecture/SECURITY_IMPLEMENTATION.md) for safe coding
 3. Check [Tests Reference](./testing/TESTS_REFERENCE.md) for testing requirements
 
 ### For Integration
+
 1. See [Safe Wrappers Reference](./reference/SAFE_WRAPPERS_REFERENCE.md) for validated functions
 2. Review [Constants Reference](./reference/CONSTANTS_REFERENCE.md) for configuration
 3. Check [Schemas Reference](./reference/SCHEMAS_REFERENCE.md) for data validation

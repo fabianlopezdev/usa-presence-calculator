@@ -31,7 +31,7 @@ describe('GET /health', () => {
       url: '/health',
     });
 
-    const json = response.json();
+    const json = response.json<{ status: string; timestamp: string }>();
     expect(json).toHaveProperty('status', 'ok');
     expect(json).toHaveProperty('timestamp');
     expect(new Date(json.timestamp).toISOString()).toBe(json.timestamp);

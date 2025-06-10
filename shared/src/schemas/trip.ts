@@ -12,11 +12,13 @@ const dateRangeRefinement = (data: { departureDate: string; returnDate: string }
 /**
  * Base trip schema with common fields
  */
-const BaseTripSchema = z.object({
-  departureDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
-  returnDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
-  location: z.string().optional(),
-}).strict();
+const BaseTripSchema = z
+  .object({
+    departureDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
+    returnDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
+    location: z.string().optional(),
+  })
+  .strict();
 
 /**
  * Complete trip schema - Stored trip data
@@ -27,10 +29,12 @@ export const TripSchema = BaseTripSchema.extend({
   isSimulated: z.boolean(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
-}).strict().refine(dateRangeRefinement, {
-  message: DATE_VALIDATION.RETURN_BEFORE_DEPARTURE,
-  path: ['returnDate'],
-});
+})
+  .strict()
+  .refine(dateRangeRefinement, {
+    message: DATE_VALIDATION.RETURN_BEFORE_DEPARTURE,
+    path: ['returnDate'],
+  });
 
 /**
  * Trip creation schema - Data required to create a new trip

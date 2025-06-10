@@ -1,6 +1,6 @@
 /**
  * Centralized validation messages for consistency and maintainability
- * 
+ *
  * Benefits:
  * - Single source of truth for all user-facing messages
  * - Easy to update messaging across the entire app

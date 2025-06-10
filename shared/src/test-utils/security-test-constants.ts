@@ -12,7 +12,7 @@ export const SQL_INJECTION_STRINGS = [
   "admin'--",
   "' OR 1=1--",
   "'; DELETE FROM trips WHERE '1'='1",
-  "UNION SELECT * FROM users--",
+  'UNION SELECT * FROM users--',
   "1; UPDATE users SET role='admin' WHERE 1=1;--",
   "Robert'); DROP TABLE trips;--",
 ];
@@ -63,11 +63,11 @@ export const PATH_TRAVERSAL_STRINGS = [
  * Prototype pollution attempts
  */
 export const PROTOTYPE_POLLUTION_OBJECTS = [
-  { '__proto__': { isAdmin: true } },
-  { 'constructor': { 'prototype': { isAdmin: true } } },
-  { '__proto__': { '__proto__': { isAdmin: true } } },
+  { __proto__: { isAdmin: true } },
+  { constructor: { prototype: { isAdmin: true } } },
+  { __proto__: { __proto__: { isAdmin: true } } },
   JSON.parse('{"__proto__": {"isAdmin": true}}'),
-  { 'prototype': { isAdmin: true } },
+  { prototype: { isAdmin: true } },
   { '__proto__.isAdmin': true },
   { 'constructor.prototype.isAdmin': true },
 ];
@@ -77,21 +77,21 @@ export const PROTOTYPE_POLLUTION_OBJECTS = [
  */
 export const INVALID_DATE_STRINGS = [
   'not-a-date',
-  '2024/01/01',  // Wrong format (should be YYYY-MM-DD)
-  '01-01-2024',  // Wrong format
-  '2024-13-01',  // Invalid month
-  '2024-01-32',  // Invalid day
-  '2024-02-30',  // Invalid day for February
-  '0000-00-00',  // All zeros
-  '9999-99-99',  // All nines
-  '',            // Empty string
-  ' ',           // Whitespace only
-  'null',        // String "null"
-  'undefined',   // String "undefined"
-  '2024-01-01T00:00:00Z',  // ISO format with time (should be date only)
-  '2024.01.01',  // Dots instead of dashes
-  'SELECT * FROM users',  // SQL injection in date
-  '<script>alert(1)</script>',  // XSS in date
+  '2024/01/01', // Wrong format (should be YYYY-MM-DD)
+  '01-01-2024', // Wrong format
+  '2024-13-01', // Invalid month
+  '2024-01-32', // Invalid day
+  '2024-02-30', // Invalid day for February
+  '0000-00-00', // All zeros
+  '9999-99-99', // All nines
+  '', // Empty string
+  ' ', // Whitespace only
+  'null', // String "null"
+  'undefined', // String "undefined"
+  '2024-01-01T00:00:00Z', // ISO format with time (should be date only)
+  '2024.01.01', // Dots instead of dashes
+  'SELECT * FROM users', // SQL injection in date
+  '<script>alert(1)</script>', // XSS in date
 ];
 
 /**
@@ -99,15 +99,15 @@ export const INVALID_DATE_STRINGS = [
  */
 export const INVALID_UUID_STRINGS = [
   'not-a-uuid',
-  '12345678-1234-1234-1234-123456789012',  // Valid format but not v4
-  '12345678-1234-5234-1234-123456789012',  // Wrong version
-  'g2345678-1234-4234-1234-123456789012',  // Invalid character
-  '12345678-1234-4234-1234-12345678901',   // Too short
+  '12345678-1234-1234-1234-123456789012', // Valid format but not v4
+  '12345678-1234-5234-1234-123456789012', // Wrong version
+  'g2345678-1234-4234-1234-123456789012', // Invalid character
+  '12345678-1234-4234-1234-12345678901', // Too short
   '12345678-1234-4234-1234-1234567890123', // Too long
-  '123456781234423412341234567890123',     // No dashes
-  '',                                       // Empty
-  'null',                                   // String "null"
-  'undefined',                              // String "undefined"
+  '123456781234423412341234567890123', // No dashes
+  '', // Empty
+  'null', // String "null"
+  'undefined', // String "undefined"
 ];
 
 /**
@@ -131,12 +131,12 @@ export const LARGE_NUMBERS = [
 export const SPECIAL_NUMBERS = [
   NaN,
   -0,
-  0.1 + 0.2,  // Floating point precision issue
+  0.1 + 0.2, // Floating point precision issue
   null as any,
   undefined as any,
   {} as any,
   [] as any,
-  '123' as any,  // String that looks like number
+  '123' as any, // String that looks like number
 ];
 
 /**
@@ -180,7 +180,7 @@ export const BOUNDARY_TEST_CASES = {
     epoch: '1970-01-01',
     y2k: '2000-01-01',
     leapDay: '2024-02-29',
-    nonLeapDay: '2023-02-29',  // Invalid
+    nonLeapDay: '2023-02-29', // Invalid
   },
   numbers: {
     zero: 0,
@@ -193,7 +193,7 @@ export const BOUNDARY_TEST_CASES = {
     whitespace: '   ',
     veryLong: 'a'.repeat(10000),
     unicode: '😊🔥💯',
-    rtl: 'مرحبا بالعالم',  // Arabic RTL text
+    rtl: 'مرحبا بالعالم', // Arabic RTL text
     zalgo: 'ẕ̸̧̢̛̛̗̘̙̜̝̞̟̠̤̥̦̩̪̫̬̭̮̯̰̱̲̳̹̺̻̼͇͈͉͍͎̀́̂̃̄̅̆̇̈̉̊̋̌̍̎̏̐̑̒̓̔̽̾̿̀́͂̓̈́͆͊͋͌̕̚ͅ͏͓͔͕͖͙͚͐͑͒͗͛ͣͤͥͦͧͨͩͪͫͬͭͮͯ͘͜͟͢͝͞͠͡',
   },
 };

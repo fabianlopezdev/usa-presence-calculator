@@ -1,13 +1,7 @@
 import { z } from 'zod';
 
 import { DATE_VALIDATION, TRIP_VALIDATION } from '@constants/validation-messages';
-import { 
-  DateRangeError,
-  err,
-  ok,
-  Result,
-  TripValidationError
-} from '@errors/index';
+import { DateRangeError, err, ok, Result, TripValidationError } from '@errors/index';
 import { TripDurationOptionsSchema } from '@schemas/calculation-helpers';
 import { TripSchema } from '@schemas/trip';
 
@@ -50,23 +44,19 @@ const TripDaysInYearInputSchema = z.object({
  */
 export function safeCalculateTripDuration(
   trip: unknown,
-  options?: unknown
+  options?: unknown,
 ): Result<number, TripValidationError | DateRangeError> {
   try {
     const parseResult = TripDurationInputSchema.safeParse({ trip, options });
-    
+
     if (!parseResult.success) {
-      return err(new TripValidationError(
-        TRIP_VALIDATION.INVALID_DURATION,
-        parseResult.error.format()
-      ));
+      return err(
+        new TripValidationError(TRIP_VALIDATION.INVALID_DURATION, parseResult.error.format()),
+      );
     }
 
     const validatedData = parseResult.data;
-    const result = calculateTripDuration(
-      validatedData.trip,
-      validatedData.options
-    );
+    const result = calculateTripDuration(validatedData.trip, validatedData.options);
 
     return ok(result);
   } catch (error) {
@@ -88,7 +78,7 @@ export function safeCalculateTripDaysInPeriod(
   trip: unknown,
   startDate: unknown,
   endDate: unknown,
-  options?: unknown
+  options?: unknown,
 ): Result<number, TripValidationError | DateRangeError> {
   try {
     const parseResult = TripDaysInPeriodInputSchema.safeParse({
@@ -97,12 +87,11 @@ export function safeCalculateTripDaysInPeriod(
       endDate,
       options,
     });
-    
+
     if (!parseResult.success) {
-      return err(new TripValidationError(
-        TRIP_VALIDATION.INVALID_RANGE,
-        parseResult.error.format()
-      ));
+      return err(
+        new TripValidationError(TRIP_VALIDATION.INVALID_RANGE, parseResult.error.format()),
+      );
     }
 
     const validatedData = parseResult.data;
@@ -110,7 +99,7 @@ export function safeCalculateTripDaysInPeriod(
       validatedData.trip,
       new Date(validatedData.startDate),
       new Date(validatedData.endDate),
-      validatedData.options
+      validatedData.options,
     );
 
     return ok(result);
@@ -132,7 +121,7 @@ export function safeCalculateTripDaysInPeriod(
 export function safeCalculateTripDaysInYear(
   trip: unknown,
   year: unknown,
-  options?: unknown
+  options?: unknown,
 ): Result<number, TripValidationError | DateRangeError> {
   try {
     const parseResult = TripDaysInYearInputSchema.safeParse({
@@ -140,19 +129,18 @@ export function safeCalculateTripDaysInYear(
       year,
       options,
     });
-    
+
     if (!parseResult.success) {
-      return err(new TripValidationError(
-        TRIP_VALIDATION.INVALID_RANGE,
-        parseResult.error.format()
-      ));
+      return err(
+        new TripValidationError(TRIP_VALIDATION.INVALID_RANGE, parseResult.error.format()),
+      );
     }
 
     const validatedData = parseResult.data;
     const result = calculateTripDaysInYear(
       validatedData.trip,
       validatedData.year,
-      validatedData.options
+      validatedData.options,
     );
 
     return ok(result);

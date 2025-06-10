@@ -5,6 +5,7 @@ This document provides a complete reference for ALL test files in the shared pac
 ## Summary Audit
 
 ### Overall Test Statistics
+
 - **Total Test Files**: 29
 - **Total Test Cases**: 878
 - **Test Categories**: 9 major areas
@@ -14,17 +15,17 @@ This document provides a complete reference for ALL test files in the shared pac
 
 ### Test Coverage by Category
 
-| Category | Test Files | Test Cases | Coverage Focus |
-|----------|------------|------------|----------------|
-| **Compliance** | 7 | ~300 | Green card renewal, I-751, selective service, taxes, safe wrappers |
-| **LPR Status** | 3 | ~60 | Abandonment risk, reentry permits, pattern analysis |
-| **Presence Calculation** | 4 | ~110 | Physical presence, continuous residence, eligibility, safe wrappers |
-| **Travel Risk** | 3 | ~80 | Risk thresholds, permit protection, warnings, safe assessment |
-| **Travel Analytics** | 2 | ~80 | Statistics, projections, budgets, summaries, safe analytics |
-| **Utils** | 4 | ~150 | Date handling, trip calculations, validation, safe wrappers |
-| **Schemas** | 5 | ~70 | Data validation, type safety, security validation |
-| **Error Infrastructure** | 1 | ~25 | Result type, error handling utilities |
-| **Security** | 1 | ~25 | Malicious input, strict mode validation |
+| Category                 | Test Files | Test Cases | Coverage Focus                                                      |
+| ------------------------ | ---------- | ---------- | ------------------------------------------------------------------- |
+| **Compliance**           | 7          | ~300       | Green card renewal, I-751, selective service, taxes, safe wrappers  |
+| **LPR Status**           | 3          | ~60        | Abandonment risk, reentry permits, pattern analysis                 |
+| **Presence Calculation** | 4          | ~110       | Physical presence, continuous residence, eligibility, safe wrappers |
+| **Travel Risk**          | 3          | ~80        | Risk thresholds, permit protection, warnings, safe assessment       |
+| **Travel Analytics**     | 2          | ~80        | Statistics, projections, budgets, summaries, safe analytics         |
+| **Utils**                | 4          | ~150       | Date handling, trip calculations, validation, safe wrappers         |
+| **Schemas**              | 5          | ~70        | Data validation, type safety, security validation                   |
+| **Error Infrastructure** | 1          | ~25        | Result type, error handling utilities                               |
+| **Security**             | 1          | ~25        | Malicious input, strict mode validation                             |
 
 ## Table of Contents
 
@@ -51,10 +52,12 @@ This document provides a complete reference for ALL test files in the shared pac
 ### Compliance Tests
 
 #### **compliance-coordinator.test.ts**
+
 **Path**: `/business-logic/calculations/compliance/__tests__/`
 **Test Suites**: 5 | **Test Cases**: 34
 
 **What It Tests**:
+
 - Comprehensive compliance status aggregation
 - Active compliance item detection
 - Priority item calculation and sorting
@@ -62,22 +65,26 @@ This document provides a complete reference for ALL test files in the shared pac
 - Integration of all compliance modules
 
 **Key Scenarios**:
+
 - Multiple simultaneous deadlines
 - Conflicting priorities
 - Empty compliance states
 - Date boundary conditions
 
 #### **green-card-renewal.test.ts**
+
 **Path**: `/business-logic/calculations/compliance/__tests__/`
 **Test Suites**: 13 | **Test Cases**: 46
 
 **What It Tests**:
+
 - Green card expiration calculations
 - Renewal window detection (6-month window)
 - Renewal urgency levels
 - Status transitions
 
 **Edge Cases**:
+
 - Leap year expirations
 - Weekend/holiday adjustments
 - Already expired cards
@@ -85,16 +92,19 @@ This document provides a complete reference for ALL test files in the shared pac
 - Month boundary transitions
 
 #### **removal-of-conditions.test.ts**
+
 **Path**: `/business-logic/calculations/compliance/__tests__/`
 **Test Suites**: 11 | **Test Cases**: 38
 
 **What It Tests**:
+
 - I-751 filing window calculations
 - 90-day filing window before 2-year anniversary
 - Filing status tracking
 - Conditional resident validation
 
 **Edge Cases**:
+
 - Leap day green card dates
 - Future green card dates
 - Already filed/approved cases
@@ -102,16 +112,19 @@ This document provides a complete reference for ALL test files in the shared pac
 - Invalid resident types
 
 #### **selective-service.test.ts**
+
 **Path**: `/business-logic/calculations/compliance/__tests__/`
 **Test Suites**: 11 | **Test Cases**: 44
 
 **What It Tests**:
+
 - Age-based registration requirements (18-26 males)
 - Registration deadline calculations
 - Gender-based applicability
 - Status transitions with age
 
 **Edge Cases**:
+
 - Leap day birthdays
 - Exact age boundaries
 - Gender edge cases
@@ -119,10 +132,12 @@ This document provides a complete reference for ALL test files in the shared pac
 - Future birth dates
 
 #### **tax-reminders.test.ts**
+
 **Path**: `/business-logic/calculations/compliance/__tests__/`
 **Test Suites**: 16 | **Test Cases**: 86
 
 **What It Tests**:
+
 - Tax filing deadline calculations
 - DC Emancipation Day adjustments
 - Abroad extension eligibility
@@ -130,6 +145,7 @@ This document provides a complete reference for ALL test files in the shared pac
 - Trip overlap with tax season
 
 **Edge Cases**:
+
 - Weekend deadline adjustments
 - Holiday conflicts
 - Leap year handling
@@ -139,43 +155,53 @@ This document provides a complete reference for ALL test files in the shared pac
 ### LPR Status Tests
 
 #### **lpr-status-calculator.test.ts**
+
 **Path**: `/business-logic/calculations/lpr-status/__tests__/`
 **Test Suites**: 3 | **Test Cases**: 13
 
 **What It Tests**:
+
 - Basic LPR abandonment risk assessment
 - Risk levels based on trip duration
 - Maximum safe trip calculations
 - Reentry permit basic protection
 
 **Key Thresholds Tested**:
+
 - 150 days: Warning level
 - 180 days: Presumption of abandonment
 - 365 days: Automatic loss risk
 
 #### **lpr-status-advanced-scenarios.test.ts**
+
 **Path**: `/business-logic/calculations/lpr-status/__tests__/`
 **Test Suites**: 7 | **Test Cases**: 15
 
 **Advanced Scenarios**:
+
 1. **Rebuttable Presumption** (180-364 days)
+
    - Mitigating factors evaluation
    - Evidence requirements
 
 2. **Reentry Permit Lifecycle**
+
    - Pending vs approved status
    - Expiration handling
    - Protection limitations
 
 3. **Conditional Permanent Residence**
+
    - I-751 priority over travel
    - Filing window interactions
 
 4. **Pattern of Non-Residence**
+
    - Multiple short trips
    - Minimal US presence patterns
 
 5. **N-470 Exemptions**
+
    - Government service protection
    - Qualifying employment
 
@@ -184,10 +210,12 @@ This document provides a complete reference for ALL test files in the shared pac
    - Priority determination
 
 #### **lpr-status-edge-cases.test.ts**
+
 **Path**: `/business-logic/calculations/lpr-status/__tests__/`
 **Test Suites**: 4 | **Test Cases**: 31
 
 **Edge Cases**:
+
 - Empty trip arrays
 - Same-day trips
 - Overlapping trips
@@ -199,10 +227,12 @@ This document provides a complete reference for ALL test files in the shared pac
 ### Presence Calculation Tests
 
 #### **presence-calculator.test.ts** (Root)
+
 **Path**: `/business-logic/__tests__/`
 **Test Suites**: 5 | **Test Cases**: 38
 
 **Core Functionality**:
+
 - Total days of physical presence
 - USCIS day counting rules
 - Continuous residence checking
@@ -210,10 +240,12 @@ This document provides a complete reference for ALL test files in the shared pac
 - Early filing window (90 days)
 
 #### **presence-calculator-edge-cases.test.ts**
+
 **Path**: `/business-logic/calculations/presence/__tests__/`
 **Test Suites**: 6 | **Test Cases**: 19
 
 **Complex Scenarios**:
+
 - Overlapping trips
 - Back-to-back trips
 - Future trip handling
@@ -222,10 +254,12 @@ This document provides a complete reference for ALL test files in the shared pac
 - Real-world user scenarios
 
 #### **presence-calculator-helpers.test.ts**
+
 **Path**: `/business-logic/calculations/presence/__tests__/`
 **Test Suites**: 5 | **Test Cases**: 28
 
 **Helper Functions**:
+
 - Date validation and parsing
 - Trip validation logic
 - Days abroad calculations
@@ -235,20 +269,24 @@ This document provides a complete reference for ALL test files in the shared pac
 ### Travel Risk Tests
 
 #### **travel-risk-helpers-enhanced.test.ts**
+
 **Path**: `/business-logic/calculations/travel-risk/__tests__/`
 **Test Suites**: 7 | **Test Cases**: 29
 
 **Risk Assessment**:
+
 - Comprehensive threshold testing
 - Green card abandonment risk
 - Permit protection evaluation
 - Individual threshold checks
 
 #### **travel-risk-helpers-edge-cases.test.ts**
+
 **Path**: `/business-logic/calculations/travel-risk/__tests__/`
 **Test Suites**: 5 | **Test Cases**: 31
 
 **Edge Scenarios**:
+
 - Boundary value testing
 - Permit edge cases
 - Date calculation anomalies
@@ -257,10 +295,12 @@ This document provides a complete reference for ALL test files in the shared pac
 ### Travel Analytics Tests
 
 #### **travel-analytics.test.ts**
+
 **Path**: `/business-logic/calculations/travel-analytics/__tests__/`
 **Test Suites**: 9 | **Test Cases**: 52
 
 **Analytics Features**:
+
 - Country visit statistics
 - Yearly travel breakdowns
 - Travel streak analysis
@@ -271,6 +311,7 @@ This document provides a complete reference for ALL test files in the shared pac
 - Annual summaries
 
 **Edge Cases**:
+
 - Empty data handling
 - Invalid trip data
 - Extreme date ranges
@@ -279,10 +320,12 @@ This document provides a complete reference for ALL test files in the shared pac
 ### Utility Tests
 
 #### **date-helpers.test.ts**
+
 **Path**: `/utils/__tests__/`
 **Test Suites**: 15 | **Test Cases**: 48
 
 **Date Operations**:
+
 - UTC date handling
 - Format validation (YYYY-MM-DD)
 - Leap year calculations
@@ -291,10 +334,12 @@ This document provides a complete reference for ALL test files in the shared pac
 - Extreme date handling
 
 #### **trip-calculations.test.ts**
+
 **Path**: `/utils/__tests__/`
 **Test Suites**: 6 | **Test Cases**: 38
 
 **Trip Calculations**:
+
 - USCIS-compliant duration
 - Period overlap calculations
 - Year boundary handling
@@ -302,15 +347,18 @@ This document provides a complete reference for ALL test files in the shared pac
 - Day set population
 
 **Critical USCIS Rules**:
+
 - Departure day counts as presence
 - Return day counts as presence
 - Proper overlap handling
 
 #### **validation.test.ts**
+
 **Path**: `/utils/__tests__/`
 **Test Suites**: 8 | **Test Cases**: 46
 
 **Validation Logic**:
+
 - Trip data validation
 - ID requirements
 - Location requirements
@@ -321,10 +369,12 @@ This document provides a complete reference for ALL test files in the shared pac
 ### Schema Tests
 
 #### **trip.test.ts**
+
 **Path**: `/schemas/__tests__/`
 **Test Cases**: 13
 
 **Validates**:
+
 - Trip data structure
 - Date format enforcement
 - Return > departure validation
@@ -332,10 +382,12 @@ This document provides a complete reference for ALL test files in the shared pac
 - Optional fields
 
 #### **user.test.ts**
+
 **Path**: `/schemas/__tests__/`
 **Test Cases**: 10
 
 **Validates**:
+
 - User profile structure
 - Email validation
 - Green card date format
@@ -343,10 +395,12 @@ This document provides a complete reference for ALL test files in the shared pac
 - Settings preferences
 
 #### **presence.test.ts**
+
 **Path**: `/schemas/__tests__/`
 **Test Cases**: 11
 
 **Validates**:
+
 - Calculation results
 - Status enums
 - Warning structures
@@ -354,10 +408,12 @@ This document provides a complete reference for ALL test files in the shared pac
 - Percentage constraints
 
 #### **notification.test.ts**
+
 **Path**: `/schemas/__tests__/`
 **Test Cases**: 9
 
 **Validates**:
+
 - Notification structure
 - Type constraints
 - Preference settings
@@ -366,10 +422,12 @@ This document provides a complete reference for ALL test files in the shared pac
 ### Security Tests
 
 #### **security-validation.test.ts**
+
 **Path**: `/schemas/__tests__/`
 **Test Cases**: 25
 
 **Validates**:
+
 - Strict mode rejection of extra properties
 - Protection against prototype pollution
 - XSS payload handling
@@ -380,10 +438,12 @@ This document provides a complete reference for ALL test files in the shared pac
 ### Safe Wrapper Tests
 
 #### **safe-calculator.test.ts** (Presence)
+
 **Path**: `/business-logic/calculations/presence/__tests__/`
 **Test Cases**: 25
 
 **Validates**:
+
 - Input validation before calculation
 - Result type error handling
 - Invalid date format rejection
@@ -391,50 +451,60 @@ This document provides a complete reference for ALL test files in the shared pac
 - Type safety enforcement
 
 #### **safe-compliance-coordinator.test.ts**
+
 **Path**: `/business-logic/calculations/compliance/__tests__/`
 **Test Cases**: 20
 
 **Validates**:
+
 - Comprehensive compliance validation
 - Invalid parameter rejection
 - Error propagation
 - Result type consistency
 
 #### **safe-compliance-functions.test.ts**
+
 **Path**: `/business-logic/calculations/compliance/__tests__/`
 **Test Cases**: 30
 
 **Validates**:
+
 - Individual compliance function validation
 - Date validation for each function
 - Boolean and string parameter validation
 - Proper error messages
 
 #### **safe-analytics.test.ts**
+
 **Path**: `/business-logic/calculations/travel-analytics/__tests__/`
 **Test Cases**: 30
 
 **Validates**:
+
 - Trip array validation
 - Analytics parameter validation
 - Result type handling
 - Error message clarity
 
 #### **safe-assessment.test.ts**
+
 **Path**: `/business-logic/calculations/travel-risk/__tests__/`
 **Test Cases**: 20
 
 **Validates**:
+
 - Risk assessment input validation
 - Permit info validation
 - Comprehensive error handling
 - Type safety
 
 #### **safe-trip-calculations.test.ts**
+
 **Path**: `/utils/__tests__/`
 **Test Cases**: 20
 
 **Validates**:
+
 - Trip duration calculation validation
 - Period validation
 - Year validation
@@ -443,10 +513,12 @@ This document provides a complete reference for ALL test files in the shared pac
 ### Error Infrastructure Tests
 
 #### **error-infrastructure.test.ts**
+
 **Path**: `/errors/__tests__/`
 **Test Cases**: 25
 
 **Validates**:
+
 - Result type creation (ok/err)
 - Type guards (isOk/isErr)
 - Functional utilities (map, chain, combine)
@@ -458,6 +530,7 @@ This document provides a complete reference for ALL test files in the shared pac
 ## Edge Cases Coverage
 
 ### Date & Time Edge Cases
+
 - **Leap Years**: Feb 29 births, green card dates, trip dates
 - **Month Boundaries**: 31st of month handling, February variations
 - **Year Boundaries**: Dec 31 to Jan 1 transitions
@@ -466,6 +539,7 @@ This document provides a complete reference for ALL test files in the shared pac
 - **Extreme Dates**: Year 1900, 2099, invalid dates
 
 ### USCIS Rule Edge Cases
+
 - **Day Counting**: Departure/return day inclusion
 - **Continuous Residence**: 179 vs 180 vs 181 days
 - **Early Filing**: Exactly 90 days before eligibility
@@ -473,6 +547,7 @@ This document provides a complete reference for ALL test files in the shared pac
 - **Same-Day Trips**: 0-day duration handling
 
 ### Data Integrity Edge Cases
+
 - **Empty Arrays**: No trips, no data
 - **Invalid Data**: Null, undefined, malformed
 - **Future Dates**: Future green cards, future trips
@@ -480,6 +555,7 @@ This document provides a complete reference for ALL test files in the shared pac
 - **Boundary Values**: 0, 1, maximum integers
 
 ### System Edge Cases
+
 - **Performance**: Large datasets (1000+ trips)
 - **Memory**: Set size limitations
 - **Precision**: Date calculation accuracy
@@ -490,6 +566,7 @@ This document provides a complete reference for ALL test files in the shared pac
 ## USCIS Rules Validation
 
 ### Physical Presence Rules
+
 ✅ **Departure day counts as presence**
 ✅ **Return day counts as presence**
 ✅ **913 days for 5-year path**
@@ -497,6 +574,7 @@ This document provides a complete reference for ALL test files in the shared pac
 ✅ **90-day early filing window**
 
 ### Continuous Residence Rules
+
 ✅ **180+ days breaks residence**
 ✅ **365+ days automatic break**
 ✅ **Warning at 150 days**
@@ -504,6 +582,7 @@ This document provides a complete reference for ALL test files in the shared pac
 ✅ **3 years for marriage path**
 
 ### LPR Abandonment Rules
+
 ✅ **180 days: Rebuttable presumption**
 ✅ **365 days: High risk of loss**
 ✅ **Reentry permit: 2-year protection**
@@ -511,6 +590,7 @@ This document provides a complete reference for ALL test files in the shared pac
 ✅ **Mitigating factors consideration**
 
 ### Compliance Deadlines
+
 ✅ **I-751: 90-day window before 2 years**
 ✅ **Green card: 6-month renewal window**
 ✅ **Selective service: 30 days after 18**
@@ -521,6 +601,7 @@ This document provides a complete reference for ALL test files in the shared pac
 ## Test Files by Path
 
 ### Business Logic Tests
+
 ```
 /src/business-logic/
 ├── __tests__/
@@ -547,6 +628,7 @@ This document provides a complete reference for ALL test files in the shared pac
 ```
 
 ### Utility & Schema Tests
+
 ```
 /src/
 ├── schemas/__tests__/
@@ -565,26 +647,31 @@ This document provides a complete reference for ALL test files in the shared pac
 ## Critical Scenarios Tested
 
 ### 1. **Multiple Simultaneous Risks**
+
 - I-751 deadline + long trip abroad
 - Tax deadline during travel
 - Selective service + green card renewal
 
 ### 2. **Complex Travel Patterns**
+
 - Frequent short trips (commuter pattern)
 - Back-to-back international travel
 - Overlapping trip records
 
 ### 3. **Boundary Conditions**
+
 - Exactly 180 days abroad
 - Trip ending on deadline day
 - Early filing exactly 90 days
 
 ### 4. **Real-World Scenarios**
+
 - COVID-19 travel restrictions
 - Government service abroad
 - Medical emergencies
 
 ### 5. **Data Quality Issues**
+
 - Incomplete trip records
 - Conflicting dates
 - Missing information
@@ -594,6 +681,7 @@ This document provides a complete reference for ALL test files in the shared pac
 ## Test Quality Metrics
 
 ### Coverage Completeness
+
 - ✅ All exported functions have tests
 - ✅ All schema validations tested
 - ✅ All USCIS rules validated
@@ -601,6 +689,7 @@ This document provides a complete reference for ALL test files in the shared pac
 - ✅ Error conditions handled
 
 ### Test Characteristics
+
 - **Isolated**: No test depends on another
 - **Repeatable**: Consistent results
 - **Fast**: Most tests < 10ms
@@ -608,6 +697,7 @@ This document provides a complete reference for ALL test files in the shared pac
 - **Comprehensive**: Multiple scenarios per function
 
 ### Maintenance
+
 - Tests updated with code changes
 - New edge cases added as discovered
 - Performance benchmarks maintained
@@ -616,6 +706,7 @@ This document provides a complete reference for ALL test files in the shared pac
 ---
 
 This comprehensive test reference demonstrates:
+
 - **Thorough Coverage**: 650+ tests across all modules
 - **Edge Case Focus**: 200+ edge case specific tests
 - **USCIS Compliance**: All rules properly validated

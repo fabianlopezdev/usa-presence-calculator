@@ -29,7 +29,6 @@ import { ISO_DATE_UTILS } from '@constants/date-time';
 // Internal dependencies - Utilities
 import { parseDate } from '@utils/date-helpers';
 
-
 export function calculateGreenCardRenewalStatus(
   expirationDate: string,
   currentDate: string = new Date().toISOString(),

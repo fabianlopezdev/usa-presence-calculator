@@ -20,13 +20,7 @@ export const SECURITY = {
     AUDIT_LOGS_DAYS: 90,
     DELETED_USER_GRACE_PERIOD_DAYS: 30,
   },
-  SENSITIVE_FIELDS: [
-    'location',
-    'notes',
-    'companion_names',
-    'address',
-    'email',
-  ],
+  SENSITIVE_FIELDS: ['location', 'notes', 'companion_names', 'address', 'email'],
   AUDIT: {
     ACTIONS: {
       USER_LOGIN: 'USER_LOGIN',

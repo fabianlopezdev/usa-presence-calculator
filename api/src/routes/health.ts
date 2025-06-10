@@ -1,12 +1,11 @@
-import { FastifyPluginAsync } from 'fastify';
+import { FastifyPluginCallback } from 'fastify';
 
-const healthRoute: FastifyPluginAsync = async (fastify) => {
-  fastify.get('/health', async () => {
-    return {
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-    };
-  });
+const healthRoute: FastifyPluginCallback = (fastify, _opts, done) => {
+  fastify.get('/health', () => ({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+  }));
+  done();
 };
 
 export default healthRoute;

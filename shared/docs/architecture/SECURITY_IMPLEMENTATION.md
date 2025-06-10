@@ -5,6 +5,7 @@ This document details the comprehensive security implementation in the shared pa
 ## Overview
 
 The security implementation follows a defense-in-depth approach with multiple layers:
+
 1. **Strict Schema Validation** - All Zod schemas use `.strict()` mode
 2. **Safe Wrapper Functions** - Validate inputs before business logic
 3. **Result Type Pattern** - Functional error handling without exceptions
@@ -16,9 +17,7 @@ The security implementation follows a defense-in-depth approach with multiple la
 
 ```typescript
 // Result type for functional error handling
-export type Result<T, E = Error> = 
-  | { success: true; data: T }
-  | { success: false; error: E };
+export type Result<T, E = Error> = { success: true; data: T } | { success: false; error: E };
 
 // Helper functions
 export function ok<T>(data: T): Result<T, never> {
@@ -31,6 +30,7 @@ export function err<E>(error: E): Result<never, E> {
 ```
 
 ### Benefits
+
 - No thrown exceptions
 - Explicit error handling
 - Type-safe error propagation
@@ -42,23 +42,27 @@ export function err<E>(error: E): Result<never, E> {
 ### Strict Mode Enforcement
 
 All 89 Zod schemas now use `.strict()` mode, which:
+
 - Rejects unknown properties
 - Prevents prototype pollution
 - Ensures exact type matching
 - Blocks injection attempts
 
 Example:
+
 ```typescript
-export const TripSchema = z.object({
-  id: z.string().uuid(),
-  userId: z.string().uuid(),
-  departureDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  returnDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  location: z.string().optional(),
-  isSimulated: z.boolean(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
-}).strict(); // Rejects any extra properties
+export const TripSchema = z
+  .object({
+    id: z.string().uuid(),
+    userId: z.string().uuid(),
+    departureDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    returnDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    location: z.string().optional(),
+    isSimulated: z.boolean(),
+    createdAt: z.string().datetime(),
+    updatedAt: z.string().datetime(),
+  })
+  .strict(); // Rejects any extra properties
 ```
 
 ### Validation Rules
@@ -78,23 +82,23 @@ graph TD
     subgraph "Unsafe Input"
         Input[Unknown Data]
     end
-    
+
     subgraph "Safe Wrapper Layer"
         Validate[Schema Validation]
         Transform[Type Transformation]
         Error[Error Handling]
     end
-    
+
     subgraph "Business Logic"
         Core[Pure Functions]
         Calc[Calculations]
     end
-    
+
     subgraph "Result"
         Success[Result<T>]
         Failure[Result<Error>]
     end
-    
+
     Input --> Validate
     Validate -->|Valid| Transform
     Validate -->|Invalid| Error
@@ -110,7 +114,7 @@ graph TD
 export function safeCalculateDaysOfPhysicalPresence(
   trips: unknown,
   greenCardDate: unknown,
-  currentDate?: unknown
+  currentDate?: unknown,
 ): Result<number, TripValidationError | DateRangeError> {
   try {
     // Validate input with schema
@@ -119,12 +123,11 @@ export function safeCalculateDaysOfPhysicalPresence(
       greenCardDate,
       currentDate,
     });
-    
+
     if (!parseResult.success) {
-      return err(new TripValidationError(
-        PRESENCE_VALIDATION.INVALID_INPUT,
-        parseResult.error.format()
-      ));
+      return err(
+        new TripValidationError(PRESENCE_VALIDATION.INVALID_INPUT, parseResult.error.format()),
+      );
     }
 
     // Call core business logic with validated data
@@ -132,7 +135,7 @@ export function safeCalculateDaysOfPhysicalPresence(
     const result = calculateDaysOfPhysicalPresence(
       validatedData.trips,
       validatedData.greenCardDate,
-      validatedData.currentDate
+      validatedData.currentDate,
     );
 
     return ok(result);
@@ -149,17 +152,20 @@ export function safeCalculateDaysOfPhysicalPresence(
 ## Safe Wrapper Functions by Module
 
 ### Presence Calculation
+
 - `safeCalculateDaysOfPhysicalPresence`
 - `safeCalculatePresenceStatus`
 - `safeCheckContinuousResidence`
 - `safeCalculateEligibilityDates`
 
 ### LPR Status Assessment
+
 - `safeAssessRiskOfLosingPermanentResidentStatus`
 - `safeAssessRiskOfLosingPermanentResidentStatusAdvanced`
 - `safeCalculateMaximumTripDurationWithExemptions`
 
 ### Compliance Tracking
+
 - `safeCalculateComprehensiveCompliance`
 - `safeCalculateRemovalOfConditionsStatus`
 - `safeCalculateGreenCardRenewalStatus`
@@ -167,15 +173,18 @@ export function safeCalculateDaysOfPhysicalPresence(
 - `safeCalculateTaxReminderStatus`
 
 ### Travel Analytics
+
 - `safeAssessUpcomingTripRisk`
 - `safeCalculateCountryStatistics`
 - `safeCalculateDaysAbroadByYear`
 - `safeProjectEligibilityDate`
 
 ### Travel Risk Assessment
+
 - `safeAssessTripRiskForAllLegalThresholds`
 
 ### Utility Functions
+
 - `safeCalculateTripDuration`
 - `safeCalculateTripDaysInPeriod`
 - `safeCalculateTripDaysInYear`
@@ -232,12 +241,14 @@ export const PRESENCE_VALIDATION = {
 ### Test Categories
 
 1. **Malicious Input Tests**
+
    - SQL injection attempts
    - XSS payloads
    - Prototype pollution
    - Command injection
 
 2. **Boundary Value Tests**
+
    - Empty data
    - Null/undefined values
    - Extreme dates
@@ -270,7 +281,7 @@ describe('Security: Malicious Input Handling', () => {
 
   it('should reject prototype pollution attempts', () => {
     const maliciousData = {
-      '__proto__': { isAdmin: true },
+      __proto__: { isAdmin: true },
       constructor: { prototype: { isAdmin: true } },
     };
 
@@ -304,11 +315,7 @@ describe('Security: Malicious Input Handling', () => {
 // Always use safe wrappers from external code
 import { safeCalculateDaysOfPhysicalPresence } from '@usa-presence/shared';
 
-const result = safeCalculateDaysOfPhysicalPresence(
-  trips,
-  greenCardDate,
-  currentDate
-);
+const result = safeCalculateDaysOfPhysicalPresence(trips, greenCardDate, currentDate);
 
 if (result.success) {
   console.log(`Days in USA: ${result.data}`);
@@ -335,9 +342,8 @@ if (isOk(result)) {
 }
 
 // Pattern 3: Functional chaining
-const finalResult = chainResult(
-  safeValidateTrip(trip),
-  validTrip => safeCalculateDuration(validTrip)
+const finalResult = chainResult(safeValidateTrip(trip), (validTrip) =>
+  safeCalculateDuration(validTrip),
 );
 ```
 

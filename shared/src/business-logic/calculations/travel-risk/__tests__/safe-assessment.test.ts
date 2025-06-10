@@ -1,12 +1,6 @@
-import { 
-  isErr,
-  isOk,
-  TripValidationError
-} from '@errors/index';
+import { isErr, isOk, TripValidationError } from '@errors/index';
 
-import {
-  safeAssessTripRiskForAllLegalThresholds,
-} from '../safe-assessment';
+import { safeAssessTripRiskForAllLegalThresholds } from '../safe-assessment';
 
 describe('Safe Travel Risk Assessment Functions', () => {
   const validTrip = {
@@ -44,10 +38,7 @@ describe('Safe Travel Risk Assessment Functions', () => {
     });
 
     it('should return success result for valid trip with reentry permit', () => {
-      const result = safeAssessTripRiskForAllLegalThresholds(
-        validTrip,
-        validReentryPermit
-      );
+      const result = safeAssessTripRiskForAllLegalThresholds(validTrip, validReentryPermit);
 
       expect(isOk(result)).toBe(true);
       if (isOk(result)) {
@@ -87,10 +78,7 @@ describe('Safe Travel Risk Assessment Functions', () => {
         permitExpiryDate: '2024-12-31',
       };
 
-      const result = safeAssessTripRiskForAllLegalThresholds(
-        validTrip,
-        invalidPermit
-      );
+      const result = safeAssessTripRiskForAllLegalThresholds(validTrip, invalidPermit);
 
       expect(isErr(result)).toBe(true);
     });
@@ -192,10 +180,7 @@ describe('Safe Travel Risk Assessment Functions', () => {
         returnDate: '2024-01-01', // 1 year
       };
 
-      const result = safeAssessTripRiskForAllLegalThresholds(
-        longTrip,
-        validReentryPermit
-      );
+      const result = safeAssessTripRiskForAllLegalThresholds(longTrip, validReentryPermit);
 
       expect(isOk(result)).toBe(true);
       if (isOk(result)) {
@@ -212,10 +197,7 @@ describe('Safe Travel Risk Assessment Functions', () => {
         permitExpiryDate: '2022-12-31', // Expired
       };
 
-      const result = safeAssessTripRiskForAllLegalThresholds(
-        validTrip,
-        expiredPermit
-      );
+      const result = safeAssessTripRiskForAllLegalThresholds(validTrip, expiredPermit);
 
       expect(isOk(result)).toBe(true);
       if (isOk(result)) {
@@ -229,10 +211,7 @@ describe('Safe Travel Risk Assessment Functions', () => {
         permitExpiryDate: '2024-12-31',
       };
 
-      const result = safeAssessTripRiskForAllLegalThresholds(
-        validTrip,
-        permitNoType
-      );
+      const result = safeAssessTripRiskForAllLegalThresholds(validTrip, permitNoType);
 
       expect(isOk(result)).toBe(true);
       if (isOk(result)) {
@@ -301,10 +280,7 @@ describe('Safe Travel Risk Assessment Functions', () => {
         permitExpiryDate: '2024-12-31',
       };
 
-      const result = safeAssessTripRiskForAllLegalThresholds(
-        validTrip,
-        invalidPermit
-      );
+      const result = safeAssessTripRiskForAllLegalThresholds(validTrip, invalidPermit);
 
       expect(isErr(result)).toBe(true);
     });

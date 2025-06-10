@@ -1,8 +1,4 @@
-import { 
-  isErr,
-  isOk,
-  TripValidationError
-} from '@errors/index';
+import { isErr, isOk, TripValidationError } from '@errors/index';
 
 import {
   safeCalculateTripDuration,
@@ -116,11 +112,7 @@ describe('Safe Trip Calculation Functions', () => {
 
   describe('safeCalculateTripDaysInPeriod', () => {
     it('should return success result for valid inputs', () => {
-      const result = safeCalculateTripDaysInPeriod(
-        validTrip,
-        '2022-12-01',
-        '2023-01-31'
-      );
+      const result = safeCalculateTripDaysInPeriod(validTrip, '2022-12-01', '2023-01-31');
 
       expect(isOk(result)).toBe(true);
       if (isOk(result)) {
@@ -129,11 +121,7 @@ describe('Safe Trip Calculation Functions', () => {
     });
 
     it('should handle partial overlap at start', () => {
-      const result = safeCalculateTripDaysInPeriod(
-        validTrip,
-        '2023-01-05',
-        '2023-01-31'
-      );
+      const result = safeCalculateTripDaysInPeriod(validTrip, '2023-01-05', '2023-01-31');
 
       expect(isOk(result)).toBe(true);
       if (isOk(result)) {
@@ -142,11 +130,7 @@ describe('Safe Trip Calculation Functions', () => {
     });
 
     it('should handle partial overlap at end', () => {
-      const result = safeCalculateTripDaysInPeriod(
-        validTrip,
-        '2022-12-01',
-        '2023-01-05'
-      );
+      const result = safeCalculateTripDaysInPeriod(validTrip, '2022-12-01', '2023-01-05');
 
       expect(isOk(result)).toBe(true);
       if (isOk(result)) {
@@ -155,11 +139,7 @@ describe('Safe Trip Calculation Functions', () => {
     });
 
     it('should return 0 for trip outside period', () => {
-      const result = safeCalculateTripDaysInPeriod(
-        validTrip,
-        '2023-02-01',
-        '2023-02-28'
-      );
+      const result = safeCalculateTripDaysInPeriod(validTrip, '2023-02-01', '2023-02-28');
 
       expect(isOk(result)).toBe(true);
       if (isOk(result)) {
@@ -168,11 +148,7 @@ describe('Safe Trip Calculation Functions', () => {
     });
 
     it('should return error for invalid date format', () => {
-      const result = safeCalculateTripDaysInPeriod(
-        validTrip,
-        'January 1, 2023',
-        '2023-01-31'
-      );
+      const result = safeCalculateTripDaysInPeriod(validTrip, 'January 1, 2023', '2023-01-31');
 
       expect(isErr(result)).toBe(true);
       if (isErr(result)) {
@@ -181,11 +157,7 @@ describe('Safe Trip Calculation Functions', () => {
     });
 
     it('should handle end date before start date', () => {
-      const result = safeCalculateTripDaysInPeriod(
-        validTrip,
-        '2023-01-31',
-        '2023-01-01'
-      );
+      const result = safeCalculateTripDaysInPeriod(validTrip, '2023-01-31', '2023-01-01');
 
       // The function might handle this gracefully by returning 0
       expect(isOk(result)).toBe(true);
@@ -195,12 +167,10 @@ describe('Safe Trip Calculation Functions', () => {
     });
 
     it('should handle options correctly', () => {
-      const result = safeCalculateTripDaysInPeriod(
-        validTrip,
-        '2022-12-01',
-        '2023-01-31',
-        { includeDepartureDay: false, includeReturnDay: false }
-      );
+      const result = safeCalculateTripDaysInPeriod(validTrip, '2022-12-01', '2023-01-31', {
+        includeDepartureDay: false,
+        includeReturnDay: false,
+      });
 
       expect(isOk(result)).toBe(true);
       if (isOk(result)) {
@@ -231,7 +201,7 @@ describe('Safe Trip Calculation Functions', () => {
 
       expect(isOk(result2022)).toBe(true);
       expect(isOk(result2023)).toBe(true);
-      
+
       if (isOk(result2022)) {
         expect(result2022.data).toBe(11); // Dec 20-31 = 12 days, minus 1 for departure day credit = 11
       }
@@ -359,19 +329,13 @@ describe('Safe Trip Calculation Functions', () => {
     });
 
     it('should handle array inputs when expecting single values', () => {
-      const result = safeCalculateTripDaysInYear(
-        validTrip,
-        [2023, 2024] as any
-      );
+      const result = safeCalculateTripDaysInYear(validTrip, [2023, 2024] as any);
 
       expect(isErr(result)).toBe(true);
     });
 
     it('should handle object inputs for primitive parameters', () => {
-      const result = safeCalculateTripDaysInYear(
-        validTrip,
-        { year: 2023 } as any
-      );
+      const result = safeCalculateTripDaysInYear(validTrip, { year: 2023 } as any);
 
       expect(isErr(result)).toBe(true);
     });

@@ -1,17 +1,17 @@
 import { z } from 'zod';
 
 import { ANALYTICS_VALIDATION, DATE_VALIDATION } from '@constants/validation-messages';
-import { 
+import {
   DateRangeError,
   err,
   ok,
   Result,
   TripValidationError,
-  USCISCalculationError
+  USCISCalculationError,
 } from '@errors/index';
 import { TripSchema } from '@schemas/trip';
 
-import { 
+import {
   assessUpcomingTripRisk,
   calculateCountryStatistics,
   calculateDaysAbroadByYear,
@@ -32,7 +32,10 @@ const UpcomingTripRiskInputSchema = z.object({
   currentTotalDaysAbroad: z.number().int().nonnegative(),
   eligibilityCategory: z.enum(['three_year', 'five_year']),
   greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
-  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
+  currentDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT)
+    .optional(),
 });
 
 /**
@@ -48,7 +51,10 @@ const CountryStatisticsInputSchema = z.object({
 const DaysAbroadByYearInputSchema = z.object({
   trips: z.array(TripSchema),
   greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
-  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
+  currentDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT)
+    .optional(),
 });
 
 /**
@@ -59,7 +65,10 @@ const ProjectEligibilityDateInputSchema = z.object({
   totalDaysInUSA: z.number().int().nonnegative(),
   eligibilityCategory: z.enum(['three_year', 'five_year']),
   greenCardDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT),
-  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT).optional(),
+  currentDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, DATE_VALIDATION.INVALID_FORMAT)
+    .optional(),
 });
 
 /**
@@ -71,7 +80,7 @@ export function safeAssessUpcomingTripRisk(
   currentTotalDaysAbroad: unknown,
   eligibilityCategory: unknown,
   greenCardDate: unknown,
-  currentDate?: unknown
+  currentDate?: unknown,
 ): Result<TripRiskAssessment[], TripValidationError | USCISCalculationError> {
   try {
     const parseResult = UpcomingTripRiskInputSchema.safeParse({
@@ -81,12 +90,11 @@ export function safeAssessUpcomingTripRisk(
       greenCardDate,
       currentDate,
     });
-    
+
     if (!parseResult.success) {
-      return err(new TripValidationError(
-        ANALYTICS_VALIDATION.INVALID_INPUT,
-        parseResult.error.format()
-      ));
+      return err(
+        new TripValidationError(ANALYTICS_VALIDATION.INVALID_INPUT, parseResult.error.format()),
+      );
     }
 
     const validatedData = parseResult.data;
@@ -95,7 +103,7 @@ export function safeAssessUpcomingTripRisk(
       validatedData.currentTotalDaysAbroad,
       validatedData.eligibilityCategory,
       validatedData.greenCardDate,
-      validatedData.currentDate
+      validatedData.currentDate,
     );
 
     return ok(result);
@@ -112,16 +120,15 @@ export function safeAssessUpcomingTripRisk(
  * Validates inputs and handles errors gracefully
  */
 export function safeCalculateCountryStatistics(
-  trips: unknown
+  trips: unknown,
 ): Result<CountryStatistics[], TripValidationError | USCISCalculationError> {
   try {
     const parseResult = CountryStatisticsInputSchema.safeParse({ trips });
-    
+
     if (!parseResult.success) {
-      return err(new TripValidationError(
-        ANALYTICS_VALIDATION.INVALID_INPUT,
-        parseResult.error.format()
-      ));
+      return err(
+        new TripValidationError(ANALYTICS_VALIDATION.INVALID_INPUT, parseResult.error.format()),
+      );
     }
 
     const validatedData = parseResult.data;
@@ -143,7 +150,7 @@ export function safeCalculateCountryStatistics(
 export function safeCalculateDaysAbroadByYear(
   trips: unknown,
   greenCardDate: unknown,
-  currentDate?: unknown
+  currentDate?: unknown,
 ): Result<YearlyDaysAbroad[], DateRangeError | TripValidationError | USCISCalculationError> {
   try {
     const parseResult = DaysAbroadByYearInputSchema.safeParse({
@@ -151,19 +158,18 @@ export function safeCalculateDaysAbroadByYear(
       greenCardDate,
       currentDate,
     });
-    
+
     if (!parseResult.success) {
-      return err(new TripValidationError(
-        ANALYTICS_VALIDATION.INVALID_INPUT,
-        parseResult.error.format()
-      ));
+      return err(
+        new TripValidationError(ANALYTICS_VALIDATION.INVALID_INPUT, parseResult.error.format()),
+      );
     }
 
     const validatedData = parseResult.data;
     const result = calculateDaysAbroadByYear(
       validatedData.trips,
       validatedData.greenCardDate,
-      validatedData.currentDate
+      validatedData.currentDate,
     );
 
     return ok(result);
@@ -187,7 +193,7 @@ export function safeProjectEligibilityDate(
   totalDaysInUSA: unknown,
   eligibilityCategory: unknown,
   greenCardDate: unknown,
-  currentDate?: unknown
+  currentDate?: unknown,
 ): Result<TravelProjection, DateRangeError | TripValidationError | USCISCalculationError> {
   try {
     const parseResult = ProjectEligibilityDateInputSchema.safeParse({
@@ -197,12 +203,11 @@ export function safeProjectEligibilityDate(
       greenCardDate,
       currentDate,
     });
-    
+
     if (!parseResult.success) {
-      return err(new TripValidationError(
-        ANALYTICS_VALIDATION.INVALID_INPUT,
-        parseResult.error.format()
-      ));
+      return err(
+        new TripValidationError(ANALYTICS_VALIDATION.INVALID_INPUT, parseResult.error.format()),
+      );
     }
 
     const validatedData = parseResult.data;
@@ -211,7 +216,7 @@ export function safeProjectEligibilityDate(
       validatedData.totalDaysInUSA,
       validatedData.eligibilityCategory,
       validatedData.greenCardDate,
-      validatedData.currentDate
+      validatedData.currentDate,
     );
 
     return ok(result);

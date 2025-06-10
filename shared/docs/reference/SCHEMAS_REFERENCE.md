@@ -5,6 +5,7 @@ This document is the complete reference for ALL Zod schemas and TypeScript types
 ## Summary Audit
 
 ### Overall Statistics
+
 - **Total Schema Files**: 10
 - **Total Zod Schemas**: 89 (all using `.strict()` mode)
 - **Total TypeScript Types**: 89 (1:1 mapping with schemas)
@@ -14,16 +15,16 @@ This document is the complete reference for ALL Zod schemas and TypeScript types
 
 ### Schemas by Category
 
-| Category | Schema Count | Primary Purpose |
-|----------|--------------|-----------------|
-| **Trip Management** | 4 | Trip data, creation, updates, simulation |
-| **User Management** | 3 | Profile, authentication, settings |
-| **Compliance** | 7 | Green card renewal, I-751, selective service, taxes |
-| **Presence Calculation** | 10 | Physical presence, continuous residence, milestones |
-| **LPR Status** | 28 | Risk assessment, pattern analysis, permits |
-| **Travel Analytics** | 15 | Statistics, projections, budget, summaries |
-| **Notifications** | 2 | Notification data and preferences |
-| **Utility Schemas** | 20 | Helpers, options, requirements, outputs |
+| Category                 | Schema Count | Primary Purpose                                     |
+| ------------------------ | ------------ | --------------------------------------------------- |
+| **Trip Management**      | 4            | Trip data, creation, updates, simulation            |
+| **User Management**      | 3            | Profile, authentication, settings                   |
+| **Compliance**           | 7            | Green card renewal, I-751, selective service, taxes |
+| **Presence Calculation** | 10           | Physical presence, continuous residence, milestones |
+| **LPR Status**           | 28           | Risk assessment, pattern analysis, permits          |
+| **Travel Analytics**     | 15           | Statistics, projections, budget, summaries          |
+| **Notifications**        | 2            | Notification data and preferences                   |
+| **Utility Schemas**      | 20           | Helpers, options, requirements, outputs             |
 
 ## Table of Contents
 
@@ -46,9 +47,11 @@ This document is the complete reference for ALL Zod schemas and TypeScript types
 ## Core Business Schemas
 
 ### Trip Schemas
+
 **File**: `/schemas/trip.ts`
 
-#### **TripSchema** *(Complete stored trip)*
+#### **TripSchema** _(Complete stored trip)_
+
 ```typescript
 z.object({
   id: z.string().uuid(),
@@ -59,13 +62,15 @@ z.object({
   isSimulated: z.boolean(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
-}).strict()  // Rejects any extra properties
+}).strict(); // Rejects any extra properties
 ```
+
 **Validation**: Return date must be >= departure date
 **Type**: `Trip`
 **Security**: Uses `.strict()` mode - extra properties will be rejected
 
-#### **TripCreateSchema** *(New trip creation)*
+#### **TripCreateSchema** _(New trip creation)_
+
 ```typescript
 {
   departureDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -73,27 +78,33 @@ z.object({
   location: z.string().optional(),
 }
 ```
+
 **Validation**: Return date must be >= departure date
 **Type**: `TripCreate`
 
-#### **TripUpdateSchema** *(Partial update)*
+#### **TripUpdateSchema** _(Partial update)_
+
 - All fields from `TripCreateSchema` but optional
 - Same date validation when both dates provided
-**Type**: `TripUpdate`
+  **Type**: `TripUpdate`
 
-#### **SimulatedTripSchema** *(Travel simulator)*
+#### **SimulatedTripSchema** _(Travel simulator)_
+
 ```typescript
 {
   departureDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   returnDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 }
 ```
+
 **Type**: `SimulatedTrip`
 
 ### User Schemas
+
 **File**: `/schemas/user.ts`
 
-#### **UserProfileSchema** *(Core user info)*
+#### **UserProfileSchema** _(Core user info)_
+
 ```typescript
 {
   id: z.string().uuid(),
@@ -104,9 +115,11 @@ z.object({
   updatedAt: z.string().datetime(),
 }
 ```
+
 **Type**: `UserProfile`
 
-#### **AuthUserSchema** *(OAuth provider info)*
+#### **AuthUserSchema** _(OAuth provider info)_
+
 ```typescript
 {
   id: z.string().uuid(),
@@ -117,9 +130,11 @@ z.object({
   }),
 }
 ```
+
 **Type**: `AuthUser`
 
-#### **UserSettingsSchema** *(App preferences)*
+#### **UserSettingsSchema** _(App preferences)_
+
 ```typescript
 {
   notifications: z.object({
@@ -132,12 +147,15 @@ z.object({
   language: z.enum(['en', 'es']),
 }
 ```
+
 **Type**: `UserSettings`
 
 ### Compliance Schemas
+
 **File**: `/schemas/compliance.ts`
 
-#### **RemovalOfConditionsStatusSchema** *(I-751 Status)*
+#### **RemovalOfConditionsStatusSchema** _(I-751 Status)_
+
 ```typescript
 {
   applies: z.boolean(),
@@ -149,9 +167,11 @@ z.object({
   daysUntilDeadline: z.number().nullable(),
 }
 ```
+
 **Type**: `RemovalOfConditionsStatus`
 
 #### **GreenCardRenewalStatusSchema**
+
 ```typescript
 {
   expirationDate: z.string(),
@@ -161,9 +181,11 @@ z.object({
   isInRenewalWindow: z.boolean(),
 }
 ```
+
 **Type**: `GreenCardRenewalStatus`
 
 #### **SelectiveServiceStatusSchema**
+
 ```typescript
 {
   applies: z.boolean(),
@@ -173,9 +195,11 @@ z.object({
   currentStatus: z.enum(['not_applicable', 'must_register', 'registered', 'aged_out']),
 }
 ```
+
 **Type**: `SelectiveServiceStatus`
 
 #### **TaxReminderStatusSchema**
+
 ```typescript
 {
   nextDeadline: z.string(),
@@ -186,9 +210,11 @@ z.object({
   actualDeadline: z.string(),
 }
 ```
+
 **Type**: `TaxReminderStatus`
 
 #### **ComprehensiveComplianceStatusSchema**
+
 ```typescript
 {
   removalOfConditions: RemovalOfConditionsStatusSchema.nullable(),
@@ -197,9 +223,11 @@ z.object({
   taxReminders: TaxReminderStatusSchema,
 }
 ```
+
 **Type**: `ComprehensiveComplianceStatus`
 
 #### **ComplianceCalculationParamsSchema**
+
 ```typescript
 {
   isConditionalResident: z.boolean(),
@@ -213,9 +241,11 @@ z.object({
   currentDate: z.string().optional(),
 }
 ```
+
 **Type**: `ComplianceCalculationParams`
 
 #### **ComplianceStatusSchema**
+
 ```typescript
 {
   overallStatus: z.enum(['compliant', 'action_required', 'at_risk']),
@@ -223,12 +253,15 @@ z.object({
   lastUpdated: z.string().datetime(),
 }
 ```
+
 **Type**: `ComplianceStatus`
 
 ### Presence Schemas
+
 **File**: `/schemas/presence.ts`
 
-#### **PresenceCalculationSchema** *(Main calculation result)*
+#### **PresenceCalculationSchema** _(Main calculation result)_
+
 ```typescript
 {
   totalDaysInUSA: z.number().int().nonnegative(),
@@ -240,18 +273,22 @@ z.object({
   earliestFilingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 }
 ```
+
 **Type**: `PresenceCalculation`
 
 #### **PresenceStatusSchema**
+
 ```typescript
 {
   status: z.enum(['on_track', 'at_risk', 'requirement_met']),
   message: z.string(),
 }
 ```
+
 **Type**: `PresenceStatus`
 
 #### **ContinuousResidenceWarningSchema**
+
 ```typescript
 {
   tripId: z.string().uuid(),
@@ -261,18 +298,22 @@ z.object({
   severity: z.enum(['low', 'medium', 'high']),
 }
 ```
+
 **Type**: `ContinuousResidenceWarning`
 
 #### **ContinuousResidenceResultSchema**
+
 ```typescript
 {
   maintained: z.boolean(),
   warnings: z.array(ContinuousResidenceWarningSchema),
 }
 ```
+
 **Type**: `ContinuousResidenceResult`
 
 #### **EligibilityDatesSchema**
+
 ```typescript
 {
   eligibilityDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -280,9 +321,11 @@ z.object({
   canFileEarly: z.boolean(),
 }
 ```
+
 **Type**: `EligibilityDates`
 
 #### **EligibilityMilestoneSchema**
+
 ```typescript
 {
   type: z.enum([
@@ -295,9 +338,11 @@ z.object({
   message: z.string(),
 }
 ```
+
 **Type**: `EligibilityMilestone`
 
 #### **DateValidationResultSchema**
+
 ```typescript
 {
   greenCardDateObj: z.date(),
@@ -305,9 +350,11 @@ z.object({
   daysSinceGreenCard: z.number().int().positive(),
 }
 ```
+
 **Type**: `DateValidationResult`
 
 #### **PresenceCalculationInputSchema**
+
 ```typescript
 {
   trips: z.array(TripSchema),
@@ -316,9 +363,11 @@ z.object({
   currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 }
 ```
+
 **Type**: `PresenceCalculationInput`
 
 #### **PresenceCalculationOutputSchema**
+
 ```typescript
 {
   calculation: PresenceCalculationSchema,
@@ -328,23 +377,28 @@ z.object({
   milestones: z.array(EligibilityMilestoneSchema),
 }
 ```
+
 **Type**: `PresenceCalculationOutput`
 
 ### LPR Status Schemas
+
 **File**: `/schemas/lpr-status.ts`
 
 #### **Status Enums**
+
 - **I751StatusSchema**: `['not_applicable', 'pending', 'approved', 'denied']`
 - **LPRStatusTypeSchema**: `['permanent', 'conditional']`
 - **N470StatusSchema**: `['none', 'approved', 'pending']`
 - **ReentryPermitStatusSchema**: `['none', 'pending', 'approved', 'expired']`
 
 #### **Risk Level Enums**
+
 - **LPRRiskLevelSchema**: Basic risk levels
 - **ComprehensiveRiskLevelSchema**: Includes permit protection levels
 - **TravelRiskLevelSchema**: Extended with severity levels
 
-#### **LPRStatusAssessmentSchema** *(Basic assessment)*
+#### **LPRStatusAssessmentSchema** _(Basic assessment)_
+
 ```typescript
 {
   overallRisk: z.enum(['low', 'medium', 'high', 'severe']),
@@ -352,9 +406,11 @@ z.object({
   recommendations: z.array(z.string()),
 }
 ```
+
 **Type**: `LPRStatusAssessment`
 
 #### **AdvancedLPRStatusParamsSchema**
+
 ```typescript
 {
   trips: z.array(TripSchema),
@@ -371,9 +427,11 @@ z.object({
   taxReturns: z.boolean().optional(),
 }
 ```
+
 **Type**: `AdvancedLPRStatusParams`
 
-#### **LPRStatusAssessmentAdvancedSchema** *(Comprehensive assessment)*
+#### **LPRStatusAssessmentAdvancedSchema** _(Comprehensive assessment)_
+
 ```typescript
 {
   overallRisk: ComprehensiveRiskLevelSchema,
@@ -383,9 +441,11 @@ z.object({
   recommendations: z.array(z.string()),
 }
 ```
+
 **Type**: `LPRStatusAssessmentAdvanced`
 
 #### **PatternOfNonResidenceSchema**
+
 ```typescript
 {
   hasPattern: z.boolean(),
@@ -393,9 +453,11 @@ z.object({
   recommendation: z.string(),
 }
 ```
+
 **Type**: `PatternOfNonResidence`
 
 #### **RebuttablePresumptionSchema**
+
 ```typescript
 {
   triggered: z.boolean(),
@@ -404,12 +466,15 @@ z.object({
   factors: z.array(z.string()),
 }
 ```
+
 **Type**: `RebuttablePresumption`
 
 ### Travel Analytics Schemas
+
 **File**: `/schemas/travel-analytics.ts`
 
 #### **CountryStatisticsSchema**
+
 ```typescript
 {
   country: z.string(),
@@ -419,9 +484,11 @@ z.object({
   lastVisitDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 }
 ```
+
 **Type**: `CountryStatistics`
 
 #### **YearlyDaysAbroadSchema**
+
 ```typescript
 {
   year: z.number().int(),
@@ -430,9 +497,11 @@ z.object({
   trips: z.array(TripSchema),
 }
 ```
+
 **Type**: `YearlyDaysAbroad`
 
 #### **TravelStreakSchema**
+
 ```typescript
 {
   type: z.enum(['in_usa', 'traveling', 'travel_free_months']),
@@ -442,9 +511,11 @@ z.object({
   description: z.string(),
 }
 ```
+
 **Type**: `TravelStreak`
 
 #### **MilestoneInfoSchema**
+
 ```typescript
 {
   type: z.string(),
@@ -457,9 +528,11 @@ z.object({
   progress: z.number().min(0).max(100),
 }
 ```
+
 **Type**: `MilestoneInfo`
 
 #### **SafeTravelBudgetSchema**
+
 ```typescript
 {
   totalBudgetDays: z.number().int().nonnegative(),
@@ -471,9 +544,11 @@ z.object({
   recommendations: z.array(z.string()),
 }
 ```
+
 **Type**: `SafeTravelBudget`
 
 #### **TravelProjectionSchema**
+
 ```typescript
 {
   projectedEligibilityDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
@@ -487,9 +562,11 @@ z.object({
   warnings: z.array(z.string()),
 }
 ```
+
 **Type**: `TravelProjection`
 
 #### **TripRiskAssessmentSchema**
+
 ```typescript
 {
   tripId: z.string().uuid(),
@@ -503,9 +580,11 @@ z.object({
   recommendations: z.array(z.string()),
 }
 ```
+
 **Type**: `TripRiskAssessment`
 
 #### **AnnualTravelSummarySchema**
+
 ```typescript
 {
   year: z.number().int(),
@@ -515,12 +594,15 @@ z.object({
   insights: z.array(z.string()),
 }
 ```
+
 **Type**: `AnnualTravelSummary`
 
 ### Notification Schemas
+
 **File**: `/schemas/notification.ts`
 
 #### **NotificationSchema**
+
 ```typescript
 {
   id: z.string().uuid(),
@@ -533,9 +615,11 @@ z.object({
   createdAt: z.string().datetime(),
 }
 ```
+
 **Type**: `Notification`
 
 #### **NotificationPreferencesSchema**
+
 ```typescript
 {
   milestones: z.boolean(),
@@ -546,6 +630,7 @@ z.object({
   emailEnabled: z.boolean(),
 }
 ```
+
 **Type**: `NotificationPreferences`
 
 ---
@@ -553,9 +638,11 @@ z.object({
 ## Utility & Helper Schemas
 
 ### Calculation Helpers
+
 **File**: `/schemas/calculation-helpers.ts`
 
 #### **TripDurationOptionsSchema**
+
 ```typescript
 {
   includeDepartureDay: z.boolean().optional(),
@@ -564,9 +651,11 @@ z.object({
   endBoundary: z.date().optional(),
 }
 ```
+
 **Type**: `TripDurationOptions`
 
 #### **TripValidationRequirementsSchema**
+
 ```typescript
 {
   needsId: z.boolean().optional(),
@@ -575,12 +664,15 @@ z.object({
   checkDates: z.boolean().optional(),
 }
 ```
+
 **Type**: `TripValidationRequirements`
 
 ### Compliance Helpers
+
 **File**: `/schemas/compliance-helpers.ts`
 
 #### **ActiveComplianceItemSchema**
+
 ```typescript
 {
   type: z.nativeEnum(COMPLIANCE_ITEM_TYPE),
@@ -588,9 +680,11 @@ z.object({
   urgency: z.nativeEnum(PRIORITY_LEVEL),
 }
 ```
+
 **Type**: `ActiveComplianceItem`
 
 #### **PriorityComplianceItemSchema**
+
 ```typescript
 {
   type: z.nativeEnum(COMPLIANCE_ITEM_TYPE),
@@ -599,9 +693,11 @@ z.object({
   priority: z.nativeEnum(PRIORITY_LEVEL),
 }
 ```
+
 **Type**: `PriorityComplianceItem`
 
 #### **UpcomingDeadlineSchema**
+
 ```typescript
 {
   type: z.nativeEnum(COMPLIANCE_ITEM_TYPE),
@@ -610,12 +706,15 @@ z.object({
   daysRemaining: z.number(),
 }
 ```
+
 **Type**: `UpcomingDeadline`
 
 ### Travel Analytics Helpers
+
 **File**: `/schemas/travel-analytics-helpers.ts`
 
 #### **CountryDataSchema**
+
 ```typescript
 {
   totalDays: z.number(),
@@ -623,18 +722,22 @@ z.object({
   lastVisitDate: z.date().nullable(),
 }
 ```
+
 **Type**: `CountryData`
 
 #### **TripDateRangeSchema**
+
 ```typescript
 {
   departure: z.date(),
   returnDate: z.date(),
 }
 ```
+
 **Type**: `TripDateRange`
 
 #### **YearBoundariesSchema**
+
 ```typescript
 {
   yearStart: z.date(),
@@ -643,6 +746,7 @@ z.object({
   effectiveEnd: z.date(),
 }
 ```
+
 **Type**: `YearBoundaries`
 
 ---
@@ -650,46 +754,54 @@ z.object({
 ## Common Validation Rules
 
 ### Security: Strict Mode
+
 - **All schemas use `.strict()` mode**
 - **Behavior**: Rejects any properties not explicitly defined in the schema
 - **Purpose**: Prevents prototype pollution and injection attacks
 - **Example**: Extra properties in input will cause validation to fail
 
 ### 1. Date Format Validation
+
 - **Pattern**: `/^\d{4}-\d{2}-\d{2}$/`
 - **Format**: `YYYY-MM-DD`
 - **Used in**: All date string fields
 - **Example**: `"2024-01-15"`
 
 ### 2. UUID Validation
+
 - **Method**: `.uuid()`
 - **Format**: Standard UUID v4
 - **Used in**: All `id` and `userId` fields
 - **Example**: `"550e8400-e29b-41d4-a716-446655440000"`
 
 ### 3. Email Validation
+
 - **Method**: `.email()`
 - **Used in**: User email fields
 - **Example**: `"user@example.com"`
 
 ### 4. Datetime Validation
+
 - **Method**: `.datetime()`
 - **Format**: ISO 8601
 - **Used in**: Timestamps (`createdAt`, `updatedAt`)
 - **Example**: `"2024-01-15T10:30:00Z"`
 
 ### 5. Number Constraints
+
 - **`.int()`**: Integer values only
 - **`.nonnegative()`**: >= 0
 - **`.positive()`**: > 0
 - **`.min(n)`/`.max(n)`**: Range constraints
 
 ### 6. String Constraints
+
 - **`.min(n)`/`.max(n)`**: Length constraints
 - **`.regex(pattern)`**: Pattern matching
 - **`.trim()`**: Remove whitespace
 
 ### 7. Enum Validation
+
 - **`.enum([...])`**: Strict value list
 - **`.nativeEnum(CONSTANT)`**: TypeScript enum
 
@@ -704,13 +816,13 @@ graph TD
     Trip --> Presence[PresenceCalculation]
     Trip --> Analytics[TravelAnalytics]
     Trip --> LPRStatus[LPRStatusAssessment]
-    
+
     Compliance --> Notification[Notification]
     Presence --> LPRStatus
     Analytics --> TravelProjection[TravelProjection]
-    
+
     UserSettings[UserSettings] --> NotificationPrefs[NotificationPreferences]
-    
+
     ComplianceStatus --> ROC[RemovalOfConditions]
     ComplianceStatus --> GCR[GreenCardRenewal]
     ComplianceStatus --> SS[SelectiveService]
@@ -718,6 +830,7 @@ graph TD
 ```
 
 ### Key Relationships:
+
 1. **User → Trip**: One-to-many (userId foreign key)
 2. **Trip → Calculations**: Trips feed into all calculations
 3. **Calculations → Status**: Various calculations determine statuses
@@ -793,17 +906,20 @@ graph TD
 ## Schemas by File
 
 ### `/schemas/calculation-helpers.ts`
+
 - TripDurationOptionsSchema
 - TripValidationRequirementsSchema
 - Function: toDaysAbroadByYearOutput()
 
 ### `/schemas/compliance-helpers.ts`
+
 - ActiveComplianceItemSchema
 - PriorityComplianceItemSchema
 - UpcomingDeadlineSchema
 - Functions: toActiveComplianceItemOutput(), toPriorityComplianceItemOutput(), toUpcomingDeadlineOutput()
 
 ### `/schemas/compliance.ts`
+
 - RemovalOfConditionsStatusSchema
 - GreenCardRenewalStatusSchema
 - SelectiveServiceStatusSchema
@@ -813,6 +929,7 @@ graph TD
 - ComplianceStatusSchema
 
 ### `/schemas/lpr-status.ts`
+
 - I751StatusSchema
 - LPRStatusTypeSchema
 - N470StatusSchema
@@ -840,10 +957,12 @@ graph TD
 - ComprehensiveTripRiskAssessmentSchema
 
 ### `/schemas/notification.ts`
+
 - NotificationSchema
 - NotificationPreferencesSchema
 
 ### `/schemas/presence.ts`
+
 - PresenceCalculationSchema
 - PresenceStatusSchema
 - ContinuousResidenceWarningSchema
@@ -856,6 +975,7 @@ graph TD
 - PhysicalPresenceProgressSchema
 
 ### `/schemas/travel-analytics-helpers.ts`
+
 - CountryDataSchema
 - TripDateRangeSchema
 - YearBoundariesSchema
@@ -867,6 +987,7 @@ graph TD
 - Functions: toCountryStatisticsOutput(), toTravelStreakOutput(), toTripRiskAssessmentOutput()
 
 ### `/schemas/travel-analytics.ts`
+
 - CountryStatisticsSchema
 - YearlyDaysAbroadSchema
 - TravelStreakSchema
@@ -881,12 +1002,14 @@ graph TD
 - DaysAbroadByYearOutputSchema
 
 ### `/schemas/trip.ts`
+
 - TripSchema
 - TripCreateSchema
 - TripUpdateSchema
 - SimulatedTripSchema
 
 ### `/schemas/user.ts`
+
 - UserProfileSchema
 - AuthUserSchema
 - UserSettingsSchema
@@ -894,6 +1017,7 @@ graph TD
 ---
 
 This comprehensive reference provides:
+
 - Complete schema definitions with properties
 - TypeScript type mappings
 - Validation rules and constraints
