@@ -8,16 +8,30 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "require": "./dist/index.js",
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
-    }
+      "import": "./dist/index.mjs"
+    },
+    "./schemas/*": {
+      "source": "./src/schemas/*.ts",
+      "types": "./dist/schemas/*.d.ts",
+      "require": "./dist/schemas/*.js",
+      "import": "./dist/schemas/*.mjs"
+    },
+    "./constants/*": {
+      "source": "./src/constants/*.ts",
+      "types": "./dist/constants/*.d.ts",
+      "require": "./dist/constants/*.js",
+      "import": "./dist/constants/*.mjs"
+    },
+    "./package.json": "./package.json"
   },
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "clean": "rm -rf dist",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --build --noEmit",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",

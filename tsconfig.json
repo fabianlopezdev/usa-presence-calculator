@@ -16,10 +16,9 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
-    "paths": {
-      "@usa-presence/shared/*": ["shared/src/*"]
-    }
+    "composite": true,
+    "incremental": true
   },
-  "exclude": ["**/node_modules", "**/dist", "**/build", "**/coverage"]
+  "files": [],
+  "references": [{ "path": "./api" }]
 }

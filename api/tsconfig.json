@@ -4,7 +4,7 @@
     "target": "ES2022",
     "module": "ES2022",
     "lib": ["ES2022"],
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "strict": true,
     "skipLibCheck": true,
@@ -14,12 +14,14 @@
     "noEmit": false,
     "outDir": "./dist",
     "rootDir": "./src",
+    "composite": true,
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
     "baseUrl": ".",
     "paths": {
-      "@api/*": ["./src/*"],
-      "@shared/*": ["../shared/src/*"]
+      "@api/*": ["./src/*"]
     },
-    "types": ["node", "vitest/globals"]
+    "types": ["node", "vitest/globals"],
+    "customConditions": ["source"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

@@ -10,7 +10,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@api': path.resolve(__dirname, './src'),
-      '@shared': path.resolve(__dirname, '../shared/src'),
+      '@usa-presence/shared/schemas': path.resolve(__dirname, '../shared/src/schemas'),
+      '@usa-presence/shared/constants': path.resolve(__dirname, '../shared/src/constants'),
+      '@usa-presence/shared': path.resolve(__dirname, '../shared/src'),
     },
   },
 });
