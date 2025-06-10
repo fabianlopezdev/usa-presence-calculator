@@ -3,7 +3,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { DATABASE } from '@api/constants/database';
-import { closeDatabase, getDatabase, getSQLiteDatabase, initializeDatabase } from '@api/db/connection';
+import {
+  closeDatabase,
+  getDatabase,
+  getSQLiteDatabase,
+  initializeDatabase,
+} from '@api/db/connection';
 import * as schema from '@api/db/schema';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -12,14 +17,14 @@ const __dirname = path.dirname(__filename);
 export function resetTestDatabase(): void {
   closeDatabase();
   initializeDatabase();
-  
+
   const db = getDatabase();
   const sqliteDb = getSQLiteDatabase();
 
   // Drop all tables in reverse order of dependencies
   const tableNames = [
     'audit_logs',
-    'encryption_keys', 
+    'encryption_keys',
     'trips',
     'user_settings',
     'auth_providers',
@@ -93,7 +98,7 @@ export async function createTestUser(data?: Partial<schema.NewUser>): Promise<sc
   const db = getDatabase();
   const timestamp = new Date().toISOString();
   const defaults = getDefaultTestUser(timestamp);
-  
+
   const userData: schema.NewUser = {
     ...defaults,
     ...data,
@@ -122,12 +127,12 @@ function getDefaultTestTrip(userId: string, timestamp: string): schema.NewTrip {
 
 export async function createTestTrip(
   userId: string,
-  data?: Partial<schema.NewTrip>
+  data?: Partial<schema.NewTrip>,
 ): Promise<schema.Trip> {
   const db = getDatabase();
   const timestamp = new Date().toISOString();
   const defaults = getDefaultTestTrip(userId, timestamp);
-  
+
   const tripData: schema.NewTrip = {
     ...defaults,
     ...data,
@@ -139,7 +144,7 @@ export async function createTestTrip(
 
 export async function createTestUserWithTrips(
   userData?: Partial<schema.NewUser>,
-  tripCount = 3
+  tripCount = 3,
 ): Promise<{ user: schema.User; trips: schema.Trip[] }> {
   const user = await createTestUser(userData);
   const trips: schema.Trip[] = [];
