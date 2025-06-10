@@ -8,14 +8,14 @@ STAGED_FILES=$(git diff --cached --name-only)
 
 # Check if any API files are changed
 if echo "$STAGED_FILES" | grep -q "^api/"; then
-  echo "API files changed, running API lint and tests..."
-  (cd api && pnpm lint && pnpm test)
+  echo "API files changed, running API lint, typecheck, and tests..."
+  (cd api && pnpm lint && pnpm typecheck && pnpm test)
 fi
 
 # Check if any shared files are changed
 if echo "$STAGED_FILES" | grep -q "^shared/"; then
-  echo "Shared files changed, running shared lint and tests..."
-  (cd shared && pnpm lint && pnpm test)
+  echo "Shared files changed, running shared lint, typecheck, and tests..."
+  (cd shared && pnpm lint && pnpm typecheck && pnpm test)
 fi
 
 # Check if any root files are changed (configs, etc)

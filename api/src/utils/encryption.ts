@@ -55,12 +55,12 @@ export class EncryptionService {
   }
 
   // Utility method to encrypt an object's sensitive fields
-  encryptFields<T extends Record<string, unknown>>(obj: T, fields: string[]): T {
+  encryptFields<T extends Record<string, unknown>>(obj: T, fields: readonly string[]): T {
     const result = { ...obj };
 
     for (const field of fields) {
       if (field in result && typeof result[field] === 'string') {
-        result[field] = this.encrypt(result[field]);
+        (result as Record<string, unknown>)[field] = this.encrypt(result[field]);
       }
     }
 
@@ -68,12 +68,12 @@ export class EncryptionService {
   }
 
   // Utility method to decrypt an object's sensitive fields
-  decryptFields<T extends Record<string, unknown>>(obj: T, fields: string[]): T {
+  decryptFields<T extends Record<string, unknown>>(obj: T, fields: readonly string[]): T {
     const result = { ...obj };
 
     for (const field of fields) {
       if (field in result && typeof result[field] === 'string') {
-        result[field] = this.decrypt(result[field]);
+        (result as Record<string, unknown>)[field] = this.decrypt(result[field]);
       }
     }
 
@@ -95,14 +95,14 @@ export function decryptField(value: string): string {
 
 export function encryptSensitiveFields<T extends Record<string, unknown>>(
   obj: T,
-  fields: string[] = SECURITY.SENSITIVE_FIELDS,
+  fields: readonly string[] = SECURITY.SENSITIVE_FIELDS,
 ): T {
   return encryptionService.encryptFields(obj, fields);
 }
 
 export function decryptSensitiveFields<T extends Record<string, unknown>>(
   obj: T,
-  fields: string[] = SECURITY.SENSITIVE_FIELDS,
+  fields: readonly string[] = SECURITY.SENSITIVE_FIELDS,
 ): T {
   return encryptionService.decryptFields(obj, fields);
 }
