@@ -1,7 +1,7 @@
 import { createId } from '@paralleldrive/cuid2';
 import { z } from 'zod';
 
-import { DEFAULT_USER_SETTINGS } from '@usa-presence/shared/constants';
+import { DEFAULT_USER_SETTINGS } from '@usa-presence/shared';
 import { type UserSetting } from '@api/db/schema';
 
 export type PartialUserSettings = {

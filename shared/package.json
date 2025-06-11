@@ -19,6 +19,12 @@
       "require": "./dist/schemas/*.js",
       "import": "./dist/schemas/*.mjs"
     },
+    "./constants": {
+      "source": "./src/constants/index.ts",
+      "types": "./dist/constants/index.d.ts",
+      "require": "./dist/constants/index.js",
+      "import": "./dist/constants/index.mjs"
+    },
     "./constants/*": {
       "source": "./src/constants/*.ts",
       "types": "./dist/constants/*.d.ts",
