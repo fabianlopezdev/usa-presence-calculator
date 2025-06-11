@@ -83,7 +83,12 @@ describe('Safe Travel Analytics Functions', () => {
     });
 
     it('should return error for invalid eligibility category', () => {
-      const result = safeAssessUpcomingTripRisk(validTrips, 100, 'seven_year' as any, '2020-01-01');
+      const result = safeAssessUpcomingTripRisk(
+        validTrips,
+        100,
+        'seven_year' as unknown as 'three_year' | 'five_year',
+        '2020-01-01',
+      );
 
       expect(isErr(result)).toBe(true);
     });

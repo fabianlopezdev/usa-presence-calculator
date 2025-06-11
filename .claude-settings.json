@@ -1,0 +1,30 @@
+{
+  "coding_guidelines": {
+    "tool_usage": {
+      "efficiency": "For maximum efficiency, whenever you need to perform multiple independent operations, invoke all relevant tools simultaneously rather than sequentially",
+      "examples": [
+        "When running multiple bash commands, send a single message with multiple tool calls to run in parallel",
+        "When reading multiple files, batch all Read operations in a single tool invocation",
+        "When searching for different patterns, run multiple Grep/Glob operations simultaneously"
+      ]
+    },
+    "mandatory_rules": {
+      "imports": "Always organize imports: external (alphabetical) → internal schemas/types (alphabetical) → internal other (alphabetical)",
+      "path_aliases": "Use @api/ and @shared/ - NO relative imports",
+      "constants": "All values in /constants folder - NO hardcoded values",
+      "commits": "Commit after every logical step with conventional format",
+      "tdd": "Write tests first, then implement",
+      "naming": "Ultra verbose and descriptive names",
+      "no_comments": "Self-documenting code only",
+      "error_handling": "Use Result pattern from shared",
+      "type_safety": "Zod + TypeScript for all data. First in shared directory to be used in api and mobile"
+    },
+    "workflow": {
+      "feature_branches": "Always create feature branch before work",
+      "atomic_commits": "Small, focused commits for each step",
+      "test_before_commit": "Run tests and linting before each commit",
+      "documentation_review": "Read PRD.md, UX_REPORT.md, DEVELOPMENT_BLUEPRINT.md before implementation",
+      "verify": "Verify that the code is correct before commit. If precommit fails, fix the issues and run precommit again. Never used flag --no-verify"
+    }
+  }
+}

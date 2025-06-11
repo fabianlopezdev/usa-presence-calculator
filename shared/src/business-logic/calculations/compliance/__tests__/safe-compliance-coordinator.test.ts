@@ -242,7 +242,7 @@ describe('Safe Compliance Coordinator Functions', () => {
     });
 
     it('should return error for non-integer days', () => {
-      const result = safeGetUpcomingDeadlines(validParams, 'thirty' as any);
+      const result = safeGetUpcomingDeadlines(validParams, 'thirty' as unknown as number);
 
       expect(isErr(result)).toBe(true);
     });
@@ -301,7 +301,7 @@ describe('Safe Compliance Coordinator Functions', () => {
     it('should handle SQL injection attempts', () => {
       const sqlInjectionParams = {
         ...validParams,
-        gender: "'; DROP TABLE users; --" as any,
+        gender: "'; DROP TABLE users; --" as unknown as 'male' | 'female',
       };
 
       const result = safeCalculateComprehensiveCompliance(sqlInjectionParams);

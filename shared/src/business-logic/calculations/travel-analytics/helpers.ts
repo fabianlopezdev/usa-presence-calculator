@@ -18,7 +18,10 @@ import {
 
 // Internal dependencies - Utilities
 import { parseUTCDate, formatUTCDate } from '@utils/utc-date-helpers';
-import { isValidTrip } from '@utils/validation';
+import { getActualValidTrips } from '@utils/validation';
+
+// Re-export for convenience
+export { getActualValidTrips };
 
 // Export functions in alphabetical order
 export function calculateAnniversaryDate(greenCardDate: Date, yearsRequired: number): Date {
@@ -128,14 +131,6 @@ export function formatDateRange(departureDate: string, returnDate: string): stri
   const returnFormatted = formatInTimeZone(returnParsed, timeZone, 'MMM d, yyyy');
 
   return `${departureFormatted} - ${returnFormatted}`;
-}
-
-// Filters trips to only include actual (non-simulated) trips that pass validation
-export function getActualValidTrips(trips: Trip[]): Trip[] {
-  if (!trips || !Array.isArray(trips)) {
-    return [];
-  }
-  return trips.filter((trip) => !trip.isSimulated && isValidTrip(trip));
 }
 
 export function getDefaultCountryData(): CountryData {

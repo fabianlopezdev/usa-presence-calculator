@@ -14,6 +14,12 @@ export const DATE_VALIDATION = {
   RETURN_BEFORE_DEPARTURE: 'Return date must be after or equal to departure date',
 } as const;
 
+// User validation messages
+export const USER_VALIDATION = {
+  GREEN_CARD_FUTURE: 'Green card date must be in the past',
+  GREEN_CARD_TOO_OLD: 'Green card date cannot be more than 20 years ago',
+} as const;
+
 // Presence calculation messages
 export const PRESENCE_VALIDATION = {
   INVALID_INPUT: 'Invalid input for presence calculation',

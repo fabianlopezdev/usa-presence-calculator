@@ -238,42 +238,52 @@ export function safeCalculateComprehensivePresence(
   },
   DateRangeError | TripValidationError | USCISCalculationError
 > {
+  return safeCalculateComprehensivePresenceInternal(
+    trips,
+    greenCardDate,
+    eligibilityCategory,
+    targetDate,
+  );
+}
+
+function safeCalculateComprehensivePresenceInternal(
+  trips: unknown,
+  greenCardDate: unknown,
+  eligibilityCategory: unknown,
+  targetDate?: unknown,
+): Result<
+  {
+    physicalPresence: PresenceCalculationResult;
+    eligibilityDates: EligibilityDates;
+    presenceStatus: PresenceStatusDetails;
+    continuousResidenceWarnings: ContinuousResidenceWarningSimple[];
+    isEligibleForEarlyFiling: boolean;
+  },
+  DateRangeError | TripValidationError | USCISCalculationError
+> {
   const presenceResult = safeCalculateDaysOfPhysicalPresence(trips, greenCardDate, targetDate);
 
-  return chainResult(presenceResult, (physicalPresence) => {
-    const eligibilityResult = safeCalculateEligibilityDates(
-      greenCardDate,
-      eligibilityCategory,
-      targetDate,
-    );
-
-    return chainResult(eligibilityResult, (eligibilityDates) => {
-      const statusResult = safeCalculatePresenceStatus(
-        physicalPresence.totalDaysInUSA,
-        eligibilityCategory,
-      );
-
-      return chainResult(statusResult, (presenceStatus) => {
-        const residenceResult = safeCheckContinuousResidence(trips);
-
-        return chainResult(residenceResult, (continuousResidenceWarnings) => {
-          const earlyFilingResult = safeIsEligibleForEarlyFiling(
-            greenCardDate,
-            eligibilityCategory,
-            targetDate,
-          );
-
-          return chainResult(earlyFilingResult, (isEligibleForEarlyFiling) => {
-            return ok({
-              physicalPresence,
-              eligibilityDates,
-              presenceStatus,
-              continuousResidenceWarnings,
-              isEligibleForEarlyFiling,
-            });
-          });
-        });
-      });
-    });
-  });
+  return chainResult(presenceResult, (physicalPresence) =>
+    chainResult(
+      safeCalculateEligibilityDates(greenCardDate, eligibilityCategory, targetDate),
+      (eligibilityDates) =>
+        chainResult(
+          safeCalculatePresenceStatus(physicalPresence.totalDaysInUSA, eligibilityCategory),
+          (presenceStatus) =>
+            chainResult(safeCheckContinuousResidence(trips), (continuousResidenceWarnings) =>
+              chainResult(
+                safeIsEligibleForEarlyFiling(greenCardDate, eligibilityCategory, targetDate),
+                (isEligibleForEarlyFiling) =>
+                  ok({
+                    physicalPresence,
+                    eligibilityDates,
+                    presenceStatus,
+                    continuousResidenceWarnings,
+                    isEligibleForEarlyFiling,
+                  }),
+              ),
+            ),
+        ),
+    ),
+  );
 }

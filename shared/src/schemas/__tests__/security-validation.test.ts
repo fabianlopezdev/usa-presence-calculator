@@ -78,7 +78,7 @@ describe('Security Validation Tests', () => {
         createdAt: '2024-01-01T00:00:00Z',
         data: {
           // These should all be rejected by our secure union type
-          callback: () => console.log('malicious'),
+          callback: () => {},
           dangerousObject: { __proto__: { isAdmin: true } },
           nestedObject: { deep: { value: 'not allowed' } },
         },
@@ -252,9 +252,7 @@ describe('Security Validation Tests', () => {
         const result = UserProfileSchema.safeParse(userWithInvalidId);
 
         // Zod might accept some UUIDs that aren't v4
-        if (result.success && invalidUuid) {
-          console.log(`Unexpected pass for UUID: "${invalidUuid}"`);
-        }
+        // Remove console.log for linting
 
         // Most should fail, but Zod's uuid() might be more permissive
         if (invalidUuid === '' || invalidUuid.includes('g') || invalidUuid.length < 36) {

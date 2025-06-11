@@ -276,7 +276,7 @@ describe('Safe Travel Risk Assessment Functions', () => {
 
     it('should handle invalid permit types', () => {
       const invalidPermit = {
-        hasReentryPermit: 'yes' as any, // Should be boolean
+        hasReentryPermit: 'yes' as unknown as boolean, // Should be boolean
         permitExpiryDate: '2024-12-31',
       };
 
@@ -310,7 +310,7 @@ describe('Safe Travel Risk Assessment Functions', () => {
     it('should handle object injection in location', () => {
       const objectTrip = {
         ...validTrip,
-        location: { toString: () => 'Canada' } as any,
+        location: { toString: () => 'Canada' } as unknown as string,
       };
 
       const result = safeAssessTripRiskForAllLegalThresholds(objectTrip);

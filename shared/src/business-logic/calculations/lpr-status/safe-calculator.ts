@@ -1,14 +1,7 @@
 import { z } from 'zod';
 
 import { DATE_VALIDATION, LPR_STATUS_VALIDATION } from '@constants/validation-messages';
-import {
-  err,
-  LPRStatusError,
-  ok,
-  Result,
-  TripValidationError,
-  USCISCalculationError,
-} from '@errors/index';
+import { err, LPRStatusError, ok, Result, TripValidationError } from '@errors/index';
 import {
   GreenCardRiskResult,
   LPRStatusAssessment,
@@ -17,6 +10,7 @@ import {
   MaximumTripDurationResult,
 } from '@schemas/lpr-status';
 import { TripSchema } from '@schemas/trip';
+import { parseUTCDate } from '@utils/utc-date-helpers';
 
 import {
   assessRiskOfLosingPermanentResidentStatus,
@@ -73,7 +67,7 @@ export function safeAssessRiskOfLosingPermanentResidentStatus(
     const validatedData = parseResult.data;
     const result = assessRiskOfLosingPermanentResidentStatus(
       validatedData.trips,
-      validatedData.currentDate,
+      validatedData.currentDate || new Date().toISOString().split('T')[0],
     );
 
     return ok(result);
@@ -112,6 +106,46 @@ export function safeAssessRiskOfLosingPermanentResidentStatusAdvanced(
 }
 
 /**
+ * Helper function to validate maximum trip duration input
+ */
+function validateMaximumTripDurationInput(input: {
+  trips: unknown;
+  greenCardDate: unknown;
+  eligibilityCategory: unknown;
+  hasReentryPermit?: unknown;
+  permitExpiryDate?: unknown;
+  currentDate?: unknown;
+}): Result<{ validatedData: z.infer<typeof MaximumTripDurationInputSchema> }, TripValidationError> {
+  const parseResult = MaximumTripDurationInputSchema.safeParse(input);
+
+  if (!parseResult.success) {
+    return err(
+      new TripValidationError(
+        LPR_STATUS_VALIDATION.INVALID_MAX_DURATION,
+        parseResult.error.format(),
+      ),
+    );
+  }
+
+  return ok({ validatedData: parseResult.data });
+}
+
+/**
+ * Helper function to build reentry permit info
+ */
+function buildReentryPermitInfo(
+  hasReentryPermit?: boolean,
+  permitExpiryDate?: string,
+): { hasReentryPermit: boolean; permitExpiryDate?: string } | undefined {
+  return hasReentryPermit && permitExpiryDate
+    ? {
+        hasReentryPermit: true,
+        permitExpiryDate,
+      }
+    : undefined;
+}
+
+/**
  * Safe wrapper for calculateMaximumTripDurationWithExemptions
  * Validates inputs and handles errors gracefully
  */
@@ -121,35 +155,38 @@ export function safeCalculateMaximumTripDurationWithExemptions(
   eligibilityCategory: unknown,
   hasReentryPermit?: unknown,
   permitExpiryDate?: unknown,
-  currentDate?: unknown,
+  _currentDate?: unknown,
 ): Result<MaximumTripDurationResult, TripValidationError | LPRStatusError> {
   try {
-    const parseResult = MaximumTripDurationInputSchema.safeParse({
+    const validationResult = validateMaximumTripDurationInput({
       trips,
       greenCardDate,
       eligibilityCategory,
       hasReentryPermit,
       permitExpiryDate,
-      currentDate,
+      currentDate: _currentDate,
     });
 
-    if (!parseResult.success) {
-      return err(
-        new TripValidationError(
-          LPR_STATUS_VALIDATION.INVALID_MAX_DURATION,
-          parseResult.error.format(),
-        ),
-      );
+    if (!validationResult.success) {
+      return validationResult;
     }
 
-    const validatedData = parseResult.data;
+    const { validatedData } = validationResult.data;
+    const parsedCurrentDate = validatedData.currentDate
+      ? parseUTCDate(validatedData.currentDate)
+      : new Date();
+
+    const reentryPermitInfo = buildReentryPermitInfo(
+      validatedData.hasReentryPermit,
+      validatedData.permitExpiryDate,
+    );
+
     const result = calculateMaximumTripDurationWithExemptions(
       validatedData.trips,
       validatedData.greenCardDate,
       validatedData.eligibilityCategory,
-      validatedData.hasReentryPermit,
-      validatedData.permitExpiryDate,
-      validatedData.currentDate,
+      parsedCurrentDate,
+      reentryPermitInfo,
     );
 
     return ok(result);
@@ -167,8 +204,8 @@ export function safeCalculateMaximumTripDurationWithExemptions(
  */
 export function safeCalculateGreenCardAbandonmentRisk(
   trips: unknown,
-  hasReentryPermit: boolean = false,
-  permitExpiryDate?: unknown,
+  _hasReentryPermit: boolean = false,
+  _permitExpiryDate?: unknown,
 ): Result<GreenCardRiskResult, TripValidationError | LPRStatusError> {
   try {
     // First perform basic assessment

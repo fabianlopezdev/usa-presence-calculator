@@ -1,17 +1,17 @@
 // Schema exports
-export * from '@schemas';
+export * from './schemas';
 
 // Business logic exports
-export * from '@business-logic/calculations';
+export * from './business-logic/calculations';
 
 // Constants exports
-export * from '@constants';
+export * from './constants';
 
 // Error handling exports
-export * from '@errors';
+export * from './errors';
 
 // Utility exports
-export * from '@utils';
+export * from './utils';
 
 // Re-export zod for convenience
 export { z } from 'zod';

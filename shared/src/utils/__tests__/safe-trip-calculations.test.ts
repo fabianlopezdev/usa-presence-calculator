@@ -329,13 +329,13 @@ describe('Safe Trip Calculation Functions', () => {
     });
 
     it('should handle array inputs when expecting single values', () => {
-      const result = safeCalculateTripDaysInYear(validTrip, [2023, 2024] as any);
+      const result = safeCalculateTripDaysInYear(validTrip, [2023, 2024] as unknown as number);
 
       expect(isErr(result)).toBe(true);
     });
 
     it('should handle object inputs for primitive parameters', () => {
-      const result = safeCalculateTripDaysInYear(validTrip, { year: 2023 } as any);
+      const result = safeCalculateTripDaysInYear(validTrip, { year: 2023 } as unknown as number);
 
       expect(isErr(result)).toBe(true);
     });

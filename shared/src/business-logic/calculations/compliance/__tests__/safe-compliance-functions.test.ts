@@ -302,11 +302,14 @@ describe('Safe Compliance Functions', () => {
 
   describe('Edge Cases and Security Tests', () => {
     it('should handle prototype pollution attempts', () => {
-      const maliciousGreenCardDate = Object.create(null);
+      const maliciousGreenCardDate = Object.create(null) as Record<string, unknown>;
       maliciousGreenCardDate.toString = () => '2020-01-01';
       maliciousGreenCardDate.__proto__ = { isAdmin: true };
 
-      const result = safeCalculateGreenCardRenewalStatus(maliciousGreenCardDate, '2023-12-31');
+      const result = safeCalculateGreenCardRenewalStatus(
+        maliciousGreenCardDate as unknown as string,
+        '2023-12-31',
+      );
 
       expect(isErr(result)).toBe(true);
     });
