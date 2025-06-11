@@ -5,6 +5,7 @@ import swaggerPlugin from '@api/plugins/swagger';
 import authRoute from '@api/routes/auth';
 import healthRoute from '@api/routes/health';
 import settingsRoutes from '@api/routes/settings';
+import { tripRoutes } from '@api/routes/trips';
 import userRoutes from '@api/routes/users';
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -23,6 +24,13 @@ export async function buildApp(): Promise<FastifyInstance> {
                 },
               },
             },
+    ajv: {
+      customOptions: {
+        removeAdditional: false, // We handle validation ourselves with Zod
+        coerceTypes: false,
+        useDefaults: false,
+      },
+    },
   });
 
   await app.register(swaggerPlugin);
@@ -31,6 +39,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(healthRoute);
   await app.register(userRoutes, { prefix: '/users' });
   await app.register(settingsRoutes, { prefix: '/users' });
+  await app.register(tripRoutes, { prefix: '/trips' });
 
   return app;
 }

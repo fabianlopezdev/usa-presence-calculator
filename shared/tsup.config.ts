@@ -1,20 +1,12 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: [
-    'src/index.ts',
-    'src/constants/*.ts',
-    'src/schemas/*.ts',
-    'src/utils/*.ts',
-    'src/errors/*.ts',
-    'src/business-logic/*.ts',
-  ],
-  format: ['cjs', 'esm'],
-  dts: false, // We'll use tsc for declarations
-  clean: true,
-  sourcemap: true,
-  minify: false,
-  treeshake: true,
+  entry: ['src/index.ts'],
+  format: ['esm', 'cjs'],
+  dts: false,
   splitting: false,
-  tsconfig: 'tsconfig.json',
+  sourcemap: true,
+  clean: true,
+  outDir: 'dist',
+  external: ['date-fns', 'date-fns-tz', 'zod'],
 });

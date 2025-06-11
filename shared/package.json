@@ -2,39 +2,24 @@
   "name": "@usa-presence/shared",
   "version": "1.0.0",
   "private": true,
-  "description": "Shared types and validation schemas for USA Presence Calculator",
+  "source": "src/index.ts",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "source": "./src/index.ts",
-      "types": "./dist/index.d.ts",
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs"
-    },
-    "./schemas/*": {
-      "source": "./src/schemas/*.ts",
-      "types": "./dist/schemas/*.d.ts",
-      "require": "./dist/schemas/*.js",
-      "import": "./dist/schemas/*.mjs"
-    },
-    "./constants": {
-      "source": "./src/constants/index.ts",
-      "types": "./dist/constants/index.d.ts",
-      "require": "./dist/constants/index.js",
-      "import": "./dist/constants/index.mjs"
-    },
-    "./constants/*": {
-      "source": "./src/constants/*.ts",
-      "types": "./dist/constants/*.d.ts",
-      "require": "./dist/constants/*.js",
-      "import": "./dist/constants/*.mjs"
-    },
-    "./package.json": "./package.json"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
   },
   "scripts": {
-    "build": "tsup && tsc --build",
+    "build": "tsup && tsc --emitDeclarationOnly",
     "dev": "tsup --watch",
     "clean": "rm -rf dist",
     "typecheck": "tsc --build --noEmit",

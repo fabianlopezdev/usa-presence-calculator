@@ -2,8 +2,7 @@ import { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
-import { UserProfileSchema } from '@usa-presence/shared/schemas/user';
-import { USER_VALIDATION } from '@usa-presence/shared/constants/validation-messages';
+import { USER_VALIDATION, UserProfileSchema } from '@usa-presence/shared';
 import { HTTP_STATUS } from '@api/constants/http';
 import { AUTH_ERRORS } from '@api/constants/auth';
 import { getDatabase } from '@api/db/connection';
