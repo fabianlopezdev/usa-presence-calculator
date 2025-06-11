@@ -20,5 +20,5 @@
     "incremental": true
   },
   "files": [],
-  "references": [{ "path": "./api" }]
+  "references": [{ "path": "./shared" }, { "path": "./api" }]
 }

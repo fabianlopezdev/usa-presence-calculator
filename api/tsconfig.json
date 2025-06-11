@@ -18,11 +18,14 @@
     "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
     "baseUrl": ".",
     "paths": {
-      "@api/*": ["./src/*"]
+      "@api/*": ["./src/*"],
+      "@usa-presence/shared": ["../shared/src"],
+      "@usa-presence/shared/*": ["../shared/src/*"]
     },
     "types": ["node", "vitest/globals"],
     "customConditions": ["source"]
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist"],
+  "references": [{ "path": "../shared" }]
 }

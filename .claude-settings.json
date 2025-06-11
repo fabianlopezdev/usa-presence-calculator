@@ -17,14 +17,141 @@
       "naming": "Ultra verbose and descriptive names",
       "no_comments": "Self-documenting code only",
       "error_handling": "Use Result pattern from shared",
-      "type_safety": "Zod + TypeScript for all data. First in shared directory to be used in api and mobile"
+      "type_safety": "Zod + TypeScript for all data. First in shared directory to be used in api and mobile",
+      "shared": "Use shared directory for all shared code, between api and mobile. If unsure stop and review codebase"
+    },
+    "zod_and_type_rules": {
+      "schemas": {
+        "all_schemas_use_zod": "EVERY data schema must be defined using Zod, not TypeScript interfaces",
+        "schema_location": "All Zod schemas go in shared/src/schemas for reuse in api and mobile",
+        "schema_naming": "Schema names end with 'Schema': UserSettingsSchema, TripSchema",
+        "type_inference": "Types are inferred from Zod: type UserSettings = z.infer<typeof UserSettingsSchema>",
+        "strict_validation": "Use .strict() on all object schemas to reject unknown properties",
+        "parse_vs_safeParse": "Always use safeParse() for external data, parse() only for internal trusted data"
+      },
+      "validation_patterns": {
+        "api_validation": "Request body validation: const parseResult = Schema.safeParse(request.body)",
+        "error_handling": "if (!parseResult.success) return proper error with parseResult.error.errors",
+        "type_narrowing": "After successful parse, use parseResult.data with full type safety",
+        "partial_updates": "Use Schema.partial() for PATCH endpoints",
+        "pick_omit": "Use Schema.pick() or Schema.omit() for specific field subsets",
+        "date_validation": "Use z.string().regex(/^\\d{4}-\\d{2}-\\d{2}$/) for YYYY-MM-DD dates",
+        "enum_validation": "Use z.enum(['option1', 'option2']) not z.string() with custom validation",
+        "nested_objects": "Always use .strict() on nested objects to catch extra properties"
+      },
+      "type_definitions": {
+        "prefer_zod_inference": "type User = z.infer<typeof UserSchema> NOT interface User { ... }",
+        "database_types": "OK to use Drizzle's inferred types: type User = typeof users.$inferSelect",
+        "no_duplicate_types": "Never manually define types that can be inferred from Zod schemas",
+        "union_types": "Use Zod unions: z.union([z.literal('active'), z.literal('inactive')])",
+        "branded_types": "Consider Zod brands for special types: z.string().uuid().brand('UserId')"
+      }
+    },
+    "linting_rules": {
+      "typescript": {
+        "explicit_return_types": "All functions must have explicit return types (except arrow functions with type inference)",
+        "no_any": "Never use 'any' type - use 'unknown' or specific types like 'as unknown as TargetType'",
+        "no_unused_vars": "Prefix unused vars/params with underscore (_)",
+        "no_non_null_assertion": "Never use ! operator - use optional chaining (?.) or type guards",
+        "strict_types": "Enable all strict type checking options"
+      },
+      "code_quality": {
+        "max_complexity": "Cyclomatic complexity max 10 per function",
+        "max_depth": "Maximum nesting depth of 4",
+        "max_lines_per_file": "300 lines (350 for presence-calculator.ts, unlimited for tests)",
+        "max_lines_per_function": "50 lines (unlimited for test files)",
+        "arrow_body_style": "Use concise arrow functions: (x) => x * 2 not (x) => { return x * 2 }"
+      },
+      "import_rules": {
+        "order": "1. External packages (alphabetical), 2. Internal schemas/types (alphabetical), 3. Internal other (alphabetical)",
+        "path_aliases": "ALWAYS use @shared/ and @api/ - NEVER use relative imports like ../",
+        "grouping": "Separate each import group with a blank line",
+        "type_imports": "Use 'import type' when importing only types"
+      },
+      "naming_conventions": {
+        "functions": "Ultra-descriptive: getUserSettingsByUserId not getSettings",
+        "variables": "Full clarity: isUserEligibleForEarlyFiling not isEligible",
+        "constants": "UPPER_SNAKE_CASE for exported constants",
+        "files": "kebab-case for file names",
+        "test_files": "*.test.ts pattern for test files",
+        "boolean_vars": "Start with is/has/should: isEnabled, hasPermission"
+      },
+      "javascript_rules": {
+        "no_console": "Only console.warn and console.error allowed",
+        "prefer_const": "Always use const unless reassignment needed",
+        "no_var": "Never use var - use const/let",
+        "object_shorthand": "Use { name } not { name: name }",
+        "template_literals": "Use `Hello ${name}` not 'Hello ' + name",
+        "prefer_arrow_callback": "Use arrow functions for callbacks"
+      },
+      "forbidden_patterns": {
+        "no_hardcoded_values": "All numbers/strings must be in constants files",
+        "no_comments": "Code must be self-documenting - no comments",
+        "no_relative_imports": "Never use ../ or ./ in imports",
+        "no_magic_numbers": "Define all numbers as named constants",
+        "no_http_codes": "Use HTTP_STATUS constants not 200, 404, etc"
+      }
+    },
+    "pre_coding_checklist": {
+      "before_writing_any_code": [
+        "Check if constants should go in shared vs api package",
+        "Define any needed Zod schemas in shared/src/schemas FIRST",
+        "Plan import organization to match linting rules",
+        "Design function names to be ultra-descriptive",
+        "Structure code to keep functions under 50 lines",
+        "Define all magic numbers/strings as constants first",
+        "Use TypeScript strict types - no any"
+      ],
+      "before_each_function": [
+        "Define explicit return type",
+        "Use descriptive parameter names",
+        "Check if function will exceed 50 lines",
+        "Verify no hardcoded values",
+        "Consider splitting complex logic"
+      ],
+      "before_api_endpoints": [
+        "Create/update Zod schema for request validation",
+        "Create/update Zod schema for response format",
+        "Use safeParse() for all external data",
+        "Plan error handling for validation failures",
+        "Use .partial() for PATCH endpoints"
+      ]
     },
     "workflow": {
       "feature_branches": "Always create feature branch before work",
       "atomic_commits": "Small, focused commits for each step",
       "test_before_commit": "Run tests and linting before each commit",
       "documentation_review": "Read PRD.md, UX_REPORT.md, DEVELOPMENT_BLUEPRINT.md before implementation",
-      "verify": "Verify that the code is correct before commit. If precommit fails, fix the issues and run precommit again. Never used flag --no-verify"
+      "verify": "Verify that the code is correct before commit. If precommit fails, fix the issues and run precommit again. Never used flag --no-verify",
+      "code_review_before_commit": [
+        "Run through linting_rules checklist",
+        "Verify no hardcoded values anywhere",
+        "Check import organization matches rules",
+        "Ensure all functions have explicit return types",
+        "Confirm function/variable names are ultra-descriptive",
+        "Validate no relative imports used",
+        "Check no console.log statements",
+        "Verify arrow functions use concise style where possible"
+      ]
+    },
+    "package_installation_rules": {
+      "mandatory_steps": [
+        "FIRST check package.json to see if existing packages provide needed functionality",
+        "If functionality exists, use existing package - do NOT install new ones",
+        "If new package needed, STOP and ask user for approval with justification",
+        "Provide comparison with at least one alternative package",
+        "After user approval, use context7 to read latest package documentation",
+        "If context7 doesn't have it, search online for documentation",
+        "Install LATEST version using pnpm (not npm or yarn)",
+        "Update import to follow project conventions"
+      ],
+      "existing_utilities": {
+        "id_generation": "Use @paralleldrive/cuid2 (already installed) - NOT nanoid or uuid",
+        "date_handling": "Use date-fns (in shared) - NOT moment or dayjs",
+        "validation": "Use zod (already installed) - NOT joi or yup",
+        "http_client": "Use native fetch - NOT axios",
+        "testing": "Use vitest (already installed) - NOT jest"
+      }
     }
   }
 }

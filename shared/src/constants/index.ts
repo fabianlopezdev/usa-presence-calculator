@@ -13,6 +13,7 @@
 export * from './compliance';
 export * from './date-time';
 export * from './priority-urgency';
+export * from './settings';
 export * from './travel-analytics';
 export * from './uscis-rules';
 export * from './validation-messages';

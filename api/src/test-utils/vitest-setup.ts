@@ -14,7 +14,9 @@ beforeEach(() => {
 // Set up global test environment variables
 process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL = ':memory:';
-process.env.ENCRYPTION_KEY = 'test-encryption-key-32-characters!';
-process.env.JWT_SECRET = 'test-jwt-secret-that-is-long-enough-32-chars!!';
+process.env.DATABASE_ENCRYPTION_KEY = 'test-encryption-key-32-characters-long!!';
+process.env.MASTER_ENCRYPTION_KEY = 'test-master-key-32-characters-long!!!!!!';
+process.env.JWT_SECRET = 'test-jwt-secret-32-characters-long!!!!!!';
+process.env.COOKIE_SECRET = 'test-cookie-secret-32-characters-long!!';
 process.env.APP_URL = 'http://localhost:3000';
 process.env.AWS_REGION = 'us-east-1';

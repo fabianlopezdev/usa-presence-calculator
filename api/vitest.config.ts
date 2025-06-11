@@ -13,6 +13,13 @@ export default defineConfig({
       '@usa-presence/shared/schemas': path.resolve(__dirname, '../shared/src/schemas'),
       '@usa-presence/shared/constants': path.resolve(__dirname, '../shared/src/constants'),
       '@usa-presence/shared': path.resolve(__dirname, '../shared/src'),
+      // Add shared package internal aliases
+      '@schemas': path.resolve(__dirname, '../shared/src/schemas'),
+      '@business-logic': path.resolve(__dirname, '../shared/src/business-logic'),
+      '@utils': path.resolve(__dirname, '../shared/src/utils'),
+      '@types': path.resolve(__dirname, '../shared/src/types'),
+      '@constants': path.resolve(__dirname, '../shared/src/constants'),
+      '@errors': path.resolve(__dirname, '../shared/src/errors'),
     },
   },
 });

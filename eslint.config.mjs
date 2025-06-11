@@ -77,6 +77,9 @@ export default tseslint.config(
       '**/commitlint.config.js',
       '**/jest.config.js',
       '**/pnpm-lock.yaml',
+      '**/drizzle.config.ts',
+      '**/vitest.config.ts',
+      '**/tsup.config.ts',
     ],
   },
 );

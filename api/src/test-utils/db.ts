@@ -2,8 +2,11 @@ import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createId } from '@paralleldrive/cuid2';
+import jwt from 'jsonwebtoken';
 
 import { DATABASE } from '@api/constants/database';
+import { AUTH_CONFIG } from '@api/constants/auth';
+import { config } from '@api/config/env';
 import {
   closeDatabase,
   getDatabase,
@@ -125,6 +128,41 @@ export async function createTestUser(data?: Partial<schema.NewUser>): Promise<sc
 
 function generateTestTripId(): string {
   return createId();
+}
+
+export async function getAuthHeaders(userId: string): Promise<{ authorization: string }> {
+  const db = getDatabase();
+  const timestamp = new Date();
+  const sessionId = createId();
+
+  // Create a test session
+  const sessionData = {
+    id: sessionId,
+    userId,
+    refreshToken: `test-refresh-token-${createId()}`,
+    expiresAt: new Date(Date.now() + AUTH_CONFIG.REFRESH_TOKEN_EXPIRY),
+    lastActivityAt: timestamp,
+    createdAt: timestamp,
+  };
+
+  await db.insert(schema.sessions).values(sessionData);
+
+  // Generate a proper JWT access token
+  const accessToken = jwt.sign(
+    {
+      userId,
+      sessionId,
+      type: 'access',
+    },
+    config.JWT_SECRET,
+    {
+      expiresIn: '15m', // 15 minutes
+    },
+  );
+
+  return {
+    authorization: `Bearer ${accessToken}`,
+  };
 }
 
 function getDefaultTestTrip(userId: string, timestamp: string): schema.NewTrip {
