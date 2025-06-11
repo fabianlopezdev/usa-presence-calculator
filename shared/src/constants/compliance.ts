@@ -162,11 +162,11 @@ export const TAX_EXTENSION_DEADLINE_DISPLAY = {
 // ============================================================================
 
 // Export types for TypeScript inference
-export type RemovalConditionsStatus =
+export type RemovalConditionsStatusType =
   (typeof REMOVAL_CONDITIONS_STATUS)[keyof typeof REMOVAL_CONDITIONS_STATUS];
-export type GreenCardRenewalStatus =
+export type GreenCardRenewalStatusType =
   (typeof GREEN_CARD_RENEWAL_STATUS)[keyof typeof GREEN_CARD_RENEWAL_STATUS];
-export type SelectiveServiceStatus =
+export type SelectiveServiceStatusType =
   (typeof SELECTIVE_SERVICE_STATUS)[keyof typeof SELECTIVE_SERVICE_STATUS];
 export type TaxDeadlineType = (typeof TAX_DEADLINE_TYPE)[keyof typeof TAX_DEADLINE_TYPE];
 export type ComplianceItemType = (typeof COMPLIANCE_ITEM_TYPE)[keyof typeof COMPLIANCE_ITEM_TYPE];
