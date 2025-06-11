@@ -1,0 +1,19 @@
+{
+  "watch": ["src", "../shared/src"],
+  "ext": "ts,js,json",
+  "ignore": ["src/**/*.test.ts", "src/**/*.spec.ts", "dist/**/*"],
+  "delay": "1000",
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "execMap": {
+    "ts": "tsx"
+  },
+  "verbose": false,
+  "restartable": "rs",
+  "events": {
+    "start": "echo '🚀 Starting development server...'",
+    "restart": "echo '🔄 Restarting due to changes...'",
+    "crash": "echo '❌ Server crashed! Waiting for file changes...'"
+  }
+}
