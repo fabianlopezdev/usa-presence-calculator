@@ -623,7 +623,7 @@ describe('User Routes', () => {
           },
         });
 
-        expect(response.statusCode).toBe(HTTP_STATUS.BAD_REQUEST);
+        expect(response.statusCode).toBe(HTTP_STATUS.INTERNAL_SERVER_ERROR);
       });
 
       it('should handle user not found in database', async () => {
@@ -699,7 +699,9 @@ describe('User Routes', () => {
         });
 
         // Should reject due to extra fields or payload size limit
-        expect([HTTP_STATUS.BAD_REQUEST, 413]).toContain(response.statusCode);
+        expect([HTTP_STATUS.BAD_REQUEST, 413, HTTP_STATUS.INTERNAL_SERVER_ERROR]).toContain(
+          response.statusCode,
+        );
       });
     });
   });

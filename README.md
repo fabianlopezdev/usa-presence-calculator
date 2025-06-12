@@ -29,13 +29,31 @@ pnpm prepare
 
 ## 🏃‍♂️ Development
 
+### Recommended API Development Setup
+
+Due to ESM module resolution in our monorepo, use this setup for the backend:
+
 ```bash
-# Run all packages in development mode
+# Terminal 1: Build and watch shared package
+cd shared
+pnpm dev
+
+# Terminal 2: Run API with TypeScript compiler
+cd api
+pnpm dev:tsc
+```
+
+**Why?** The standard `tsx` tool has issues with ESM exports in monorepos. Using `tsc-watch` ensures proper module resolution and import path fixing. See [api/DEVELOPMENT.md](./api/DEVELOPMENT.md) for details.
+
+### Other Development Commands
+
+```bash
+# Run all packages in development mode (may have issues)
 pnpm dev
 
 # Run specific package
 pnpm --filter mobile dev
-pnpm --filter api dev
+pnpm --filter api dev:tsc  # Use dev:tsc for API
 ```
 
 ## 🧪 Testing

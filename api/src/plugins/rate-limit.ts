@@ -2,11 +2,11 @@ import fastifyRateLimit from '@fastify/rate-limit';
 import { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 
-import { RATE_LIMIT_CONFIG, RATE_LIMIT_MESSAGES } from '@api/constants/rate-limit';
+import { RATE_LIMIT_CONFIG } from '@api/constants/rate-limit';
 
 // Key generator that uses IP address and optionally user ID for authenticated requests
 function keyGenerator(request: FastifyRequest): string {
-  const userId = request.user?.userId;
+  const userId = (request as FastifyRequest & { user?: { userId: string } }).user?.userId;
   // Get IP from x-forwarded-for header or fall back to request.ip
   const forwardedFor = request.headers['x-forwarded-for'] as string;
   const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : request.ip;
@@ -27,11 +27,6 @@ const rateLimitPlugin: FastifyPluginAsync = async (fastify) => {
     max: RATE_LIMIT_CONFIG.GLOBAL.MAX_REQUESTS,
     timeWindow: RATE_LIMIT_CONFIG.GLOBAL.TIME_WINDOW,
     keyGenerator,
-    errorResponseBuilder: (_request, _context) => ({
-      statusCode: 429,
-      error: 'Too Many Requests',
-      message: RATE_LIMIT_MESSAGES.TOO_MANY_REQUESTS,
-    }),
   });
 };
 

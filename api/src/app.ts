@@ -1,58 +1,23 @@
-import fastify, { FastifyInstance, FastifyError, FastifyRequest, FastifyReply } from 'fastify';
+import fastify, { FastifyInstance } from 'fastify';
 
 import { config } from '@api/config/env';
-import { HTTP_STATUS } from '@api/constants/http';
+import { requestIdPlugin } from '@api/middleware/request-id';
+import { loggerPlugin } from '@api/plugins/logger';
 import rateLimitPlugin from '@api/plugins/rate-limit';
 import swaggerPlugin from '@api/plugins/swagger';
 import authRoute from '@api/routes/auth';
 import healthRoute from '@api/routes/health';
+import healthEnhancedRoute from '@api/routes/health-enhanced';
 import settingsRoutes from '@api/routes/settings';
 import syncRoutes from '@api/routes/sync';
 import { tripRoutes } from '@api/routes/trips';
 import userRoutes from '@api/routes/users';
-
-function createErrorHandler() {
-  return (error: FastifyError, request: FastifyRequest, reply: FastifyReply): void => {
-    request.log.error(error);
-
-    // Handle validation errors
-    if (error.validation) {
-      reply.status(HTTP_STATUS.BAD_REQUEST).send({
-        error: {
-          message: 'Validation failed',
-          code: 'VALIDATION_ERROR',
-          details: error.validation,
-        },
-      });
-      return;
-    }
-
-    // Handle other errors
-    reply.status(error.statusCode || HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
-      error: {
-        message: error.message || 'Internal server error',
-        code: error.code || 'INTERNAL_ERROR',
-      },
-    });
-  };
-}
+import { createGlobalErrorHandler } from '@api/utils/global-error-handler';
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = fastify({
-    logger:
-      config.NODE_ENV === 'test'
-        ? false
-        : config.NODE_ENV === 'production'
-          ? true
-          : {
-              transport: {
-                target: 'pino-pretty',
-                options: {
-                  translateTime: 'HH:MM:ss Z',
-                  ignore: 'pid,hostname',
-                },
-              },
-            },
+    // Logger will be configured by the logger plugin
+    logger: false,
     ajv: {
       customOptions: {
         removeAdditional: false, // We handle validation ourselves with Zod
@@ -62,14 +27,20 @@ export async function buildApp(): Promise<FastifyInstance> {
     },
   });
 
-  // Set error handler
-  app.setErrorHandler(createErrorHandler());
+  // Register core plugins first
+  await app.register(requestIdPlugin);
+  await app.register(loggerPlugin);
 
+  // Register rate limit before error handler so it can handle its own errors
   await app.register(rateLimitPlugin);
+
+  // Set error handler after rate limit plugin
+  app.setErrorHandler(createGlobalErrorHandler());
   await app.register(swaggerPlugin);
 
   await app.register(authRoute);
   await app.register(healthRoute);
+  await app.register(healthEnhancedRoute);
   await app.register(userRoutes, { prefix: '/users' });
   await app.register(settingsRoutes, { prefix: '/users' });
   await app.register(tripRoutes, { prefix: '/trips' });

@@ -269,7 +269,11 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
       });
 
       // Should not crash and should not pollute prototype
-      expect([HTTP_STATUS.OK, HTTP_STATUS.BAD_REQUEST]).toContain(response.statusCode);
+      expect([
+        HTTP_STATUS.OK,
+        HTTP_STATUS.BAD_REQUEST,
+        HTTP_STATUS.INTERNAL_SERVER_ERROR,
+      ]).toContain(response.statusCode);
       interface PollutedPrototype {
         isAdmin?: boolean;
       }

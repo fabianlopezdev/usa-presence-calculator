@@ -8,17 +8,49 @@ This guide covers the development setup and available scripts for the USA Presen
 - pnpm >= 8.0.0
 - SQLite (included via better-sqlite3)
 
+## 🚀 Quick Start - Development Server
+
+### Recommended Development Setup
+
+Due to our monorepo structure and ESM module setup, the recommended way to run the development server is:
+
+```bash
+# Terminal 1: Run shared package in watch mode (optional but recommended)
+cd ../shared
+pnpm dev
+
+# Terminal 2: Run API with TypeScript compiler watch mode
+cd api
+pnpm dev:tsc
+```
+
+### Why This Setup?
+
+Our project uses:
+
+- **ESM modules** with proper package exports
+- **TypeScript path aliases** (@api/_, @shared/_)
+- **tsup** for building the shared package
+- **Post-build scripts** to fix ESM imports
+
+The `tsx` tool (used in `pnpm dev`) has issues resolving ESM exports from our shared package due to the way it handles TypeScript path mappings. The `tsc-watch` approach:
+
+1. Compiles TypeScript using the official compiler (respects all configurations)
+2. Runs `tsc-alias` to convert path aliases to relative imports
+3. Runs `fix-esm-imports.js` to add `.js` extensions for ESM compatibility
+4. Starts the server with proper environment variables
+
 ## Development Scripts
 
 ### Primary Development Commands
 
 ```bash
-# Start development server with hot reload (recommended)
-pnpm dev
+# RECOMMENDED: TypeScript compiler with watch mode
+pnpm dev:tsc        # Compiles TS, fixes imports, runs server
 
-# Alternative development modes
-pnpm dev:nodemon    # Using nodemon for more control
-pnpm dev:tsc        # Compile TypeScript and run compiled code
+# Alternative development modes (may have issues)
+pnpm dev            # Uses tsx (has ESM resolution issues)
+pnpm dev:nodemon    # Uses nodemon with concurrent build
 pnpm dev:built      # Build once and watch compiled output
 pnpm dev:debug      # Start with Node.js debugging enabled
 ```
