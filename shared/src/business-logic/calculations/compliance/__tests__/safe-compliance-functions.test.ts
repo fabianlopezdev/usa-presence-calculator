@@ -270,7 +270,9 @@ describe('Safe Compliance Functions', () => {
       }
     });
 
-    it('should handle SQL injection attempts', () => {
+    it('should handle SQL injection attempts in trip IDs', () => {
+      // Note: SQL injection protection happens at the database layer,
+      // not at schema validation. String IDs are valid for cuid2 support.
       const maliciousTrips = [
         {
           id: "'; DROP TABLE users; --",
@@ -286,7 +288,8 @@ describe('Safe Compliance Functions', () => {
 
       const result = safeCalculateTaxReminderStatus(maliciousTrips, false);
 
-      expect(isErr(result)).toBe(true);
+      // The schema now accepts any string ID for cuid2 support
+      expect(isOk(result)).toBe(true);
     });
 
     it('should handle invalid boolean for dismissed', () => {

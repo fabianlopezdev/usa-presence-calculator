@@ -58,6 +58,7 @@ export const userSettings = sqliteTable('user_settings', {
     .default('none'),
   syncLastSyncAt: text('sync_last_sync_at'),
   syncDeviceId: text('sync_device_id'),
+  syncVersion: integer('sync_version').default(0),
   createdAt: text('created_at')
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),

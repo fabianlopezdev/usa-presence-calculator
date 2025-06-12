@@ -2,6 +2,7 @@ import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createId } from '@paralleldrive/cuid2';
+import { randomUUID } from 'crypto';
 import jwt from 'jsonwebtoken';
 
 import { DATABASE } from '@api/constants/database';
@@ -94,7 +95,7 @@ export function setupTestDatabase(): void {
 }
 
 function generateTestUserId(): string {
-  return createId();
+  return randomUUID();
 }
 
 function generateTestEmail(): string {
@@ -127,7 +128,7 @@ export async function createTestUser(data?: Partial<schema.NewUser>): Promise<sc
 }
 
 function generateTestTripId(): string {
-  return createId();
+  return randomUUID();
 }
 
 export async function getAuthHeaders(userId: string): Promise<{ authorization: string }> {

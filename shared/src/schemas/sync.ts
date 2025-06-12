@@ -37,6 +37,8 @@ export const SyncConflictSchema = z
   .object({
     entityType: z.enum(['trip', 'user_settings']),
     entityId: z.string(),
+    conflictType: z.enum(['update_update', 'delete_update', 'version_mismatch']).optional(),
+    conflictingFields: z.array(z.string()).optional(),
     localVersion: z
       .object({
         data: z.record(z.unknown()),
@@ -44,7 +46,8 @@ export const SyncConflictSchema = z
         modifiedAt: z.string().datetime(),
         deviceId: z.string(),
       })
-      .strict(),
+      .strict()
+      .optional(),
     remoteVersion: z
       .object({
         data: z.record(z.unknown()),
@@ -52,7 +55,9 @@ export const SyncConflictSchema = z
         modifiedAt: z.string().datetime(),
         deviceId: z.string(),
       })
-      .strict(),
+      .strict()
+      .optional(),
+    serverVersion: z.record(z.unknown()).optional(),
   })
   .strict();
 

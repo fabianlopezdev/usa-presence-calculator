@@ -24,16 +24,16 @@ const BaseTripSchema = z
  * Complete trip schema - Stored trip data
  */
 export const TripSchema = BaseTripSchema.extend({
-  id: z.string().uuid(),
-  userId: z.string().uuid(),
+  id: z.string(),
+  userId: z.string(),
   isSimulated: z.boolean(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
-  syncId: z.string().uuid().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  syncId: z.string().optional(),
   deviceId: z.string().optional(),
   syncVersion: z.number().int().min(0).optional(),
   syncStatus: z.enum(['local', 'pending', 'synced']).optional(),
-  deletedAt: z.string().datetime().optional(),
+  deletedAt: z.string().optional(),
 })
   .strict()
   .refine(dateRangeRefinement, {

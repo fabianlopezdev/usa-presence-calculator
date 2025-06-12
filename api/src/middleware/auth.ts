@@ -21,7 +21,10 @@ export async function authenticateUser(
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return reply.code(HTTP_STATUS.UNAUTHORIZED).send({
-      error: AUTH_ERRORS.UNAUTHORIZED,
+      error: {
+        message: AUTH_ERRORS.UNAUTHORIZED,
+        code: 'UNAUTHORIZED',
+      },
     });
   }
 
@@ -37,7 +40,10 @@ export async function authenticateUser(
     };
   } catch {
     return reply.code(HTTP_STATUS.UNAUTHORIZED).send({
-      error: AUTH_ERRORS.INVALID_TOKEN,
+      error: {
+        message: AUTH_ERRORS.INVALID_TOKEN,
+        code: 'INVALID_TOKEN',
+      },
     });
   }
 }

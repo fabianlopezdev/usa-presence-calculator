@@ -1,8 +1,11 @@
 #!/usr/bin/env node
+/* eslint-env node */
 import { readdir, readFile, writeFile } from 'fs/promises';
 import { join, extname } from 'path';
 
-async function fixImportsInFile(filePath) {
+async function fixImportsInFile(
+  filePath,
+) /* eslint-disable-line @typescript-eslint/explicit-function-return-type */ {
   const content = await readFile(filePath, 'utf-8');
 
   // Fix relative imports to add .js extension
@@ -19,11 +22,13 @@ async function fixImportsInFile(filePath) {
 
   if (fixed !== content) {
     await writeFile(filePath, fixed);
-    console.log(`Fixed imports in ${filePath}`);
+    console.warn(`Fixed imports in ${filePath}`); // eslint-disable-line no-console
   }
 }
 
-async function processDirectory(dir) {
+async function processDirectory(
+  dir,
+) /* eslint-disable-line @typescript-eslint/explicit-function-return-type */ {
   const entries = await readdir(dir, { withFileTypes: true });
 
   for (const entry of entries) {
@@ -39,4 +44,4 @@ async function processDirectory(dir) {
 
 // Run the fix
 const distPath = process.argv[2] || './dist';
-processDirectory(distPath).catch(console.error);
+processDirectory(distPath).catch(console.error); // eslint-disable-line no-console

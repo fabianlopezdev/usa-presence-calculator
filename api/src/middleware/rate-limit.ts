@@ -1,0 +1,33 @@
+import { RATE_LIMIT_CONFIG } from '@api/constants/rate-limit';
+
+// Rate limit configurations for different auth endpoints
+export const authRateLimits = {
+  passkeyRegister: {
+    max: RATE_LIMIT_CONFIG.AUTH.PASSKEY_REGISTER.MAX_REQUESTS,
+    timeWindow: RATE_LIMIT_CONFIG.AUTH.PASSKEY_REGISTER.TIME_WINDOW,
+  },
+  passkeyAuthenticate: {
+    max: RATE_LIMIT_CONFIG.AUTH.PASSKEY_AUTHENTICATE.MAX_REQUESTS,
+    timeWindow: RATE_LIMIT_CONFIG.AUTH.PASSKEY_AUTHENTICATE.TIME_WINDOW,
+  },
+  magicLinkSend: {
+    max: RATE_LIMIT_CONFIG.AUTH.MAGIC_LINK_SEND.MAX_REQUESTS,
+    timeWindow: RATE_LIMIT_CONFIG.AUTH.MAGIC_LINK_SEND.TIME_WINDOW,
+  },
+  magicLinkVerify: {
+    max: RATE_LIMIT_CONFIG.AUTH.MAGIC_LINK_VERIFY.MAX_REQUESTS,
+    timeWindow: RATE_LIMIT_CONFIG.AUTH.MAGIC_LINK_VERIFY.TIME_WINDOW,
+  },
+  refreshToken: {
+    max: RATE_LIMIT_CONFIG.AUTH.REFRESH_TOKEN.MAX_REQUESTS,
+    timeWindow: RATE_LIMIT_CONFIG.AUTH.REFRESH_TOKEN.TIME_WINDOW,
+  },
+  sessionInfo: {
+    max: RATE_LIMIT_CONFIG.AUTH.SESSION_INFO.MAX_REQUESTS,
+    timeWindow: RATE_LIMIT_CONFIG.AUTH.SESSION_INFO.TIME_WINDOW,
+  },
+  logout: {
+    max: RATE_LIMIT_CONFIG.AUTH.LOGOUT.MAX_REQUESTS,
+    timeWindow: RATE_LIMIT_CONFIG.AUTH.LOGOUT.TIME_WINDOW,
+  },
+} as const;

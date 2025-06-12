@@ -54,6 +54,7 @@ export function createDefaultUserSettings(
     syncSubscriptionTier: settings.SYNC.SUBSCRIPTION_TIER,
     syncLastSyncAt: settings.SYNC.LAST_SYNC_AT ?? null,
     syncDeviceId: settings.SYNC.DEVICE_ID ?? null,
+    syncVersion: 0,
   };
 }
 

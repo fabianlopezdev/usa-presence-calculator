@@ -1,12 +1,41 @@
-import fastify, { FastifyInstance } from 'fastify';
+import fastify, { FastifyInstance, FastifyError, FastifyRequest, FastifyReply } from 'fastify';
 
 import { config } from '@api/config/env';
+import { HTTP_STATUS } from '@api/constants/http';
+import rateLimitPlugin from '@api/plugins/rate-limit';
 import swaggerPlugin from '@api/plugins/swagger';
 import authRoute from '@api/routes/auth';
 import healthRoute from '@api/routes/health';
 import settingsRoutes from '@api/routes/settings';
+import syncRoutes from '@api/routes/sync';
 import { tripRoutes } from '@api/routes/trips';
 import userRoutes from '@api/routes/users';
+
+function createErrorHandler() {
+  return (error: FastifyError, request: FastifyRequest, reply: FastifyReply): void => {
+    request.log.error(error);
+
+    // Handle validation errors
+    if (error.validation) {
+      reply.status(HTTP_STATUS.BAD_REQUEST).send({
+        error: {
+          message: 'Validation failed',
+          code: 'VALIDATION_ERROR',
+          details: error.validation,
+        },
+      });
+      return;
+    }
+
+    // Handle other errors
+    reply.status(error.statusCode || HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
+      error: {
+        message: error.message || 'Internal server error',
+        code: error.code || 'INTERNAL_ERROR',
+      },
+    });
+  };
+}
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = fastify({
@@ -33,6 +62,10 @@ export async function buildApp(): Promise<FastifyInstance> {
     },
   });
 
+  // Set error handler
+  app.setErrorHandler(createErrorHandler());
+
+  await app.register(rateLimitPlugin);
   await app.register(swaggerPlugin);
 
   await app.register(authRoute);
@@ -40,6 +73,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(userRoutes, { prefix: '/users' });
   await app.register(settingsRoutes, { prefix: '/users' });
   await app.register(tripRoutes, { prefix: '/trips' });
+  await app.register(syncRoutes);
 
   return app;
 }
