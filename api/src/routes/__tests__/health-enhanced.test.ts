@@ -211,7 +211,7 @@ describe('Enhanced Health Checks', () => {
     it('should handle database check timeout gracefully', { timeout: 10000 }, async () => {
       const { getSQLiteDatabase } = await import('@api/db/connection');
       const db = getSQLiteDatabase();
-      
+
       // Simulate a database error instead of infinite timeout
       // to avoid conflict with request timeout plugin
       vi.spyOn(db, 'prepare').mockImplementation(
