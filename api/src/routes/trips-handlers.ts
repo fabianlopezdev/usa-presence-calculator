@@ -37,10 +37,12 @@ export async function createTripHandler(
   request: CreateTripRequest,
   reply: FastifyReply,
 ): Promise<void> {
+  // User is guaranteed to exist with requireAuth, but TypeScript doesn't know that
   const userId = request.user?.userId;
   if (!userId) {
-    return reply.code(HTTP_STATUS.UNAUTHORIZED).send({
-      error: { message: 'Unauthorized' },
+    // This should never happen with requireAuth, but satisfies TypeScript
+    return reply.code(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
+      error: { message: 'Authentication state error' },
     });
   }
 
@@ -73,10 +75,12 @@ export async function getAllTripsHandler(
   request: FastifyRequest,
   reply: FastifyReply,
 ): Promise<void> {
+  // User is guaranteed to exist with requireAuth, but TypeScript doesn't know that
   const userId = request.user?.userId;
   if (!userId) {
-    return reply.code(HTTP_STATUS.UNAUTHORIZED).send({
-      error: { message: 'Unauthorized' },
+    // This should never happen with requireAuth, but satisfies TypeScript
+    return reply.code(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
+      error: { message: 'Authentication state error' },
     });
   }
   const db = getDatabase();
@@ -95,10 +99,12 @@ export async function getTripByIdHandler(
   reply: FastifyReply,
 ): Promise<void> {
   const { id: tripId } = request.params;
+  // User is guaranteed to exist with requireAuth, but TypeScript doesn't know that
   const userId = request.user?.userId;
   if (!userId) {
-    return reply.code(HTTP_STATUS.UNAUTHORIZED).send({
-      error: { message: 'Unauthorized' },
+    // This should never happen with requireAuth, but satisfies TypeScript
+    return reply.code(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
+      error: { message: 'Authentication state error' },
     });
   }
   const db = getDatabase();
@@ -122,10 +128,12 @@ export async function updateTripHandler(
   reply: FastifyReply,
 ): Promise<void> {
   const { id: tripId } = request.params;
+  // User is guaranteed to exist with requireAuth, but TypeScript doesn't know that
   const userId = request.user?.userId;
   if (!userId) {
-    return reply.code(HTTP_STATUS.UNAUTHORIZED).send({
-      error: { message: 'Unauthorized' },
+    // This should never happen with requireAuth, but satisfies TypeScript
+    return reply.code(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
+      error: { message: 'Authentication state error' },
     });
   }
 
@@ -165,10 +173,12 @@ export async function deleteTripHandler(
   reply: FastifyReply,
 ): Promise<void> {
   const { id: tripId } = request.params;
+  // User is guaranteed to exist with requireAuth, but TypeScript doesn't know that
   const userId = request.user?.userId;
   if (!userId) {
-    return reply.code(HTTP_STATUS.UNAUTHORIZED).send({
-      error: { message: 'Unauthorized' },
+    // This should never happen with requireAuth, but satisfies TypeScript
+    return reply.code(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
+      error: { message: 'Authentication state error' },
     });
   }
 

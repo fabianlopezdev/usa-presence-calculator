@@ -1,13 +1,11 @@
 import { eq } from 'drizzle-orm';
 import { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
 
-import { AUTH_ERRORS } from '@api/constants/auth';
 import { BODY_LIMITS } from '@api/constants/body-limits';
 import { HTTP_STATUS } from '@api/constants/http';
 import { SETTINGS_API_MESSAGES } from '@api/constants/settings';
 import { getDatabase } from '@api/db/connection';
 import { userSettings, type UserSetting } from '@api/db/schema';
-import { authenticateUser } from '@api/middleware/auth';
 import { settingsRouteDefinitions } from '@api/routes/settings-schemas';
 import {
   createDefaultUserSettings,
@@ -41,10 +39,12 @@ function getOrCreateUserSettings(userId: string): UserSetting {
 }
 
 async function getUserSettingsHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  // User is guaranteed to exist with requireAuth, but TypeScript doesn't know that
   const userId = request.user?.userId;
   if (!userId) {
-    return reply.code(HTTP_STATUS.UNAUTHORIZED).send({
-      error: AUTH_ERRORS.UNAUTHORIZED,
+    // This should never happen with requireAuth, but satisfies TypeScript
+    return reply.code(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
+      error: 'Authentication state error',
     });
   }
 
@@ -193,10 +193,12 @@ async function updateUserSettingsHandler(
   request: FastifyRequest,
   reply: FastifyReply,
 ): Promise<void> {
+  // User is guaranteed to exist with requireAuth, but TypeScript doesn't know that
   const userId = request.user?.userId;
   if (!userId) {
-    return reply.code(HTTP_STATUS.UNAUTHORIZED).send({
-      error: AUTH_ERRORS.UNAUTHORIZED,
+    // This should never happen with requireAuth, but satisfies TypeScript
+    return reply.code(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
+      error: 'Authentication state error',
     });
   }
 
@@ -221,14 +223,14 @@ const settingsRoutes: FastifyPluginAsync = (fastify): Promise<void> => {
   // GET /users/settings
   fastify.get('/settings', {
     ...settingsRouteDefinitions.getSettings,
-    preValidation: [authenticateUser],
+    preHandler: fastify.requireAuth,
     handler: getUserSettingsHandler,
   });
 
   // PATCH /users/settings
   fastify.patch('/settings', {
     ...settingsRouteDefinitions.updateSettings,
-    preValidation: [authenticateUser],
+    preHandler: fastify.requireAuth,
     handler: updateUserSettingsHandler,
     bodyLimit: BODY_LIMITS.SETTINGS_UPDATE,
   });

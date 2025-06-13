@@ -14,9 +14,24 @@ import {
   validatePushRequest,
   validateSecurityPayload,
   validateSyncVersionNumber,
-  validateUserAuthentication,
 } from '@api/routes/sync-handler-helpers';
 import { syncPullResponseSchema, syncPushResponseSchema } from '@api/routes/sync-schemas';
+
+function getUserIdFromRequest(request: FastifyRequest, reply: FastifyReply): string | null {
+  // User is guaranteed to exist with requireAuth, but TypeScript doesn't know that
+  const userId = request.user?.userId;
+  if (!userId) {
+    // This should never happen with requireAuth, but satisfies TypeScript
+    reply.code(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
+      error: {
+        message: 'Authentication state error',
+        code: 'INTERNAL_ERROR',
+      },
+    });
+    return null;
+  }
+  return userId;
+}
 
 export async function handleSyncPull(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const syncCheck = checkSyncEnabled(reply);
@@ -28,11 +43,10 @@ export async function handleSyncPull(request: FastifyRequest, reply: FastifyRepl
   const requestCheck = validatePullRequest(request, reply);
   if (!requestCheck.isValid || !requestCheck.data) return;
 
-  const authCheck = validateUserAuthentication(request, reply);
-  if (!authCheck.isAuthenticated || !authCheck.userId) return;
+  const userId = getUserIdFromRequest(request, reply);
+  if (!userId) return;
 
   const { lastSyncVersion, entityTypes } = requestCheck.data;
-  const userId = authCheck.userId;
 
   try {
     const pullResult = await executeSyncPull(userId, lastSyncVersion, entityTypes);
@@ -192,10 +206,14 @@ function performBasicValidations(
   const requestCheck = validatePushRequest(request, reply);
   if (!requestCheck.isValid || !requestCheck.data) return { isValid: false };
 
-  const authCheck = validateUserAuthentication(request, reply);
-  if (!authCheck.isAuthenticated || !authCheck.userId) return { isValid: false };
+  // User is guaranteed to exist with requireAuth, but TypeScript doesn't know that
+  const userId = request.user?.userId;
+  if (!userId) {
+    // This should never happen with requireAuth, but satisfies TypeScript
+    return { isValid: false };
+  }
 
-  return { isValid: true, requestData: requestCheck.data, userId: authCheck.userId };
+  return { isValid: true, requestData: requestCheck.data, userId };
 }
 
 function performAdvancedValidations(

@@ -27,12 +27,13 @@ describe('requireAuth plugin', () => {
     // Register test routes with requireAuth
     app.register(async (fastify) => {
       await fastify.register(import('../require-auth'));
-      
+
       fastify.get('/test-protected', {
         preHandler: fastify.requireAuth,
-        handler: async (_request, reply) => reply.send({
-          userId: _request.user?.userId,
-        }),
+        handler: async (_request, reply) =>
+          reply.send({
+            userId: _request.user?.userId,
+          }),
       });
 
       // Test route without requireAuth for comparison
@@ -40,10 +41,11 @@ describe('requireAuth plugin', () => {
         handler: async (_request, reply) => reply.send({ message: 'Public route' }),
       });
 
-            // Additional protected route for testing multiple routes
+      // Additional protected route for testing multiple routes
       fastify.get('/another-protected', {
         preHandler: fastify.requireAuth,
-        handler: async (_request, reply) => reply.send({ message: 'Another protected route', userId: _request.user?.userId }),
+        handler: async (_request, reply) =>
+          reply.send({ message: 'Another protected route', userId: _request.user?.userId }),
       });
     });
 
@@ -127,7 +129,6 @@ describe('requireAuth plugin', () => {
   });
 
   describe('multiple routes with requireAuth', () => {
-
     it('should work with multiple protected routes', async () => {
       // Test first protected route without auth
       const response1 = await app.inject({

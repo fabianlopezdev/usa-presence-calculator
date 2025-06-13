@@ -1,7 +1,6 @@
 import { FastifyPluginAsync } from 'fastify';
 
 import { BODY_LIMITS } from '@api/constants/body-limits';
-import { authenticateUser } from '@api/middleware/auth';
 import { tripSchemas } from './trips-schemas';
 import {
   createTripHandler,
@@ -14,7 +13,7 @@ import {
 export const tripRoutes: FastifyPluginAsync = (server) => {
   // Create trip
   server.post('/', {
-    preValidation: [authenticateUser],
+    preHandler: server.requireAuth,
     schema: tripSchemas.createTrip,
     handler: createTripHandler,
     bodyLimit: BODY_LIMITS.API_SMALL,
@@ -22,21 +21,21 @@ export const tripRoutes: FastifyPluginAsync = (server) => {
 
   // Get all trips for user
   server.get('/', {
-    preValidation: [authenticateUser],
+    preHandler: server.requireAuth,
     schema: tripSchemas.getTrips,
     handler: getAllTripsHandler,
   });
 
   // Get single trip
   server.get('/:id', {
-    preValidation: [authenticateUser],
+    preHandler: server.requireAuth,
     schema: tripSchemas.getTrip,
     handler: getTripByIdHandler,
   });
 
   // Update trip
   server.patch('/:id', {
-    preValidation: [authenticateUser],
+    preHandler: server.requireAuth,
     schema: tripSchemas.updateTrip,
     handler: updateTripHandler,
     bodyLimit: BODY_LIMITS.API_SMALL,
@@ -44,7 +43,7 @@ export const tripRoutes: FastifyPluginAsync = (server) => {
 
   // Delete trip (soft delete)
   server.delete('/:id', {
-    preValidation: [authenticateUser],
+    preHandler: server.requireAuth,
     schema: tripSchemas.deleteTrip,
     handler: deleteTripHandler,
   });

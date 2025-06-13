@@ -9,7 +9,7 @@ export async function createAuthenticatedUser(
     email?: string;
     greenCardDate?: string;
     eligibilityCategory?: 'three_year' | 'five_year';
-  }
+  },
 ): Promise<{
   userId: string;
   email: string;
@@ -27,11 +27,7 @@ export async function createAuthenticatedUser(
 
   // Generate authentication token
   const sessionService = new SessionService();
-  const sessionData = await sessionService.createSession(
-    testUser.id,
-    '127.0.0.1',
-    'test-agent'
-  );
+  const sessionData = await sessionService.createSession(testUser.id, '127.0.0.1', 'test-agent');
 
   return {
     userId: testUser.id,
