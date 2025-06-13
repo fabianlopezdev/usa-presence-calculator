@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm';
 import { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
 
 import { AUTH_ERRORS } from '@api/constants/auth';
+import { BODY_LIMITS } from '@api/constants/body-limits';
 import { HTTP_STATUS } from '@api/constants/http';
 import { SETTINGS_API_MESSAGES } from '@api/constants/settings';
 import { getDatabase } from '@api/db/connection';
@@ -229,6 +230,7 @@ const settingsRoutes: FastifyPluginAsync = (fastify): Promise<void> => {
     ...settingsRouteDefinitions.updateSettings,
     preValidation: [authenticateUser],
     handler: updateUserSettingsHandler,
+    bodyLimit: BODY_LIMITS.SETTINGS_UPDATE,
   });
 
   return Promise.resolve();

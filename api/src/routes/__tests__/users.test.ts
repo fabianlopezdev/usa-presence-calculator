@@ -623,7 +623,13 @@ describe('User Routes', () => {
           },
         });
 
-        expect(response.statusCode).toBe(HTTP_STATUS.INTERNAL_SERVER_ERROR);
+        // With prototype poisoning protection, the dangerous properties are removed
+        // and the request succeeds with the valid data
+        expect(response.statusCode).toBe(HTTP_STATUS.OK);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const profile = response.json();
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect(profile.greenCardDate).toBe('2020-01-01');
       });
 
       it('should handle user not found in database', async () => {

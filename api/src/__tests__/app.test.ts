@@ -58,7 +58,7 @@ describe('App Integration - Development Features', () => {
   beforeAll(async () => {
     process.env.NODE_ENV = 'development';
     process.env.ENABLE_SWAGGER = 'true';
-    
+
     vi.resetModules();
     const { buildApp: buildAppFresh } = await import('../app');
     app = await buildAppFresh();

@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 
+import { BODY_LIMITS } from '@api/constants/body-limits';
 import { authRateLimits } from '@api/middleware/rate-limit';
 import { MagicLinkService } from '@api/services/magic-link';
 import { PasskeyService } from '@api/services/passkey';
@@ -27,10 +28,9 @@ import {
   logoutSchema,
 } from './auth-schemas';
 
-export function registerPasskeyRoutes(
+function registerPasskeyRegistrationRoutes(
   fastify: FastifyInstance,
   passkeyService: PasskeyService,
-  sessionService: SessionService,
 ): void {
   fastify.post(
     '/auth/passkey/register/options',
@@ -39,6 +39,7 @@ export function registerPasskeyRoutes(
       config: {
         rateLimit: authRateLimits.passkeyRegister,
       },
+      bodyLimit: BODY_LIMITS.AUTH_REQUEST,
     },
     async (request, reply) => handlePasskeyRegisterOptions(request, reply, passkeyService),
   );
@@ -50,10 +51,17 @@ export function registerPasskeyRoutes(
       config: {
         rateLimit: authRateLimits.passkeyRegister,
       },
+      bodyLimit: BODY_LIMITS.AUTH_REQUEST,
     },
     async (request, reply) => handlePasskeyRegisterVerify(request, reply, passkeyService),
   );
+}
 
+function registerPasskeyAuthenticationRoutes(
+  fastify: FastifyInstance,
+  passkeyService: PasskeyService,
+  sessionService: SessionService,
+): void {
   fastify.post(
     '/auth/passkey/authenticate/options',
     {
@@ -61,6 +69,7 @@ export function registerPasskeyRoutes(
       config: {
         rateLimit: authRateLimits.passkeyAuthenticate,
       },
+      bodyLimit: BODY_LIMITS.AUTH_REQUEST,
     },
     async (request, reply) => handlePasskeyAuthenticateOptions(request, reply, passkeyService),
   );
@@ -72,10 +81,20 @@ export function registerPasskeyRoutes(
       config: {
         rateLimit: authRateLimits.passkeyAuthenticate,
       },
+      bodyLimit: BODY_LIMITS.AUTH_REQUEST,
     },
     async (request, reply) =>
       handlePasskeyAuthenticateVerify(request, reply, passkeyService, sessionService),
   );
+}
+
+export function registerPasskeyRoutes(
+  fastify: FastifyInstance,
+  passkeyService: PasskeyService,
+  sessionService: SessionService,
+): void {
+  registerPasskeyRegistrationRoutes(fastify, passkeyService);
+  registerPasskeyAuthenticationRoutes(fastify, passkeyService, sessionService);
 }
 
 export function registerMagicLinkRoutes(
@@ -90,6 +109,7 @@ export function registerMagicLinkRoutes(
       config: {
         rateLimit: authRateLimits.magicLinkSend,
       },
+      bodyLimit: BODY_LIMITS.AUTH_REQUEST,
     },
     async (request, reply) => handleMagicLinkSend(request, reply, magicLinkService),
   );
@@ -101,6 +121,7 @@ export function registerMagicLinkRoutes(
       config: {
         rateLimit: authRateLimits.magicLinkVerify,
       },
+      bodyLimit: BODY_LIMITS.AUTH_REQUEST,
     },
     async (request, reply) =>
       handleMagicLinkVerify(request, reply, magicLinkService, sessionService),
@@ -129,6 +150,7 @@ export function registerSessionRoutes(
       config: {
         rateLimit: authRateLimits.refreshToken,
       },
+      bodyLimit: BODY_LIMITS.AUTH_REQUEST,
     },
     async (request, reply) => handleRefreshToken(request, reply, sessionService),
   );
@@ -140,6 +162,7 @@ export function registerSessionRoutes(
       config: {
         rateLimit: authRateLimits.logout,
       },
+      bodyLimit: BODY_LIMITS.AUTH_REQUEST,
     },
     async (request, reply) => handleLogout(request, reply, sessionService),
   );

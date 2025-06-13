@@ -1,6 +1,7 @@
 import { FastifyPluginCallback } from 'fastify';
 import { z } from 'zod';
 
+import { BODY_LIMITS } from '@api/constants/body-limits';
 import { CSP_REPORT_ENDPOINT } from '@api/constants/helmet';
 import { HTTP_STATUS } from '@api/constants/http';
 
@@ -26,6 +27,7 @@ const cspReportRoute: FastifyPluginCallback = (fastify, _opts, done) => {
       schema: {
         hide: true, // Don't show in Swagger docs
       },
+      bodyLimit: BODY_LIMITS.CSP_REPORT,
     },
     async (request, reply) => {
       try {

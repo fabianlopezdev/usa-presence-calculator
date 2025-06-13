@@ -1,6 +1,7 @@
 import fastify, { FastifyInstance } from 'fastify';
 
 import { config } from '@api/config/env';
+import { BODY_LIMITS } from '@api/constants/body-limits';
 import { requestIdPlugin } from '@api/middleware/request-id';
 import { shutdownMiddleware } from '@api/middleware/shutdown';
 import corsPlugin from '@api/plugins/cors';
@@ -23,6 +24,10 @@ export async function buildApp(): Promise<FastifyInstance> {
   const app = fastify({
     // Logger will be configured by the logger plugin
     logger: false,
+    bodyLimit: BODY_LIMITS.DEFAULT,
+    // Protect against prototype poisoning
+    onProtoPoisoning: 'remove',
+    onConstructorPoisoning: 'remove',
     ajv: {
       customOptions: {
         removeAdditional: false, // We handle validation ourselves with Zod

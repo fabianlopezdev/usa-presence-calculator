@@ -1,6 +1,7 @@
 import { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
+import { BODY_LIMIT_MESSAGES } from '@api/constants/body-limits';
 import { HTTP_STATUS } from '@api/constants/http';
 import {
   BaseError,
@@ -140,10 +141,9 @@ function handleZodValidation(context: ErrorContext): boolean {
   return false;
 }
 
-function handleSpecialErrors(context: ErrorContext): boolean {
-  const { error, reply, requestId } = context;
+function handleRateLimitError(context: ErrorContext): boolean {
+  const { error, reply } = context;
 
-  // Handle rate limit errors
   if (error.statusCode === 429) {
     reply.status(429).send({
       statusCode: 429,
@@ -153,10 +153,42 @@ function handleSpecialErrors(context: ErrorContext): boolean {
     return true;
   }
 
-  // Handle JSON parsing errors
+  return false;
+}
+
+function handleBodySizeError(context: ErrorContext): boolean {
+  const { error, request, reply, requestId } = context;
+
+  if (error.code === 'FST_ERR_CTP_BODY_TOO_LARGE') {
+    const routeUrl = request.url;
+    let message = BODY_LIMIT_MESSAGES.DEFAULT;
+
+    // Provide specific messages for different endpoint types
+    if (routeUrl.includes('/sync')) {
+      message = BODY_LIMIT_MESSAGES.SYNC;
+    } else if (routeUrl.includes('/import')) {
+      message = BODY_LIMIT_MESSAGES.IMPORT;
+    }
+
+    reply.status(HTTP_STATUS.PAYLOAD_TOO_LARGE).send({
+      error: {
+        message,
+        code: 'PAYLOAD_TOO_LARGE',
+        requestId,
+        timestamp: new Date().toISOString(),
+      },
+    });
+    return true;
+  }
+
+  return false;
+}
+
+function handleJsonParseError(context: ErrorContext): boolean {
+  const { error, reply, requestId } = context;
+
   if (
     error.code === 'FST_ERR_CTP_INVALID_MEDIA_TYPE' ||
-    error.code === 'FST_ERR_CTP_BODY_TOO_LARGE' ||
     error.message?.includes('Invalid JSON') ||
     error.message?.includes('Unexpected token') ||
     error.message?.includes('JSON')
@@ -171,6 +203,14 @@ function handleSpecialErrors(context: ErrorContext): boolean {
     });
     return true;
   }
+
+  return false;
+}
+
+function handleSpecialErrors(context: ErrorContext): boolean {
+  if (handleRateLimitError(context)) return true;
+  if (handleBodySizeError(context)) return true;
+  if (handleJsonParseError(context)) return true;
 
   return false;
 }
