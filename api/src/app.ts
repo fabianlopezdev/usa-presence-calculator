@@ -3,6 +3,7 @@ import fastify, { FastifyInstance } from 'fastify';
 import { config } from '@api/config/env';
 import { requestIdPlugin } from '@api/middleware/request-id';
 import { shutdownMiddleware } from '@api/middleware/shutdown';
+import corsPlugin from '@api/plugins/cors';
 import helmetPlugin from '@api/plugins/helmet';
 import { loggerPlugin } from '@api/plugins/logger';
 import rateLimitPlugin from '@api/plugins/rate-limit';
@@ -35,7 +36,8 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(requestIdPlugin);
   await app.register(loggerPlugin);
 
-  // Security headers should be registered early
+  // Security plugins should be registered early
+  await app.register(corsPlugin);
   await app.register(helmetPlugin);
 
   // Add shutdown middleware before other routes

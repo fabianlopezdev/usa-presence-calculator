@@ -12,7 +12,7 @@ const CspReportSchema = z.object({
     'document-uri': z.string(),
     'line-number': z.number().optional(),
     'original-policy': z.string().optional(),
-    'referrer': z.string().optional(),
+    referrer: z.string().optional(),
     'script-sample': z.string().optional(),
     'source-file': z.string().optional(),
     'violated-directive': z.string(),

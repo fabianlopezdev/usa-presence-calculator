@@ -17,6 +17,10 @@ const envSchema = z.object({
   // API Configuration
   API_PREFIX: z.string().default('/api/v1'),
   CORS_ORIGIN: z.string().default('http://localhost:3000'),
+  CORS_CREDENTIALS: z
+    .string()
+    .transform((val) => val === 'true')
+    .default('true'),
   RATE_LIMIT_MAX: z.string().transform(Number).default('100'),
   RATE_LIMIT_WINDOW_MS: z.string().transform(Number).default('900000'),
 
