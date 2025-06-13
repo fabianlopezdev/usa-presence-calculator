@@ -9,6 +9,7 @@ import corsPlugin from '@api/plugins/cors';
 import helmetPlugin from '@api/plugins/helmet';
 import { loggerPlugin } from '@api/plugins/logger';
 import rateLimitPlugin from '@api/plugins/rate-limit';
+import requireAuthPlugin from '@api/plugins/require-auth';
 import swaggerPlugin from '@api/plugins/swagger';
 import timeoutPlugin from '@api/plugins/timeout';
 import authRoute from '@api/routes/auth';
@@ -30,6 +31,9 @@ async function registerPlugins(app: FastifyInstance): Promise<void> {
   // Security plugins should be registered early
   await app.register(corsPlugin);
   await app.register(helmetPlugin);
+
+  // Register authentication plugin before routes
+  await app.register(requireAuthPlugin);
 
   // Register timeout plugin before routes
   await app.register(timeoutPlugin);

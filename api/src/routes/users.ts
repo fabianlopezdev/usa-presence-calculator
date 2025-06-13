@@ -4,10 +4,8 @@ import { z } from 'zod';
 
 import { USER_VALIDATION, UserProfileSchema } from '@usa-presence/shared';
 import { HTTP_STATUS } from '@api/constants/http';
-import { AUTH_ERRORS } from '@api/constants/auth';
 import { getDatabase } from '@api/db/connection';
 import { users } from '@api/db/schema';
-import { authenticateUser } from '@api/middleware/auth';
 
 // Helper functions
 function formatUserResponse(user: typeof users.$inferSelect): {
@@ -68,10 +66,12 @@ function validateGreenCardDate(greenCardDate: string): string | null {
 }
 
 async function getUserProfile(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  // User is guaranteed to exist with requireAuth, but TypeScript doesn't know that
   const userId = request.user?.userId;
   if (!userId) {
-    return reply.code(HTTP_STATUS.UNAUTHORIZED).send({
-      error: AUTH_ERRORS.UNAUTHORIZED,
+    // This should never happen with requireAuth, but satisfies TypeScript
+    return reply.code(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
+      error: 'Authentication state error',
     });
   }
 
@@ -164,10 +164,12 @@ function validateProfileUpdatePayload(
 }
 
 async function updateUserProfile(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  // User is guaranteed to exist with requireAuth, but TypeScript doesn't know that
   const userId = request.user?.userId;
   if (!userId) {
-    return reply.code(HTTP_STATUS.UNAUTHORIZED).send({
-      error: AUTH_ERRORS.UNAUTHORIZED,
+    // This should never happen with requireAuth, but satisfies TypeScript
+    return reply.code(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
+      error: 'Authentication state error',
     });
   }
 
@@ -193,13 +195,13 @@ async function updateUserProfile(request: FastifyRequest, reply: FastifyReply): 
 const userRoutes: FastifyPluginAsync = (fastify) => {
   // GET /users/profile
   fastify.get('/profile', {
-    preValidation: [authenticateUser],
+    preHandler: fastify.requireAuth,
     handler: getUserProfile,
   });
 
   // PATCH /users/profile
   fastify.patch('/profile', {
-    preValidation: [authenticateUser],
+    preHandler: fastify.requireAuth,
     handler: updateUserProfile,
   });
 
