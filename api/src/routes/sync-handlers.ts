@@ -1,68 +1,44 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { Trip, UserSettings } from '@usa-presence/shared';
-
 import { HTTP_STATUS } from '@api/constants/http';
 import { handleSyncPushError } from '@api/routes/sync-error-handler';
-import { executeSyncPush } from '@api/routes/sync-execution';
-import {
-  checkSyncEnabled,
-  fetchTripsForPull,
-  fetchUserSettingsForPull,
-  validateBatchSizeLimit,
-  validatePullRequest,
-  validatePushRequest,
-  validateSecurityPayload,
-  validateSyncVersionNumber,
-} from '@api/routes/sync-handler-helpers';
-import { syncPullResponseSchema, syncPushResponseSchema } from '@api/routes/sync-schemas';
+import { executeSyncPull, executeSyncPush } from '@api/routes/sync-execution-helpers';
+import { SyncPushResult } from '@api/routes/sync-response-builders';
+import { sendValidationError } from '@api/routes/sync-validation-helpers';
+import { runPullValidations, runPushValidations } from '@api/routes/sync-validation-runners';
 
-function getUserIdFromRequest(request: FastifyRequest, reply: FastifyReply): string | null {
-  // User is guaranteed to exist with requireAuth, but TypeScript doesn't know that
-  const userId = request.user?.userId;
-  if (!userId) {
-    // This should never happen with requireAuth, but satisfies TypeScript
-    reply.code(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
-      error: {
-        message: 'Authentication state error',
-        code: 'INTERNAL_ERROR',
-      },
-    });
-    return null;
-  }
-  return userId;
-}
+// ===== PULL HANDLER =====
 
 export async function handleSyncPull(request: FastifyRequest, reply: FastifyReply): Promise<void> {
-  const syncCheck = checkSyncEnabled(reply);
-  if (!syncCheck.isEnabled) return;
-
-  const securityCheck = validateSecurityPayload(request, reply);
-  if (!securityCheck.isValid) return;
-
-  const requestCheck = validatePullRequest(request, reply);
-  if (!requestCheck.isValid || !requestCheck.data) return;
-
-  const userId = getUserIdFromRequest(request, reply);
-  if (!userId) return;
-
-  const { lastSyncVersion, entityTypes } = requestCheck.data;
-
-  try {
-    const pullResult = await executeSyncPull(userId, lastSyncVersion, entityTypes);
-
-    const responseValidation = syncPullResponseSchema.safeParse(pullResult);
-    if (!responseValidation.success) {
-      request.log.error({ error: responseValidation.error }, 'Invalid sync pull response');
-      reply.code(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
+  const validationResult = runPullValidations(request);
+  if (!validationResult.isValid || !validationResult.data) {
+    if (validationResult.logWarning) {
+      request.log.warn({ error: validationResult.error }, validationResult.logMessage);
+    }
+    if (validationResult.parseError) {
+      reply.code(HTTP_STATUS.BAD_REQUEST).send({
         error: {
-          message: 'Internal server error',
-          code: 'INTERNAL_ERROR',
+          message: 'Invalid request body',
+          code: 'INVALID_REQUEST_BODY',
+          details: validationResult.parseError,
         },
       });
       return;
     }
+    sendValidationError(
+      reply,
+      validationResult.error || {
+        message: 'Validation failed',
+        code: 'VALIDATION_ERROR',
+      },
+    );
+    return;
+  }
 
+  const { userId, lastSyncVersion, entityTypes } = validationResult.data;
+
+  try {
+    const pullResult = await executeSyncPull(userId, lastSyncVersion, entityTypes);
     reply.code(HTTP_STATUS.OK).send(pullResult);
   } catch (error) {
     request.log.error({ error }, 'Sync pull error');
@@ -75,182 +51,43 @@ export async function handleSyncPull(request: FastifyRequest, reply: FastifyRepl
   }
 }
 
-async function executeSyncPull(
-  userId: string,
-  lastSyncVersion?: number,
-  entityTypes?: string[],
-): Promise<{
-  syncVersion: number;
-  trips: unknown[];
-  userSettings: unknown;
-  hasMore: boolean;
-}> {
-  const shouldSyncTrips = !entityTypes || entityTypes.includes('trips');
-  const shouldSyncSettings = !entityTypes || entityTypes.includes('user_settings');
-
-  let latestSyncVersion = lastSyncVersion || 0;
-  const responseData: {
-    syncVersion: number;
-    trips: unknown[];
-    userSettings: unknown;
-    hasMore: boolean;
-  } = {
-    syncVersion: latestSyncVersion,
-    trips: [],
-    userSettings: null,
-    hasMore: false,
-  };
-
-  if (shouldSyncTrips) {
-    const tripData = await fetchTripsForPull(userId, lastSyncVersion);
-    responseData.trips = tripData.trips;
-    responseData.hasMore = tripData.hasMore;
-    latestSyncVersion = Math.max(latestSyncVersion, tripData.maxVersion);
-  }
-
-  if (shouldSyncSettings && !responseData.hasMore) {
-    const settingsData = await fetchUserSettingsForPull(userId, lastSyncVersion);
-    responseData.userSettings = settingsData.userSettings;
-    latestSyncVersion = Math.max(latestSyncVersion, settingsData.version);
-  }
-
-  responseData.syncVersion = latestSyncVersion;
-  return responseData;
-}
+// ===== PUSH HANDLER =====
 
 export async function handleSyncPush(request: FastifyRequest, reply: FastifyReply): Promise<void> {
-  const validationResult = validateSyncPushRequest(request, reply);
-  if (!validationResult.isValid || !validationResult.data) return;
+  // Run all validations
+  const validationResult = runPushValidations(request);
+  if (!validationResult.isValid || !validationResult.data) {
+    if (validationResult.logWarning) {
+      request.log.warn({ error: validationResult.error }, validationResult.logMessage);
+    }
+    sendValidationError(
+      reply,
+      validationResult.error || {
+        message: 'Validation failed',
+        code: 'VALIDATION_ERROR',
+      },
+    );
+    return;
+  }
 
   const { userId, pushData } = validationResult.data;
 
   try {
     const result = await executeSyncPush(userId, pushData);
-
-    const responseValidation = syncPushResponseSchema.safeParse(result.response);
-    if (!responseValidation.success) {
-      request.log.error({ error: responseValidation.error }, 'Invalid sync push response');
-      reply.code(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
-        error: {
-          message: 'Internal server error',
-          code: 'INTERNAL_ERROR',
-        },
-      });
-      return;
-    }
-
     sendSyncPushResponse(reply, result);
   } catch (error) {
     handleSyncPushError(error, reply);
   }
 }
 
-interface ValidationResult {
-  isValid: boolean;
-  data?: {
-    userId: string;
-    pushData: {
-      syncVersion: number;
-      trips?: Trip[];
-      userSettings?: UserSettings;
-      deletedTripIds?: string[];
-      forceOverwrite?: boolean;
-      applyNonConflicting?: boolean;
-    };
-  };
-}
+// ===== RESPONSE HELPER =====
 
-function validateSyncPushRequest(request: FastifyRequest, reply: FastifyReply): ValidationResult {
-  const basicValidation = performBasicValidations(request, reply);
-  if (!basicValidation.isValid) return { isValid: false };
-
-  const { requestData, userId } = basicValidation;
-
-  if (!requestData || !userId) {
-    return { isValid: false };
-  }
-
-  const advancedValidation = performAdvancedValidations(requestData, reply);
-  if (!advancedValidation.isValid) return { isValid: false };
-
-  return {
-    isValid: true,
-    data: {
-      userId,
-      pushData: requestData,
-    },
-  };
-}
-
-function performBasicValidations(
-  request: FastifyRequest,
-  reply: FastifyReply,
-): {
-  isValid: boolean;
-  requestData?: {
-    syncVersion: number;
-    trips?: Trip[];
-    userSettings?: UserSettings;
-    deletedTripIds?: string[];
-    forceOverwrite?: boolean;
-    applyNonConflicting?: boolean;
-  };
-  userId?: string;
-} {
-  const syncCheck = checkSyncEnabled(reply);
-  if (!syncCheck.isEnabled) return { isValid: false };
-
-  const securityCheck = validateSecurityPayload(request, reply);
-  if (!securityCheck.isValid) return { isValid: false };
-
-  const requestCheck = validatePushRequest(request, reply);
-  if (!requestCheck.isValid || !requestCheck.data) return { isValid: false };
-
-  // User is guaranteed to exist with requireAuth, but TypeScript doesn't know that
-  const userId = request.user?.userId;
-  if (!userId) {
-    // This should never happen with requireAuth, but satisfies TypeScript
-    return { isValid: false };
-  }
-
-  return { isValid: true, requestData: requestCheck.data, userId };
-}
-
-function performAdvancedValidations(
-  requestData: {
-    syncVersion: number;
-    trips?: Trip[];
-    deletedTripIds?: string[];
-  },
-  reply: FastifyReply,
-): { isValid: boolean } {
-  const versionCheck = validateSyncVersionNumber(requestData.syncVersion, reply);
-  if (!versionCheck.isValid) return { isValid: false };
-
-  const totalItems = (requestData.trips?.length || 0) + (requestData.deletedTripIds?.length || 0);
-  const batchCheck = validateBatchSizeLimit(totalItems, reply);
-  if (!batchCheck.isValid) return { isValid: false };
-
-  return { isValid: true };
-}
-
-function sendSyncPushResponse(
-  reply: FastifyReply,
-  result: {
-    response: unknown;
-    hasConflicts: boolean;
-    conflicts?: unknown[];
-    statusCode: number;
-    errorMessage?: string;
-    errorCode?: string;
-    syncedEntities?: unknown;
-  },
-): void {
+function sendSyncPushResponse(reply: FastifyReply, result: SyncPushResult): void {
   if (result.hasConflicts && result.conflicts) {
     reply.code(result.statusCode).send({
       error: {
-        message: result.errorMessage,
-        code: result.errorCode,
+        message: result.errorMessage || 'Sync conflicts detected',
+        code: result.errorCode || 'SYNC_CONFLICT',
       },
       conflicts: result.conflicts,
       ...(result.syncedEntities ? { syncedEntities: result.syncedEntities } : {}),

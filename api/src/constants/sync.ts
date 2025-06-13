@@ -1,6 +1,7 @@
 export const SYNC_CONFIG = {
   ENABLED: false,
   MAX_BATCH_SIZE: 100,
+  MAX_TRIPS_PER_SYNC: 100,
   MAX_REQUEST_SIZE: 1024 * 1024, // 1MB
   MAX_STRING_LENGTH: 10000,
   MAX_OBJECT_DEPTH: 5,
@@ -24,6 +25,7 @@ export const SYNC_ERROR_CODES = {
   INVALID_SYNC_TOKEN: 'INVALID_SYNC_TOKEN',
   SYNC_CONFLICT: 'SYNC_CONFLICT',
   SYNC_BATCH_TOO_LARGE: 'SYNC_BATCH_TOO_LARGE',
+  BATCH_TOO_LARGE: 'BATCH_TOO_LARGE',
   SYNC_IN_PROGRESS: 'SYNC_IN_PROGRESS',
   SYNC_VERSION_MISMATCH: 'SYNC_VERSION_MISMATCH',
 } as const;
@@ -43,4 +45,5 @@ export const SYNC_MESSAGES = {
   SYNC_FAILED: 'Sync operation failed. Please try again',
   INVALID_SYNC_DATA: 'Invalid sync data format',
   SYNC_TOKEN_EXPIRED: 'Sync token has expired. Please re-authenticate',
+  BATCH_TOO_LARGE: 'Batch size exceeds maximum allowed limit',
 } as const;
