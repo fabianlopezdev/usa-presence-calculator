@@ -3,10 +3,12 @@ import fastify, { FastifyInstance } from 'fastify';
 import { config } from '@api/config/env';
 import { requestIdPlugin } from '@api/middleware/request-id';
 import { shutdownMiddleware } from '@api/middleware/shutdown';
+import helmetPlugin from '@api/plugins/helmet';
 import { loggerPlugin } from '@api/plugins/logger';
 import rateLimitPlugin from '@api/plugins/rate-limit';
 import swaggerPlugin from '@api/plugins/swagger';
 import authRoute from '@api/routes/auth';
+import cspReportRoute from '@api/routes/csp-report';
 import healthRoute from '@api/routes/health';
 import healthEnhancedRoute from '@api/routes/health-enhanced';
 import settingsRoutes from '@api/routes/settings';
@@ -33,6 +35,9 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(requestIdPlugin);
   await app.register(loggerPlugin);
 
+  // Security headers should be registered early
+  await app.register(helmetPlugin);
+
   // Add shutdown middleware before other routes
   app.addHook('preHandler', shutdownMiddleware);
 
@@ -44,6 +49,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(swaggerPlugin);
 
   await app.register(authRoute);
+  await app.register(cspReportRoute);
   await app.register(healthRoute);
   await app.register(healthEnhancedRoute);
   await app.register(userRoutes, { prefix: '/users' });

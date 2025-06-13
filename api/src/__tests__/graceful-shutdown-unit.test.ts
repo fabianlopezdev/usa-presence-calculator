@@ -50,7 +50,10 @@ describe('Graceful Shutdown Unit Tests', () => {
     // Store original listeners
     originalListeners = new Map();
     ['SIGTERM', 'SIGINT', 'uncaughtException', 'unhandledRejection'].forEach((event) => {
-      originalListeners.set(event, process.listeners(event as NodeJS.Signals) as Array<(...args: unknown[]) => void>);
+      originalListeners.set(
+        event,
+        process.listeners(event as NodeJS.Signals) as Array<(...args: unknown[]) => void>,
+      );
       process.removeAllListeners(event);
     });
   });
