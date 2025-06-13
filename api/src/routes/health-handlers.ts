@@ -1,6 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { config } from '@api/config/env';
 import { HEALTH } from '@api/constants/health';
 import { HTTP_STATUS } from '@api/constants/http';
 
@@ -30,17 +29,17 @@ export async function handleReadinessCheck(
       version: process.env.npm_package_version || '1.0.0',
       uptime: process.uptime(),
       checks: {
-        database: databaseCheck,
-        memory: memoryCheck,
+        database: { ...databaseCheck },
+        memory: { ...memoryCheck },
       },
     };
 
-    if (config.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development') {
       response.debug = {
         nodeVersion: process.version,
         platform: process.platform,
         arch: process.arch,
-        env: config.NODE_ENV,
+        env: process.env.NODE_ENV || 'unknown',
       };
     }
 
