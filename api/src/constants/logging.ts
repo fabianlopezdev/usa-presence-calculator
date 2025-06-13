@@ -74,3 +74,14 @@ export const LOG_SERIALIZER_CONFIG = {
   MAX_OBJECT_KEYS: 20,
   MAX_STRING_LENGTH: 200,
 } as const;
+
+export const LOG_ROTATION = {
+  ENABLED: process.env.NODE_ENV === 'production',
+  DIRECTORY: process.env.LOG_DIR || 'logs',
+  FILE_PREFIX: 'api',
+  MAX_FILES: 30, // Keep 30 days of logs
+  MAX_SIZE: '100M', // Max size per file before rotation
+  DATE_PATTERN: 'YYYY-MM-DD',
+  COMPRESS: true,
+  INTERVAL: '1d', // Daily rotation
+} as const;

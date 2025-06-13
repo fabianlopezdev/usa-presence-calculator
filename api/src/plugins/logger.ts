@@ -1,3 +1,6 @@
+import { existsSync, mkdirSync } from 'node:fs';
+import path from 'node:path';
+
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import pino from 'pino';
@@ -8,6 +11,7 @@ import {
   LOG_IGNORE_ROUTES,
   LOG_MESSAGES,
   LOG_REDACT_PATHS,
+  LOG_ROTATION,
 } from '@api/constants/logging';
 
 interface RequestSerializer {
@@ -103,8 +107,49 @@ function createDevelopmentLogger(): pino.Logger {
 }
 
 function createProductionLogger(): pino.Logger {
+  const baseOptions = createBaseOptions();
+
+  if (LOG_ROTATION.ENABLED) {
+    // Ensure log directory exists
+    const logDir = path.resolve(LOG_ROTATION.DIRECTORY);
+    if (!existsSync(logDir)) {
+      mkdirSync(logDir, { recursive: true });
+    }
+
+    // Use pino with file rotation transport
+    return pino(
+      {
+        ...baseOptions,
+        timestamp: pino.stdTimeFunctions.isoTime,
+        formatters: {
+          level: (label: string) => ({ level: label }),
+        },
+      },
+      pino.multistream([
+        // Console output
+        { stream: process.stdout },
+        // File output with rotation
+        {
+          stream: pino.transport({
+            target: 'pino-roll',
+            options: {
+              file: path.join(logDir, `${LOG_ROTATION.FILE_PREFIX}.log`),
+              frequency: LOG_ROTATION.INTERVAL,
+              size: LOG_ROTATION.MAX_SIZE,
+              compress: LOG_ROTATION.COMPRESS,
+              limit: {
+                count: LOG_ROTATION.MAX_FILES,
+              },
+            },
+          }) as unknown as NodeJS.WritableStream,
+        },
+      ]),
+    );
+  }
+
+  // Standard production logger without file rotation
   return pino({
-    ...createBaseOptions(),
+    ...baseOptions,
     timestamp: pino.stdTimeFunctions.isoTime,
     formatters: {
       level: (label: string) => ({ level: label }),

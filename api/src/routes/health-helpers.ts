@@ -1,8 +1,10 @@
 import { collectDefaultMetrics, Counter, Gauge, Histogram, Registry } from 'prom-client';
 
 import { config } from '@api/config/env';
+import { ALERT_TYPES, AlertSeverity } from '@api/constants/alerting';
 import { HEALTH } from '@api/constants/health';
 import { getSQLiteDatabase } from '@api/db/connection';
+import { alertingService } from '@api/services/alerting';
 
 export interface HealthCheck {
   status:
@@ -136,9 +138,13 @@ export async function checkDatabase(): Promise<HealthCheck> {
   }
 }
 
+let lastMemoryAlertTime = 0;
+const MEMORY_ALERT_COOLDOWN = 5 * 60 * 1000; // 5 minutes
+
 export function checkMemory(): HealthCheck {
   const memUsage = process.memoryUsage();
   const heapUsageRatio = memUsage.heapUsed / memUsage.heapTotal;
+  const now = Date.now();
 
   let status: typeof HEALTH.STATUS.HEALTHY | typeof HEALTH.STATUS.WARNING = HEALTH.STATUS.HEALTHY;
   let message: string | undefined;
@@ -146,6 +152,22 @@ export function checkMemory(): HealthCheck {
   if (heapUsageRatio > HEALTH.MEMORY_THRESHOLD.CRITICAL) {
     status = HEALTH.STATUS.WARNING;
     message = 'Memory usage above 95%';
+
+    // Send alert only once per cooldown period
+    if (now - lastMemoryAlertTime > MEMORY_ALERT_COOLDOWN) {
+      void alertingService.alert({
+        type: ALERT_TYPES.MEMORY_WARNING,
+        severity: 'high' as AlertSeverity,
+        message: 'Critical memory usage detected',
+        context: {
+          heapUsedMB: Math.round(memUsage.heapUsed / 1024 / 1024),
+          heapTotalMB: Math.round(memUsage.heapTotal / 1024 / 1024),
+          heapUsagePercent: Math.round(heapUsageRatio * 100),
+          rssMB: Math.round(memUsage.rss / 1024 / 1024),
+        },
+      });
+      lastMemoryAlertTime = now;
+    }
   } else if (heapUsageRatio > HEALTH.MEMORY_THRESHOLD.WARNING) {
     status = HEALTH.STATUS.WARNING;
     message = 'Memory usage above 90%';

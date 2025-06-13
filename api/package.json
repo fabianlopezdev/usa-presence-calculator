@@ -29,8 +29,13 @@
     "db:migrate": "tsx --env-file=.env src/db/migrate.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "db:status": "drizzle-kit status",
     "dev:setup": "pnpm install && pnpm db:generate && pnpm db:migrate",
-    "dev:clean": "rm -rf dist node_modules .turbo && pnpm install"
+    "dev:clean": "rm -rf dist node_modules .turbo && pnpm install",
+    "backup:db": "tsx scripts/backup-database.ts",
+    "check:pre-deploy": "tsx scripts/pre-deployment-check.ts",
+    "check:post-deploy": "tsx scripts/post-deployment-check.ts",
+    "test:ci": "vitest run --reporter=verbose"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.826.0",
