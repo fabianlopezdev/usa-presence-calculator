@@ -28,7 +28,9 @@ describe('CORS Plugin', () => {
       process.env.NODE_ENV = 'production';
       process.env.CORS_ORIGIN = 'https://app.example.com,https://www.example.com';
       vi.spyOn(config, 'NODE_ENV', 'get').mockReturnValue('production');
-      vi.spyOn(config, 'CORS_ORIGIN', 'get').mockReturnValue('https://app.example.com,https://www.example.com');
+      vi.spyOn(config, 'CORS_ORIGIN', 'get').mockReturnValue(
+        'https://app.example.com,https://www.example.com',
+      );
       app = await buildTestApp();
     });
 
@@ -95,7 +97,9 @@ describe('CORS Plugin', () => {
       process.env.NODE_ENV = 'development';
       process.env.CORS_ORIGIN = 'http://localhost:3000,http://localhost:5173';
       vi.spyOn(config, 'NODE_ENV', 'get').mockReturnValue('development');
-      vi.spyOn(config, 'CORS_ORIGIN', 'get').mockReturnValue('http://localhost:3000,http://localhost:5173');
+      vi.spyOn(config, 'CORS_ORIGIN', 'get').mockReturnValue(
+        'http://localhost:3000,http://localhost:5173',
+      );
       app = await buildTestApp();
     });
 
@@ -178,7 +182,7 @@ describe('CORS Plugin', () => {
       });
 
       expect(response.statusCode).toBe(200);
-      // When no origin is provided and the request is allowed, 
+      // When no origin is provided and the request is allowed,
       // no access-control-allow-origin header is set
       expect(response.headers['access-control-allow-origin']).toBeUndefined();
     });

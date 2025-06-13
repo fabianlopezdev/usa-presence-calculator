@@ -16,10 +16,7 @@ async function corsPlugin(fastify: FastifyInstance): Promise<void> {
       environment: config.NODE_ENV,
       corsConfig: {
         ...corsConfig,
-        origin:
-          typeof corsConfig.origin === 'function'
-            ? 'function'
-            : corsConfig.origin,
+        origin: typeof corsConfig.origin === 'function' ? 'function' : corsConfig.origin,
       },
     },
     'CORS plugin registered',

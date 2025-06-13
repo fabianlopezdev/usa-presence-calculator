@@ -44,6 +44,10 @@ const envSchema = z.object({
     .string()
     .transform((val) => val === 'true')
     .default('true'),
+
+  // Swagger Authentication
+  SWAGGER_USERNAME: z.string().optional(),
+  SWAGGER_PASSWORD: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
