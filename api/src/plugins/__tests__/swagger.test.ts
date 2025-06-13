@@ -79,7 +79,7 @@ describe('Swagger Plugin', () => {
 
       expect(swagger.servers).toBeDefined();
       expect(swagger.servers.length).toBeGreaterThan(0);
-      expect(swagger.servers[0].url).toBe('http://localhost:3000');
+      expect(swagger.servers[0].url).toBe('http://localhost:3000/api/v1');
       expect(swagger.servers[0].description).toBe('Development server');
     });
   });

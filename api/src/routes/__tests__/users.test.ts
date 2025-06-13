@@ -1,13 +1,14 @@
-import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
-import { FastifyInstance } from 'fastify';
-
-import { HTTP_STATUS } from '@api/constants/http';
-import { buildApp } from '@api/app';
-import { resetTestDatabase, createTestUser, cleanupTestDatabase } from '@api/test-utils/db';
-import { getDatabase, closeDatabase } from '@api/db/connection';
-import { users } from '@api/db/schema';
 import { eq } from 'drizzle-orm';
+import { FastifyInstance } from 'fastify';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+
+import { buildApp } from '@api/app';
+import { HTTP_STATUS } from '@api/constants/http';
+import { closeDatabase, getDatabase } from '@api/db/connection';
+import { users } from '@api/db/schema';
 import { SessionService } from '@api/services/session';
+import { API_PATHS } from '@api/test-utils/api-paths';
+import { cleanupTestDatabase, createTestUser, resetTestDatabase } from '@api/test-utils/db';
 
 // Response type definitions for type-safe JSON parsing
 type UserProfileResponse = {
@@ -66,7 +67,7 @@ describe('User Routes', () => {
     it('should return user profile for authenticated user', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/users/profile',
+        url: API_PATHS.USERS_PROFILE,
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
@@ -87,7 +88,7 @@ describe('User Routes', () => {
     it('should return 401 without authentication', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/users/profile',
+        url: API_PATHS.USERS_PROFILE,
       });
 
       expect(response.statusCode).toBe(HTTP_STATUS.UNAUTHORIZED);
@@ -96,7 +97,7 @@ describe('User Routes', () => {
     it('should return 401 with invalid token', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/users/profile',
+        url: API_PATHS.USERS_PROFILE,
         headers: {
           authorization: 'Bearer invalid-token',
         },
@@ -110,7 +111,7 @@ describe('User Routes', () => {
     it('should update greenCardDate', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/profile',
+        url: API_PATHS.USERS_PROFILE,
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
@@ -132,7 +133,7 @@ describe('User Routes', () => {
     it('should update eligibilityCategory', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/profile',
+        url: API_PATHS.USERS_PROFILE,
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
@@ -149,7 +150,7 @@ describe('User Routes', () => {
     it('should update both fields', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/profile',
+        url: API_PATHS.USERS_PROFILE,
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
@@ -172,7 +173,7 @@ describe('User Routes', () => {
 
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/profile',
+        url: API_PATHS.USERS_PROFILE,
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
@@ -190,7 +191,7 @@ describe('User Routes', () => {
     it('should reject greenCardDate more than 20 years ago', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/profile',
+        url: API_PATHS.USERS_PROFILE,
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
@@ -208,7 +209,7 @@ describe('User Routes', () => {
     it('should reject invalid date format', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/profile',
+        url: API_PATHS.USERS_PROFILE,
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
@@ -223,7 +224,7 @@ describe('User Routes', () => {
     it('should reject invalid eligibilityCategory', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/profile',
+        url: API_PATHS.USERS_PROFILE,
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
@@ -238,7 +239,7 @@ describe('User Routes', () => {
     it('should reject extra fields like email', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/profile',
+        url: API_PATHS.USERS_PROFILE,
         headers: {
           authorization: `Bearer ${accessToken}`,
         },
@@ -254,7 +255,7 @@ describe('User Routes', () => {
     it('should return 401 without authentication', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/profile',
+        url: API_PATHS.USERS_PROFILE,
         payload: {
           greenCardDate: '2019-06-15',
         },
@@ -267,7 +268,7 @@ describe('User Routes', () => {
       it('should handle leap year date (Feb 29th)', async () => {
         const response = await app.inject({
           method: 'PATCH',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${accessToken}`,
           },
@@ -284,7 +285,7 @@ describe('User Routes', () => {
       it('should reject invalid leap year date', async () => {
         const response = await app.inject({
           method: 'PATCH',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${accessToken}`,
           },
@@ -303,7 +304,7 @@ describe('User Routes', () => {
 
         const response = await app.inject({
           method: 'PATCH',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${accessToken}`,
           },
@@ -323,7 +324,7 @@ describe('User Routes', () => {
 
         const response = await app.inject({
           method: 'PATCH',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${accessToken}`,
           },
@@ -340,7 +341,7 @@ describe('User Routes', () => {
 
         const response = await app.inject({
           method: 'PATCH',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${accessToken}`,
           },
@@ -361,7 +362,7 @@ describe('User Routes', () => {
 
         const response = await app.inject({
           method: 'PATCH',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${accessToken}`,
           },
@@ -376,7 +377,7 @@ describe('User Routes', () => {
       it('should reject SQL injection attempts in greenCardDate', async () => {
         const response = await app.inject({
           method: 'PATCH',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${accessToken}`,
           },
@@ -391,7 +392,7 @@ describe('User Routes', () => {
       it('should reject XSS attempts in eligibilityCategory', async () => {
         const response = await app.inject({
           method: 'PATCH',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${accessToken}`,
           },
@@ -406,7 +407,7 @@ describe('User Routes', () => {
       it('should handle very long string in greenCardDate', async () => {
         const response = await app.inject({
           method: 'PATCH',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${accessToken}`,
           },
@@ -421,7 +422,7 @@ describe('User Routes', () => {
       it('should reject null values', async () => {
         const response = await app.inject({
           method: 'PATCH',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${accessToken}`,
           },
@@ -436,7 +437,7 @@ describe('User Routes', () => {
       it('should reject undefined values by ignoring them', async () => {
         const response = await app.inject({
           method: 'PATCH',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${accessToken}`,
           },
@@ -455,7 +456,7 @@ describe('User Routes', () => {
       it('should reject empty object payload', async () => {
         const response = await app.inject({
           method: 'PATCH',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${accessToken}`,
           },
@@ -468,7 +469,7 @@ describe('User Routes', () => {
       it('should reject array payload', async () => {
         const response = await app.inject({
           method: 'PATCH',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${accessToken}`,
           },
@@ -481,7 +482,7 @@ describe('User Routes', () => {
       it('should reject numeric greenCardDate', async () => {
         const response = await app.inject({
           method: 'PATCH',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${accessToken}`,
           },
@@ -496,7 +497,7 @@ describe('User Routes', () => {
       it('should reject boolean greenCardDate', async () => {
         const response = await app.inject({
           method: 'PATCH',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${accessToken}`,
           },
@@ -512,7 +513,7 @@ describe('User Routes', () => {
         const promises = Array.from({ length: 5 }, (_, i) =>
           app.inject({
             method: 'PATCH',
-            url: '/users/profile',
+            url: API_PATHS.USERS_PROFILE,
             headers: {
               authorization: `Bearer ${accessToken}`,
             },
@@ -546,7 +547,7 @@ describe('User Routes', () => {
 
         const response = await app.inject({
           method: 'GET',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${expiredToken}`,
           },
@@ -570,7 +571,7 @@ describe('User Routes', () => {
         for (const header of malformedHeaders) {
           const response = await app.inject({
             method: 'GET',
-            url: '/users/profile',
+            url: API_PATHS.USERS_PROFILE,
             headers: {
               authorization: header,
             },
@@ -595,7 +596,7 @@ describe('User Routes', () => {
         for (const date of specialDates) {
           const response = await app.inject({
             method: 'PATCH',
-            url: '/users/profile',
+            url: API_PATHS.USERS_PROFILE,
             headers: {
               authorization: `Bearer ${accessToken}`,
             },
@@ -612,7 +613,7 @@ describe('User Routes', () => {
       it('should reject prototype pollution attempts', async () => {
         const response = await app.inject({
           method: 'PATCH',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${accessToken}`,
           },
@@ -639,7 +640,7 @@ describe('User Routes', () => {
 
         const response = await app.inject({
           method: 'GET',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${accessToken}`,
           },
@@ -666,7 +667,7 @@ describe('User Routes', () => {
 
         const response = await app.inject({
           method: 'GET',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${sessionData.accessToken}`,
           },
@@ -678,7 +679,7 @@ describe('User Routes', () => {
       it('should reject Content-Type other than application/json', async () => {
         const response = await app.inject({
           method: 'PATCH',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${accessToken}`,
             'content-type': 'text/plain',
@@ -697,7 +698,7 @@ describe('User Routes', () => {
 
         const response = await app.inject({
           method: 'PATCH',
-          url: '/users/profile',
+          url: API_PATHS.USERS_PROFILE,
           headers: {
             authorization: `Bearer ${accessToken}`,
           },

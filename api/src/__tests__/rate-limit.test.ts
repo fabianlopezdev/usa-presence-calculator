@@ -1,8 +1,9 @@
 import { FastifyInstance } from 'fastify';
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { buildApp } from '@api/app';
 import { RATE_LIMIT_CONFIG } from '@api/constants/rate-limit';
+import { API_PATHS } from '@api/test-utils/api-paths';
 
 describe('Rate Limiting', () => {
   let app: FastifyInstance;
@@ -49,7 +50,7 @@ describe('Rate Limiting', () => {
         for (let i = 0; i < maxRequests; i++) {
           const response = await app.inject({
             method: 'POST',
-            url: '/auth/magic-link/send',
+            url: API_PATHS.AUTH_MAGIC_LINK_SEND,
             payload: validPayload,
           });
           // Might fail due to other reasons, but shouldn't be 429
@@ -59,7 +60,7 @@ describe('Rate Limiting', () => {
         // Next request should be rate limited
         const limitedResponse = await app.inject({
           method: 'POST',
-          url: '/auth/magic-link/send',
+          url: API_PATHS.AUTH_MAGIC_LINK_SEND,
           payload: validPayload,
         });
         expect(limitedResponse.statusCode).toBe(429);
@@ -75,7 +76,7 @@ describe('Rate Limiting', () => {
         for (let i = 0; i < maxRequests; i++) {
           const response = await app.inject({
             method: 'POST',
-            url: '/auth/passkey/register/options',
+            url: API_PATHS.AUTH_PASSKEY_OPTIONS,
             payload: validPayload,
           });
           // Might fail due to other reasons, but shouldn't be 429
@@ -85,7 +86,7 @@ describe('Rate Limiting', () => {
         // Next request should be rate limited
         const limitedResponse = await app.inject({
           method: 'POST',
-          url: '/auth/passkey/register/options',
+          url: API_PATHS.AUTH_PASSKEY_OPTIONS,
           payload: validPayload,
         });
         expect(limitedResponse.statusCode).toBe(429);
@@ -103,7 +104,7 @@ describe('Rate Limiting', () => {
         for (let i = 0; i < 30; i++) {
           const response = await app.inject({
             method: 'GET',
-            url: '/auth/session',
+            url: API_PATHS.AUTH_SESSION,
           });
           // Should not be rate limited for first 30 requests
           expect(response.statusCode).not.toBe(429);
@@ -134,7 +135,7 @@ describe('Rate Limiting', () => {
       for (let i = 0; i < maxRequests; i++) {
         await app.inject({
           method: 'POST',
-          url: '/auth/magic-link/send',
+          url: API_PATHS.AUTH_MAGIC_LINK_SEND,
           payload: validPayload,
           headers: { 'x-forwarded-for': '192.168.1.1' },
         });
@@ -143,7 +144,7 @@ describe('Rate Limiting', () => {
       // First IP should be rate limited
       const limitedResponse = await app.inject({
         method: 'POST',
-        url: '/auth/magic-link/send',
+        url: API_PATHS.AUTH_MAGIC_LINK_SEND,
         payload: validPayload,
         headers: { 'x-forwarded-for': '192.168.1.1' },
       });
@@ -152,7 +153,7 @@ describe('Rate Limiting', () => {
       // Different IP should still work
       const differentIpResponse = await app.inject({
         method: 'POST',
-        url: '/auth/magic-link/send',
+        url: API_PATHS.AUTH_MAGIC_LINK_SEND,
         payload: validPayload,
         headers: { 'x-forwarded-for': '192.168.1.2' },
       });

@@ -8,8 +8,10 @@
  * - priority-urgency.ts: Priority levels, thresholds, and sort orders
  * - date-time.ts: Date/time utilities and calendar constants
  * - validation-messages.ts: Centralized validation error messages
+ * - api-paths.ts: API endpoint paths and versioning constants
  */
 
+export * from './api-paths';
 export * from './compliance';
 export * from './date-time';
 export * from './priority-urgency';

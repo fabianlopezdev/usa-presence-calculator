@@ -6,6 +6,7 @@ import { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 
 import { config } from '@api/config/env';
+import { API_VERSION } from '@api/constants/api-versioning';
 import { SWAGGER_CONFIG } from '@api/constants/documentation';
 
 function timingSafeCompare(a: string, b: string): boolean {
@@ -51,7 +52,7 @@ function getSwaggerOptions(isProduction: boolean): Parameters<typeof swagger>[1]
       },
       servers: [
         {
-          url: isProduction ? SWAGGER_CONFIG.PRODUCTION_URL : SWAGGER_CONFIG.DEVELOPMENT_URL,
+          url: `${isProduction ? SWAGGER_CONFIG.PRODUCTION_URL : SWAGGER_CONFIG.DEVELOPMENT_URL}${API_VERSION.PREFIX}`,
           description: isProduction ? 'Production server' : 'Development server',
         },
       ],

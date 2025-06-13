@@ -1,13 +1,14 @@
 import { FastifyInstance } from 'fastify';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { eq } from 'drizzle-orm';
 import jwt from 'jsonwebtoken';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 // Types from shared - used implicitly in validation
 // import { TripCreateSchema, TripUpdateSchema } from '@usa-presence/shared';
-import { HTTP_STATUS } from '@api/constants/http';
 import { config } from '@api/config/env';
+import { HTTP_STATUS } from '@api/constants/http';
 import { SessionService } from '@api/services/session';
+import { API_PATHS } from '@api/test-utils/api-paths';
 import { buildTestApp } from '@api/test-utils/app-builder';
 import { createTestUser, resetTestDatabase } from '@api/test-utils/db';
 import { getDatabase } from '@api/db/connection';
@@ -66,7 +67,7 @@ describe('Trip Routes', () => {
     it('should return 401 when not authenticated', async () => {
       const response = await app.inject({
         method: 'POST',
-        url: '/trips',
+        url: API_PATHS.TRIPS_LIST,
         payload: {
           departureDate: '2024-01-01',
           returnDate: '2024-01-10',
@@ -85,7 +86,7 @@ describe('Trip Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/trips',
+        url: API_PATHS.TRIPS_LIST,
         headers: authHeaders,
         payload: tripData,
       });
@@ -112,7 +113,7 @@ describe('Trip Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/trips',
+        url: API_PATHS.TRIPS_LIST,
         headers: authHeaders,
         payload: tripData,
       });
@@ -126,7 +127,7 @@ describe('Trip Routes', () => {
     it('should validate date format', async () => {
       const response = await app.inject({
         method: 'POST',
-        url: '/trips',
+        url: API_PATHS.TRIPS_LIST,
         headers: authHeaders,
         payload: {
           departureDate: '01/01/2024', // Wrong format
@@ -140,7 +141,7 @@ describe('Trip Routes', () => {
     it('should validate return date is after departure date', async () => {
       const response = await app.inject({
         method: 'POST',
-        url: '/trips',
+        url: API_PATHS.TRIPS_LIST,
         headers: authHeaders,
         payload: {
           departureDate: '2024-01-10',
@@ -157,7 +158,7 @@ describe('Trip Routes', () => {
     it('should reject extra fields', async () => {
       const response = await app.inject({
         method: 'POST',
-        url: '/trips',
+        url: API_PATHS.TRIPS_LIST,
         headers: authHeaders,
         payload: {
           departureDate: '2024-01-01',
@@ -174,7 +175,7 @@ describe('Trip Routes', () => {
     it('should return 401 when not authenticated', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/trips',
+        url: API_PATHS.TRIPS_LIST,
       });
 
       expect(response.statusCode).toBe(HTTP_STATUS.UNAUTHORIZED);
@@ -183,7 +184,7 @@ describe('Trip Routes', () => {
     it('should return empty array when user has no trips', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/trips',
+        url: API_PATHS.TRIPS_LIST,
         headers: authHeaders,
       });
 
@@ -231,7 +232,7 @@ describe('Trip Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: '/trips',
+        url: API_PATHS.TRIPS_LIST,
         headers: authHeaders,
       });
 
@@ -270,7 +271,7 @@ describe('Trip Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: '/trips',
+        url: API_PATHS.TRIPS_LIST,
         headers: authHeaders,
       });
 
@@ -308,7 +309,7 @@ describe('Trip Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: '/trips',
+        url: API_PATHS.TRIPS_LIST,
         headers: authHeaders,
       });
 
@@ -323,7 +324,7 @@ describe('Trip Routes', () => {
     it('should return 401 when not authenticated', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/trips/trip-123',
+        url: API_PATHS.TRIPS_GET('trip-123'),
       });
 
       expect(response.statusCode).toBe(HTTP_STATUS.UNAUTHORIZED);
@@ -344,7 +345,7 @@ describe('Trip Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: '/trips/trip-123',
+        url: API_PATHS.TRIPS_GET('trip-123'),
         headers: authHeaders,
       });
 
@@ -358,7 +359,7 @@ describe('Trip Routes', () => {
     it('should return 404 for non-existent trip', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/trips/non-existent',
+        url: API_PATHS.TRIPS_GET('non-existent'),
         headers: authHeaders,
       });
 
@@ -392,7 +393,7 @@ describe('Trip Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: '/trips/other-trip',
+        url: API_PATHS.TRIPS_GET('other-trip'),
         headers: authHeaders,
       });
 
@@ -414,7 +415,7 @@ describe('Trip Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: '/trips/deleted-trip',
+        url: API_PATHS.TRIPS_GET('deleted-trip'),
         headers: authHeaders,
       });
 
@@ -446,7 +447,7 @@ describe('Trip Routes', () => {
     it('should return 401 when not authenticated', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: `/trips/${tripId}`,
+        url: API_PATHS.TRIPS_GET(tripId),
         payload: {
           location: 'Mexico',
         },
@@ -458,7 +459,7 @@ describe('Trip Routes', () => {
     it('should update trip location', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: `/trips/${tripId}`,
+        url: API_PATHS.TRIPS_GET(tripId),
         headers: authHeaders,
         payload: {
           location: 'Mexico',
@@ -476,7 +477,7 @@ describe('Trip Routes', () => {
     it('should update trip dates', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: `/trips/${tripId}`,
+        url: API_PATHS.TRIPS_GET(tripId),
         headers: authHeaders,
         payload: {
           departureDate: '2024-02-01',
@@ -495,7 +496,7 @@ describe('Trip Routes', () => {
     it('should validate date range when updating both dates', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: `/trips/${tripId}`,
+        url: API_PATHS.TRIPS_GET(tripId),
         headers: authHeaders,
         payload: {
           departureDate: '2024-02-15',
@@ -509,7 +510,7 @@ describe('Trip Routes', () => {
     it('should allow updating only departure date', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: `/trips/${tripId}`,
+        url: API_PATHS.TRIPS_GET(tripId),
         headers: authHeaders,
         payload: {
           departureDate: '2024-01-05',
@@ -526,7 +527,7 @@ describe('Trip Routes', () => {
     it('should return 404 for non-existent trip', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/trips/non-existent',
+        url: API_PATHS.TRIPS_GET('non-existent'),
         headers: authHeaders,
         payload: {
           location: 'Mexico',
@@ -563,7 +564,7 @@ describe('Trip Routes', () => {
 
       const response = await app.inject({
         method: 'PATCH',
-        url: '/trips/other-trip',
+        url: API_PATHS.TRIPS_GET('other-trip'),
         headers: authHeaders,
         payload: {
           location: 'Mexico',
@@ -576,7 +577,7 @@ describe('Trip Routes', () => {
     it('should reject empty update', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: `/trips/${tripId}`,
+        url: API_PATHS.TRIPS_GET(tripId),
         headers: authHeaders,
         payload: {},
       });
@@ -587,7 +588,7 @@ describe('Trip Routes', () => {
     it('should reject extra fields', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: `/trips/${tripId}`,
+        url: API_PATHS.TRIPS_GET(tripId),
         headers: authHeaders,
         payload: {
           location: 'Mexico',
@@ -623,7 +624,7 @@ describe('Trip Routes', () => {
     it('should return 401 when not authenticated', async () => {
       const response = await app.inject({
         method: 'DELETE',
-        url: `/trips/${tripId}`,
+        url: API_PATHS.TRIPS_GET(tripId),
       });
 
       expect(response.statusCode).toBe(HTTP_STATUS.UNAUTHORIZED);
@@ -632,7 +633,7 @@ describe('Trip Routes', () => {
     it('should soft delete trip', async () => {
       const response = await app.inject({
         method: 'DELETE',
-        url: `/trips/${tripId}`,
+        url: API_PATHS.TRIPS_GET(tripId),
         headers: authHeaders,
       });
 
@@ -648,7 +649,7 @@ describe('Trip Routes', () => {
     it('should return 404 for non-existent trip', async () => {
       const response = await app.inject({
         method: 'DELETE',
-        url: '/trips/non-existent',
+        url: API_PATHS.TRIPS_GET('non-existent'),
         headers: authHeaders,
       });
 
@@ -682,7 +683,7 @@ describe('Trip Routes', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: '/trips/other-trip-delete',
+        url: API_PATHS.TRIPS_GET('other-trip-delete'),
         headers: authHeaders,
       });
 
@@ -693,14 +694,14 @@ describe('Trip Routes', () => {
       // First delete
       await app.inject({
         method: 'DELETE',
-        url: `/trips/${tripId}`,
+        url: API_PATHS.TRIPS_GET(tripId),
         headers: authHeaders,
       });
 
       // Try to delete again
       const response = await app.inject({
         method: 'DELETE',
-        url: `/trips/${tripId}`,
+        url: API_PATHS.TRIPS_GET(tripId),
         headers: authHeaders,
       });
 
@@ -732,7 +733,7 @@ describe('Trip Routes', () => {
       it('should accept same day trip (departure equals return)', async () => {
         const response = await app.inject({
           method: 'POST',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: authHeaders,
           payload: {
             departureDate: '2024-01-01',
@@ -750,7 +751,7 @@ describe('Trip Routes', () => {
       it('should accept leap year date (Feb 29)', async () => {
         const response = await app.inject({
           method: 'POST',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: authHeaders,
           payload: {
             departureDate: '2024-02-29',
@@ -764,7 +765,7 @@ describe('Trip Routes', () => {
       it('should reject invalid leap year date (Feb 29 on non-leap year)', async () => {
         const response = await app.inject({
           method: 'POST',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: authHeaders,
           payload: {
             departureDate: '2023-02-29',
@@ -778,7 +779,7 @@ describe('Trip Routes', () => {
       it('should handle trips spanning year boundaries', async () => {
         const response = await app.inject({
           method: 'POST',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: authHeaders,
           payload: {
             departureDate: '2023-12-28',
@@ -793,7 +794,7 @@ describe('Trip Routes', () => {
       it('should reject dates in invalid format with subtle errors', async () => {
         const response = await app.inject({
           method: 'POST',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: authHeaders,
           payload: {
             departureDate: '2024-1-1', // Missing leading zeros
@@ -807,7 +808,7 @@ describe('Trip Routes', () => {
       it('should reject impossible dates like April 31', async () => {
         const response = await app.inject({
           method: 'POST',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: authHeaders,
           payload: {
             departureDate: '2024-04-31',
@@ -824,7 +825,7 @@ describe('Trip Routes', () => {
         const longLocation = 'A'.repeat(1000);
         const response = await app.inject({
           method: 'POST',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: authHeaders,
           payload: {
             departureDate: '2024-01-01',
@@ -842,7 +843,7 @@ describe('Trip Routes', () => {
         const specialLocation = 'São Paulo, Brasil 🇧🇷 & München, Deutschland 🇩🇪';
         const response = await app.inject({
           method: 'POST',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: authHeaders,
           payload: {
             departureDate: '2024-01-01',
@@ -859,7 +860,7 @@ describe('Trip Routes', () => {
       it('should handle location with only whitespace as empty', async () => {
         const response = await app.inject({
           method: 'POST',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: authHeaders,
           payload: {
             departureDate: '2024-01-01',
@@ -876,7 +877,7 @@ describe('Trip Routes', () => {
       it('should handle empty string location', async () => {
         const response = await app.inject({
           method: 'POST',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: authHeaders,
           payload: {
             departureDate: '2024-01-01',
@@ -898,7 +899,7 @@ describe('Trip Routes', () => {
           .map((_, index) =>
             app.inject({
               method: 'POST',
-              url: '/trips',
+              url: API_PATHS.TRIPS_LIST,
               headers: authHeaders,
               payload: {
                 departureDate: `2024-01-${String(index + 1).padStart(2, '0')}`,
@@ -917,7 +918,7 @@ describe('Trip Routes', () => {
         // Verify all trips were created
         const getResponse = await app.inject({
           method: 'GET',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: authHeaders,
         });
 
@@ -929,7 +930,7 @@ describe('Trip Routes', () => {
         // Create a trip
         const createResponse = await app.inject({
           method: 'POST',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: authHeaders,
           payload: {
             departureDate: '2024-01-01',
@@ -946,7 +947,7 @@ describe('Trip Routes', () => {
           .map((_, index) =>
             app.inject({
               method: 'PATCH',
-              url: `/trips/${trip.id}`,
+              url: API_PATHS.TRIPS_GET(trip.id),
               headers: authHeaders,
               payload: {
                 location: `Updated ${index}`,
@@ -964,7 +965,7 @@ describe('Trip Routes', () => {
         // Check final state
         const getResponse = await app.inject({
           method: 'GET',
-          url: `/trips/${trip.id}`,
+          url: API_PATHS.TRIPS_GET(trip.id),
           headers: authHeaders,
         });
 
@@ -978,7 +979,7 @@ describe('Trip Routes', () => {
       it('should handle SQL injection attempt in trip ID', async () => {
         const response = await app.inject({
           method: 'GET',
-          url: "/trips/1' OR '1'='1",
+          url: API_PATHS.TRIPS_GET("1' OR '1'='1"),
           headers: authHeaders,
         });
 
@@ -989,7 +990,7 @@ describe('Trip Routes', () => {
         const longId = 'a'.repeat(1000);
         const response = await app.inject({
           method: 'GET',
-          url: `/trips/${longId}`,
+          url: API_PATHS.TRIPS_GET(longId),
           headers: authHeaders,
         });
 
@@ -999,7 +1000,7 @@ describe('Trip Routes', () => {
       it('should handle special characters in trip ID', async () => {
         const response = await app.inject({
           method: 'GET',
-          url: '/trips/../../etc/passwd',
+          url: API_PATHS.TRIPS_GET('../../etc/passwd'),
           headers: authHeaders,
         });
 
@@ -1009,7 +1010,7 @@ describe('Trip Routes', () => {
       it('should handle null bytes in trip ID', async () => {
         const response = await app.inject({
           method: 'GET',
-          url: '/trips/valid-id%00.pdf',
+          url: API_PATHS.TRIPS_GET('valid-id%00.pdf'),
           headers: authHeaders,
         });
 
@@ -1025,7 +1026,7 @@ describe('Trip Routes', () => {
         for (let i = 0; i < tripCount; i++) {
           const response = await app.inject({
             method: 'POST',
-            url: '/trips',
+            url: API_PATHS.TRIPS_LIST,
             headers: authHeaders,
             payload: {
               departureDate: '2024-01-01',
@@ -1039,7 +1040,7 @@ describe('Trip Routes', () => {
         // Verify we can still retrieve them all
         const response = await app.inject({
           method: 'GET',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: authHeaders,
         });
 
@@ -1051,7 +1052,7 @@ describe('Trip Routes', () => {
       it('should handle trip with maximum date values', async () => {
         const response = await app.inject({
           method: 'POST',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: authHeaders,
           payload: {
             departureDate: '9999-12-31',
@@ -1065,7 +1066,7 @@ describe('Trip Routes', () => {
       it('should handle trip with minimum date values', async () => {
         const response = await app.inject({
           method: 'POST',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: authHeaders,
           payload: {
             departureDate: '1000-01-01',
@@ -1081,7 +1082,7 @@ describe('Trip Routes', () => {
       it('should handle request with wrong content type', async () => {
         const response = await app.inject({
           method: 'POST',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: {
             ...authHeaders,
             'content-type': 'text/plain',
@@ -1105,7 +1106,7 @@ describe('Trip Routes', () => {
 
         const response = await app.inject({
           method: 'POST',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: authHeaders,
           payload: createNestedObject(100),
         });
@@ -1116,7 +1117,7 @@ describe('Trip Routes', () => {
       it('should handle array instead of object', async () => {
         const response = await app.inject({
           method: 'POST',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: authHeaders,
           payload: ['2024-01-01', '2024-01-10'],
         });
@@ -1127,7 +1128,7 @@ describe('Trip Routes', () => {
       it('should handle null payload', async () => {
         const response = await app.inject({
           method: 'POST',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: authHeaders,
           payload: undefined,
         });
@@ -1142,7 +1143,7 @@ describe('Trip Routes', () => {
       beforeEach(async () => {
         const response = await app.inject({
           method: 'POST',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: authHeaders,
           payload: {
             departureDate: '2024-01-01',
@@ -1157,7 +1158,7 @@ describe('Trip Routes', () => {
       it('should handle update with only whitespace changes', async () => {
         const response = await app.inject({
           method: 'PATCH',
-          url: `/trips/${tripId}`,
+          url: API_PATHS.TRIPS_GET(tripId),
           headers: authHeaders,
           payload: {
             location: 'Original ',
@@ -1172,7 +1173,7 @@ describe('Trip Routes', () => {
       it('should reject update that would create invalid date range', async () => {
         const response = await app.inject({
           method: 'PATCH',
-          url: `/trips/${tripId}`,
+          url: API_PATHS.TRIPS_GET(tripId),
           headers: authHeaders,
           payload: {
             departureDate: '2024-01-15', // After current return date
@@ -1186,7 +1187,7 @@ describe('Trip Routes', () => {
         for (let i = 0; i < 10; i++) {
           const response = await app.inject({
             method: 'PATCH',
-            url: `/trips/${tripId}`,
+            url: API_PATHS.TRIPS_GET(tripId),
             headers: authHeaders,
             payload: {
               location: `Update ${i}`,
@@ -1202,7 +1203,7 @@ describe('Trip Routes', () => {
       it('should handle update to null location', async () => {
         const response = await app.inject({
           method: 'PATCH',
-          url: `/trips/${tripId}`,
+          url: API_PATHS.TRIPS_GET(tripId),
           headers: authHeaders,
           payload: {
             location: null,
@@ -1217,7 +1218,7 @@ describe('Trip Routes', () => {
       it('should reject request with malformed JWT token', async () => {
         const response = await app.inject({
           method: 'GET',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: {
             authorization: 'Bearer invalid.jwt.token',
           },
@@ -1235,7 +1236,7 @@ describe('Trip Routes', () => {
 
         const response = await app.inject({
           method: 'GET',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: {
             authorization: `Bearer ${wrongToken}`,
           },
@@ -1253,7 +1254,7 @@ describe('Trip Routes', () => {
 
         const response = await app.inject({
           method: 'GET',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: {
             authorization: `Bearer ${expiredToken}`,
           },
@@ -1265,7 +1266,7 @@ describe('Trip Routes', () => {
       it('should reject request with empty bearer token', async () => {
         const response = await app.inject({
           method: 'GET',
-          url: '/trips',
+          url: API_PATHS.TRIPS_LIST,
           headers: {
             authorization: 'Bearer ',
           },

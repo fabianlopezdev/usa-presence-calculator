@@ -1,13 +1,14 @@
 import { createId } from '@paralleldrive/cuid2';
 import { eq } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
-import { beforeEach, afterEach, describe, it, expect, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { HTTP_STATUS } from '@api/constants/http';
 import { SYNC_CONFIG } from '@api/constants/sync';
 import { getDatabase } from '@api/db/connection';
 import { trips } from '@api/db/schema';
 import { SessionService } from '@api/services/session';
+import { API_PATHS } from '@api/test-utils/api-paths';
 import { buildTestApp } from '@api/test-utils/app-builder';
 import { createTestUser, resetTestDatabase } from '@api/test-utils/db';
 
@@ -78,7 +79,7 @@ describe('Sync Data Integrity - Consistency & Correctness', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -123,7 +124,7 @@ describe('Sync Data Integrity - Consistency & Correctness', () => {
       // Delete parent trip
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -149,7 +150,7 @@ describe('Sync Data Integrity - Consistency & Correctness', () => {
       // Device 1 with correct time
       await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-1',
@@ -178,7 +179,7 @@ describe('Sync Data Integrity - Consistency & Correctness', () => {
       const skewedTime = new Date(baseTime.getTime() - 3600000); // 1 hour behind
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-2',
@@ -227,7 +228,7 @@ describe('Sync Data Integrity - Consistency & Correctness', () => {
       // Pull with lastSyncVersion in the middle
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -264,7 +265,7 @@ describe('Sync Data Integrity - Consistency & Correctness', () => {
       const responses = await Promise.all([
         app.inject({
           method: 'POST',
-          url: '/sync/push',
+          url: API_PATHS.SYNC_PUSH,
           headers: authHeaders,
           payload: {
             deviceId: 'test-device',
@@ -274,7 +275,7 @@ describe('Sync Data Integrity - Consistency & Correctness', () => {
         }),
         app.inject({
           method: 'POST',
-          url: '/sync/push',
+          url: API_PATHS.SYNC_PUSH,
           headers: authHeaders,
           payload: {
             deviceId: 'test-device',
@@ -328,7 +329,7 @@ describe('Sync Data Integrity - Consistency & Correctness', () => {
       // Pull with version 3 (in the gap)
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -361,7 +362,7 @@ describe('Sync Data Integrity - Consistency & Correctness', () => {
       // Try to update with lower version
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -410,7 +411,7 @@ describe('Sync Data Integrity - Consistency & Correctness', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -446,7 +447,7 @@ describe('Sync Data Integrity - Consistency & Correctness', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -464,7 +465,7 @@ describe('Sync Data Integrity - Consistency & Correctness', () => {
     it('should handle exactly zero trips correctly', async () => {
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -499,7 +500,7 @@ describe('Sync Data Integrity - Consistency & Correctness', () => {
       // First pull
       const response1 = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -518,7 +519,7 @@ describe('Sync Data Integrity - Consistency & Correctness', () => {
       // Second pull
       const response2 = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -568,7 +569,7 @@ describe('Sync Data Integrity - Consistency & Correctness', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -613,7 +614,7 @@ describe('Sync Data Integrity - Consistency & Correctness', () => {
       const startTime = Date.now();
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -648,7 +649,7 @@ describe('Sync Data Integrity - Consistency & Correctness', () => {
       // Pull with specific entity filter
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',

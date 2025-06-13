@@ -1,13 +1,14 @@
 import { randomUUID } from 'crypto';
-import { eq, and, isNull } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
-import { beforeEach, afterEach, describe, it, expect, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Trip } from '@usa-presence/shared';
 
 import { HTTP_STATUS } from '@api/constants/http';
 import { SYNC_CONFIG } from '@api/constants/sync';
 import { getDatabase } from '@api/db/connection';
+import { API_PATHS } from '@api/test-utils/api-paths';
 import * as schema from '@api/db/schema';
 import { trips, userSettings, users } from '@api/db/schema';
 import { SessionService } from '@api/services/session';
@@ -60,7 +61,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -86,7 +87,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -128,7 +129,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -151,7 +152,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
       for (const payload of maliciousPayloads) {
         const response = await app.inject({
           method: 'POST',
-          url: '/sync/pull',
+          url: API_PATHS.SYNC_PULL,
           headers: authHeaders,
           payload: {
             deviceId: payload,
@@ -195,7 +196,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
 
         const response = await app.inject({
           method: 'POST',
-          url: '/sync/push',
+          url: API_PATHS.SYNC_PUSH,
           headers: authHeaders,
           payload: {
             deviceId: 'test-device',
@@ -232,7 +233,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -263,7 +264,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: maliciousPayload,
       });
@@ -302,7 +303,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
       const promises = Array.from({ length: 5 }, () =>
         app.inject({
           method: 'POST',
-          url: '/sync/pull',
+          url: API_PATHS.SYNC_PULL,
           headers: authHeaders,
           payload: {
             deviceId: `device-${Math.random()}`,
@@ -372,7 +373,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
       const promises = [
         app.inject({
           method: 'POST',
-          url: '/sync/push',
+          url: API_PATHS.SYNC_PUSH,
           headers: authHeaders,
           payload: {
             deviceId: 'device-1',
@@ -382,7 +383,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
         }),
         app.inject({
           method: 'POST',
-          url: '/sync/push',
+          url: API_PATHS.SYNC_PUSH,
           headers: authHeaders,
           payload: {
             deviceId: 'device-2',
@@ -435,7 +436,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -477,7 +478,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -512,7 +513,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -545,7 +546,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -566,7 +567,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
         requests.push(
           app.inject({
             method: 'POST',
-            url: '/sync/pull',
+            url: API_PATHS.SYNC_PULL,
             headers: authHeaders,
             payload: {
               deviceId: 'test-device',
@@ -614,7 +615,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
       // Should not return orphaned trips for current user
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -632,7 +633,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
       // Test pushing with overflow version directly
       const overflowResponse = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -670,7 +671,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -718,7 +719,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -732,7 +733,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
       // Verify data integrity
       const pullResponse = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -773,7 +774,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -807,7 +808,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -823,7 +824,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
     it('should handle malformed JSON gracefully', async () => {
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: {
           ...authHeaders,
           'content-type': 'application/json',
@@ -837,7 +838,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
     it('should handle missing content-type header', async () => {
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: {
           authorization: authHeaders.authorization,
           // Missing content-type
@@ -874,7 +875,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -928,7 +929,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: readOnlyHeaders,
         payload: {
           deviceId: 'test-device',
@@ -960,7 +961,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
       // Device 2 pulls data
       const pullResponse = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'device-2',
@@ -991,7 +992,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
 
       await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-1',
@@ -1019,7 +1020,7 @@ describe('Sync Edge Cases - Extreme Scenarios', () => {
 
       const conflictResponse = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-2',

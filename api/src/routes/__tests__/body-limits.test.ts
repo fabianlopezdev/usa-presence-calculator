@@ -1,10 +1,11 @@
+import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { buildApp } from '@api/app';
 import { BODY_LIMITS } from '@api/constants/body-limits';
 import { HTTP_STATUS } from '@api/constants/http';
-import { buildApp } from '@api/app';
 import { getDatabase } from '@api/db/connection';
-import type { FastifyInstance, FastifyRequest } from 'fastify';
+import { API_PATHS } from '@api/test-utils/api-paths';
 
 vi.mock('@api/db/connection');
 vi.mock('@api/config/env', () => ({
@@ -72,7 +73,7 @@ describe('Body Limits', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/auth/magic-link/send',
+        url: API_PATHS.AUTH_MAGIC_LINK_SEND,
         payload: largePayload,
       });
 
@@ -94,7 +95,7 @@ describe('Body Limits', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/auth/magic-link/send',
+        url: API_PATHS.AUTH_MAGIC_LINK_SEND,
         payload: validPayload,
       });
 
@@ -122,7 +123,7 @@ describe('Body Limits', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: {
           authorization: 'Bearer fake-token',
         },
@@ -153,7 +154,7 @@ describe('Body Limits', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/trips',
+        url: API_PATHS.TRIPS_LIST,
         headers: {
           authorization: 'Bearer fake-token',
         },
@@ -180,7 +181,7 @@ describe('Body Limits', () => {
 
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: {
           authorization: 'Bearer fake-token',
         },

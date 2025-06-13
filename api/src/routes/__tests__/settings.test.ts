@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { HTTP_STATUS } from '@api/constants/http';
 import { SETTINGS_API_MESSAGES } from '@api/constants/settings';
 import { SessionService } from '@api/services/session';
+import { API_PATHS } from '@api/test-utils/api-paths';
 import { buildTestApp } from '@api/test-utils/app-builder';
 import { createTestUser, resetTestDatabase } from '@api/test-utils/db';
 
@@ -68,7 +69,7 @@ describe('Settings Routes', () => {
     it('should return 401 when not authenticated', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
       });
 
       expect(response.statusCode).toBe(HTTP_STATUS.UNAUTHORIZED);
@@ -77,7 +78,7 @@ describe('Settings Routes', () => {
     it('should return 200 with default settings for new user', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: authHeaders,
       });
 
@@ -100,7 +101,7 @@ describe('Settings Routes', () => {
       // First update settings
       await app.inject({
         method: 'PATCH',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: authHeaders,
         payload: {
           theme: 'dark',
@@ -111,7 +112,7 @@ describe('Settings Routes', () => {
       // Then get settings
       const response = await app.inject({
         method: 'GET',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: authHeaders,
       });
 
@@ -125,7 +126,7 @@ describe('Settings Routes', () => {
     it('should return settings matching UserSettingsSchema structure', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: authHeaders,
       });
 
@@ -148,7 +149,7 @@ describe('Settings Routes', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: invalidAuthHeaders,
       });
 
@@ -160,7 +161,7 @@ describe('Settings Routes', () => {
     it('should return 401 when not authenticated', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         payload: { theme: 'dark' },
       });
 
@@ -170,7 +171,7 @@ describe('Settings Routes', () => {
     it('should update single field successfully', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: authHeaders,
         payload: {
           theme: 'dark',
@@ -187,7 +188,7 @@ describe('Settings Routes', () => {
     it('should update multiple fields successfully', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: authHeaders,
         payload: {
           theme: 'light',
@@ -207,7 +208,7 @@ describe('Settings Routes', () => {
     it('should update nested notification preferences', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: authHeaders,
         payload: {
           notifications: {
@@ -229,7 +230,7 @@ describe('Settings Routes', () => {
     it('should update nested sync preferences when provided', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: authHeaders,
         payload: {
           sync: {
@@ -252,7 +253,7 @@ describe('Settings Routes', () => {
     it('should validate theme enum values', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: authHeaders,
         payload: {
           theme: 'invalid-theme',
@@ -268,7 +269,7 @@ describe('Settings Routes', () => {
     it('should validate language enum values', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: authHeaders,
         payload: {
           language: 'fr', // Not supported
@@ -284,7 +285,7 @@ describe('Settings Routes', () => {
     it('should validate boolean fields', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: authHeaders,
         payload: {
           biometricAuthEnabled: 'yes', // Should be boolean
@@ -300,7 +301,7 @@ describe('Settings Routes', () => {
     it('should reject invalid field names', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: authHeaders,
         payload: {
           invalidField: 'value',
@@ -316,7 +317,7 @@ describe('Settings Routes', () => {
     it('should reject invalid field types', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: authHeaders,
         payload: {
           notifications: 'enabled', // Should be object
@@ -332,7 +333,7 @@ describe('Settings Routes', () => {
     it('should reject empty update', async () => {
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: authHeaders,
         payload: {},
       });
@@ -351,7 +352,7 @@ describe('Settings Routes', () => {
 
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: authHeaders,
         payload: {
           theme: 'dark',
@@ -368,7 +369,7 @@ describe('Settings Routes', () => {
       // First set some values
       await app.inject({
         method: 'PATCH',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: authHeaders,
         payload: {
           theme: 'dark',
@@ -380,7 +381,7 @@ describe('Settings Routes', () => {
       // Then update only one field
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: authHeaders,
         payload: {
           theme: 'light',
@@ -399,7 +400,7 @@ describe('Settings Routes', () => {
       // Set initial notification preferences
       await app.inject({
         method: 'PATCH',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: authHeaders,
         payload: {
           notifications: {
@@ -413,7 +414,7 @@ describe('Settings Routes', () => {
       // Update only one notification preference
       const response = await app.inject({
         method: 'PATCH',
-        url: '/users/settings',
+        url: API_PATHS.USERS_SETTINGS,
         headers: authHeaders,
         payload: {
           notifications: {

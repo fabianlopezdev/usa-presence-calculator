@@ -1,13 +1,14 @@
 import { randomUUID } from 'crypto';
 import { eq } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
-import { beforeEach, afterEach, describe, it, expect, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SyncConflict, Trip, UserSettings } from '@usa-presence/shared';
 
 import { HTTP_STATUS } from '@api/constants/http';
 import { SYNC_CONFIG } from '@api/constants/sync';
 import { getDatabase } from '@api/db/connection';
+import { API_PATHS } from '@api/test-utils/api-paths';
 import { trips, userSettings } from '@api/db/schema';
 import { SessionService } from '@api/services/session';
 import { buildTestApp } from '@api/test-utils/app-builder';
@@ -63,7 +64,7 @@ describe('Sync Conflict Resolution', () => {
       // Device 2 pulls the trip
       const pullResponse = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'device-2',
@@ -94,7 +95,7 @@ describe('Sync Conflict Resolution', () => {
 
       const device1Response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-1',
@@ -124,7 +125,7 @@ describe('Sync Conflict Resolution', () => {
 
       const device2Response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-2',
@@ -163,7 +164,7 @@ describe('Sync Conflict Resolution', () => {
       // Device 1 deletes the trip
       const device1Response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-1',
@@ -193,7 +194,7 @@ describe('Sync Conflict Resolution', () => {
 
       const device2Response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-2',
@@ -228,7 +229,7 @@ describe('Sync Conflict Resolution', () => {
       // Device 1 updates
       await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-1',
@@ -272,7 +273,7 @@ describe('Sync Conflict Resolution', () => {
 
       const forceResponse = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-2',
@@ -324,7 +325,7 @@ describe('Sync Conflict Resolution', () => {
 
       await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-1',
@@ -347,7 +348,7 @@ describe('Sync Conflict Resolution', () => {
 
       const device2Response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-2',
@@ -386,7 +387,7 @@ describe('Sync Conflict Resolution', () => {
       // Device 1 updates first two trips
       await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-1',
@@ -428,7 +429,7 @@ describe('Sync Conflict Resolution', () => {
 
       const device2Response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-2',
@@ -467,7 +468,7 @@ describe('Sync Conflict Resolution', () => {
       // Device 1 updates only the first trip
       await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-1',
@@ -495,7 +496,7 @@ describe('Sync Conflict Resolution', () => {
       // Device 2 updates both trips
       const device2Response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-2',
@@ -557,7 +558,7 @@ describe('Sync Conflict Resolution', () => {
       // Device 1 changes return date
       await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-1',
@@ -585,7 +586,7 @@ describe('Sync Conflict Resolution', () => {
       // Device 2 changes location
       const device2Response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-2',
@@ -639,7 +640,7 @@ describe('Sync Conflict Resolution', () => {
       // Create conflicting updates
       await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-1',
@@ -667,7 +668,7 @@ describe('Sync Conflict Resolution', () => {
       // Client resolves conflict by merging changes
       const mergedResponse = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-2',
@@ -754,7 +755,7 @@ describe('Sync Conflict Resolution', () => {
       // First tap
       const response1 = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: updatePayload,
       });
@@ -763,7 +764,7 @@ describe('Sync Conflict Resolution', () => {
       // Second tap (same payload)
       const response2 = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: updatePayload,
       });
@@ -791,7 +792,7 @@ describe('Sync Conflict Resolution', () => {
       // Zombie device wakes up thinking it has version 1 data
       const zombieResponse = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-zombie',
@@ -843,7 +844,7 @@ describe('Sync Conflict Resolution', () => {
       // Another device tries to update the "deleted" trip
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-2',
@@ -881,7 +882,7 @@ describe('Sync Conflict Resolution', () => {
       const tripId = randomUUID();
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-time-traveler',
@@ -948,7 +949,7 @@ describe('Sync Conflict Resolution', () => {
       // Try to sync everything with conflicts
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-2',
@@ -1002,7 +1003,7 @@ describe('Sync Conflict Resolution', () => {
       // Device A creates trip
       await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-A',
@@ -1030,7 +1031,7 @@ describe('Sync Conflict Resolution', () => {
       // Device B modifies
       await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-B',
@@ -1058,7 +1059,7 @@ describe('Sync Conflict Resolution', () => {
       // Device C modifies
       await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-C',
@@ -1086,7 +1087,7 @@ describe('Sync Conflict Resolution', () => {
       // Device A tries to modify again based on original
       const circularResponse = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-A',
@@ -1118,7 +1119,7 @@ describe('Sync Conflict Resolution', () => {
       // Sync with no changes
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-empty',
@@ -1143,7 +1144,7 @@ describe('Sync Conflict Resolution', () => {
       // Try to jump from version 1 to version 1000
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-malicious',
@@ -1199,7 +1200,7 @@ describe('Sync Conflict Resolution', () => {
       // Device thinks it's updating from version 2, but server is at version 3
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-mixed',
@@ -1266,7 +1267,7 @@ describe('Sync Conflict Resolution', () => {
       // Offline device comes back thinking the trip still exists and tries to update it
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-phantom',
@@ -1307,7 +1308,7 @@ describe('Sync Conflict Resolution', () => {
       // First device creates settings
       const response1 = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-race-1',
@@ -1330,7 +1331,7 @@ describe('Sync Conflict Resolution', () => {
       // Second device tries to create settings (not knowing first device already did)
       const response2 = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-race-2',

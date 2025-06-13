@@ -1,10 +1,12 @@
 import fastify, { FastifyInstance } from 'fastify';
 
 import { config } from '@api/config/env';
+import { API_VERSION } from '@api/constants/api-versioning';
 import { BODY_LIMITS } from '@api/constants/body-limits';
 import { SERVER_TIMEOUTS } from '@api/constants/timeout';
 import { requestIdPlugin } from '@api/middleware/request-id';
 import { shutdownMiddleware } from '@api/middleware/shutdown';
+import apiVersioningPlugin from '@api/plugins/api-versioning';
 import corsPlugin from '@api/plugins/cors';
 import helmetPlugin from '@api/plugins/helmet';
 import { loggerPlugin } from '@api/plugins/logger';
@@ -49,15 +51,34 @@ async function registerPlugins(app: FastifyInstance): Promise<void> {
   await app.register(swaggerPlugin);
 }
 
-async function registerRoutes(app: FastifyInstance): Promise<void> {
-  await app.register(authRoute);
-  await app.register(cspReportRoute);
+async function registerUnversionedRoutes(app: FastifyInstance): Promise<void> {
+  // Health checks and monitoring endpoints should be available without versioning
   await app.register(healthRoute);
   await app.register(healthEnhancedRoute);
-  await app.register(userRoutes, { prefix: '/users' });
-  await app.register(settingsRoutes, { prefix: '/users' });
-  await app.register(tripRoutes, { prefix: '/trips' });
-  await app.register(syncRoutes);
+}
+
+async function registerVersionedRoutes(app: FastifyInstance): Promise<void> {
+  // Register all API routes under versioned prefix
+  await app.register(
+    async (versionedApp) => {
+      // Auth routes
+      await versionedApp.register(authRoute);
+
+      // User and settings routes
+      await versionedApp.register(userRoutes, { prefix: '/users' });
+      await versionedApp.register(settingsRoutes, { prefix: '/users' });
+
+      // Trip routes
+      await versionedApp.register(tripRoutes, { prefix: '/trips' });
+
+      // Sync routes
+      await versionedApp.register(syncRoutes);
+
+      // CSP report route (needed for security headers)
+      await versionedApp.register(cspReportRoute);
+    },
+    { prefix: API_VERSION.PREFIX },
+  );
 }
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -82,7 +103,15 @@ export async function buildApp(): Promise<FastifyInstance> {
   });
 
   await registerPlugins(app);
-  await registerRoutes(app);
+
+  // Register API versioning
+  await app.register(apiVersioningPlugin);
+
+  // Register unversioned routes (health, monitoring)
+  await registerUnversionedRoutes(app);
+
+  // Register versioned API routes
+  await registerVersionedRoutes(app);
 
   return app;
 }

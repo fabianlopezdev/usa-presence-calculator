@@ -3,8 +3,9 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from
 
 import { buildApp } from '@api/app';
 import { HTTP_STATUS } from '@api/constants/http';
-import { resetTestDatabase, cleanupTestDatabase } from '@api/test-utils/db';
 import { closeDatabase } from '@api/db/connection';
+import { API_PATHS } from '@api/test-utils/api-paths';
+import { cleanupTestDatabase, resetTestDatabase } from '@api/test-utils/db';
 
 describe('Auth Routes', () => {
   let app: FastifyInstance;
@@ -31,7 +32,7 @@ describe('Auth Routes', () => {
     it('should return 401 when no authorization header is provided', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/auth/session',
+        url: API_PATHS.AUTH_SESSION,
       });
 
       expect(response.statusCode).toBe(HTTP_STATUS.UNAUTHORIZED);
@@ -42,7 +43,7 @@ describe('Auth Routes', () => {
     it('should return 401 when authorization header is invalid', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/auth/session',
+        url: API_PATHS.AUTH_SESSION,
         headers: {
           authorization: 'InvalidToken',
         },
@@ -58,7 +59,7 @@ describe('Auth Routes', () => {
     it('should validate email format', async () => {
       const response = await app.inject({
         method: 'POST',
-        url: '/auth/magic-link/send',
+        url: API_PATHS.AUTH_MAGIC_LINK_SEND,
         payload: {
           email: 'invalid-email',
         },
@@ -70,7 +71,7 @@ describe('Auth Routes', () => {
     it('should return 404 for non-existent user', async () => {
       const response = await app.inject({
         method: 'POST',
-        url: '/auth/magic-link/send',
+        url: API_PATHS.AUTH_MAGIC_LINK_SEND,
         payload: {
           email: 'nonexistent@example.com',
         },
@@ -87,7 +88,7 @@ describe('Auth Routes', () => {
     it('should validate token length', async () => {
       const response = await app.inject({
         method: 'POST',
-        url: '/auth/magic-link/verify',
+        url: API_PATHS.AUTH_MAGIC_LINK_VERIFY,
         payload: {
           token: 'short-token',
         },
@@ -101,7 +102,7 @@ describe('Auth Routes', () => {
     it('should always return 204 even with invalid token', async () => {
       const response = await app.inject({
         method: 'POST',
-        url: '/auth/logout',
+        url: API_PATHS.AUTH_LOGOUT,
         payload: {
           refreshToken: 'invalid-token',
         },

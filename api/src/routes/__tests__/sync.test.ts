@@ -1,13 +1,14 @@
 import { createId } from '@paralleldrive/cuid2';
 import { eq } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
-import { beforeEach, afterEach, describe, it, expect, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { Trip, SyncConflict, UserSettings } from '@usa-presence/shared';
+import { SyncConflict, Trip, UserSettings } from '@usa-presence/shared';
 
 import { HTTP_STATUS } from '@api/constants/http';
 import { SYNC_CONFIG, SYNC_ERROR_CODES, SYNC_MESSAGES } from '@api/constants/sync';
 import { getDatabase } from '@api/db/connection';
+import { API_PATHS } from '@api/test-utils/api-paths';
 import { trips, userSettings } from '@api/db/schema';
 import { SessionService } from '@api/services/session';
 import { buildTestApp } from '@api/test-utils/app-builder';
@@ -69,7 +70,7 @@ describe('Sync Routes', () => {
     it('should return 401 when not authenticated', async () => {
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         payload: {
           deviceId: 'test-device',
         },
@@ -86,7 +87,7 @@ describe('Sync Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -105,7 +106,7 @@ describe('Sync Routes', () => {
     it('should return empty data for first sync', async () => {
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -163,7 +164,7 @@ describe('Sync Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -211,7 +212,7 @@ describe('Sync Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -253,7 +254,7 @@ describe('Sync Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -285,7 +286,7 @@ describe('Sync Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -319,7 +320,7 @@ describe('Sync Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -336,7 +337,7 @@ describe('Sync Routes', () => {
     it('should return 401 when not authenticated', async () => {
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         payload: {
           deviceId: 'test-device',
           syncVersion: 1,
@@ -352,7 +353,7 @@ describe('Sync Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -392,7 +393,7 @@ describe('Sync Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -451,7 +452,7 @@ describe('Sync Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -487,7 +488,7 @@ describe('Sync Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -542,7 +543,7 @@ describe('Sync Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -586,7 +587,7 @@ describe('Sync Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -601,7 +602,7 @@ describe('Sync Routes', () => {
     it('should handle empty sync push', async () => {
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -636,7 +637,7 @@ describe('Sync Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -674,7 +675,7 @@ describe('Sync Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -705,7 +706,7 @@ describe('Sync Routes', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',

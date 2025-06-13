@@ -1,13 +1,14 @@
 import { createId } from '@paralleldrive/cuid2';
 import { eq } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
-import { beforeEach, afterEach, describe, it, expect, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { HTTP_STATUS } from '@api/constants/http';
 import { SYNC_CONFIG } from '@api/constants/sync';
 import { getDatabase } from '@api/db/connection';
-import { trips, userSettings, sessions } from '@api/db/schema';
+import { sessions, trips, userSettings } from '@api/db/schema';
 import { SessionService } from '@api/services/session';
+import { API_PATHS } from '@api/test-utils/api-paths';
 import { buildTestApp } from '@api/test-utils/app-builder';
 import { createTestUser, resetTestDatabase } from '@api/test-utils/db';
 
@@ -58,7 +59,7 @@ describe('Sync Security Edge Cases - Advanced Attack Vectors', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: { authorization: `Bearer ${expiredSession.accessToken}` },
         payload: { deviceId: 'test-device' },
       });
@@ -77,7 +78,7 @@ describe('Sync Security Edge Cases - Advanced Attack Vectors', () => {
       // This simulates a token tampering attack
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -112,7 +113,7 @@ describe('Sync Security Edge Cases - Advanced Attack Vectors', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/pull',
+        url: API_PATHS.SYNC_PULL,
         headers: { authorization: `Bearer ${unsignedToken}` },
         payload: { deviceId: 'test-device' },
       });
@@ -133,7 +134,7 @@ describe('Sync Security Edge Cases - Advanced Attack Vectors', () => {
       for (const payload of injectionPayloads) {
         const response = await app.inject({
           method: 'POST',
-          url: '/sync/pull',
+          url: API_PATHS.SYNC_PULL,
           headers: authHeaders,
           payload: {
             deviceId: payload as unknown as string,
@@ -159,7 +160,7 @@ describe('Sync Security Edge Cases - Advanced Attack Vectors', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -178,7 +179,7 @@ describe('Sync Security Edge Cases - Advanced Attack Vectors', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: {
           ...authHeaders,
           'content-type': 'application/json',
@@ -215,7 +216,7 @@ describe('Sync Security Edge Cases - Advanced Attack Vectors', () => {
         pullCount++;
         const response = await app.inject({
           method: 'POST',
-          url: '/sync/pull',
+          url: API_PATHS.SYNC_PULL,
           headers: authHeaders,
           payload: {
             deviceId: 'test-device',
@@ -254,7 +255,7 @@ describe('Sync Security Edge Cases - Advanced Attack Vectors', () => {
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -277,7 +278,7 @@ describe('Sync Security Edge Cases - Advanced Attack Vectors', () => {
         const start = process.hrtime.bigint();
         await app.inject({
           method: 'POST',
-          url: '/sync/pull',
+          url: API_PATHS.SYNC_PULL,
           headers: authHeaders,
           payload: { deviceId: 'test-device' },
         });
@@ -293,7 +294,7 @@ describe('Sync Security Edge Cases - Advanced Attack Vectors', () => {
         const start = process.hrtime.bigint();
         await app.inject({
           method: 'POST',
-          url: '/sync/pull',
+          url: API_PATHS.SYNC_PULL,
           headers: { authorization: 'Bearer invalid-token' },
           payload: { deviceId: 'test-device' },
         });
@@ -326,7 +327,7 @@ describe('Sync Security Edge Cases - Advanced Attack Vectors', () => {
       // 2. Update operation
       const deletePromise = app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-1',
@@ -337,7 +338,7 @@ describe('Sync Security Edge Cases - Advanced Attack Vectors', () => {
 
       const updatePromise = app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'device-2',
@@ -382,7 +383,7 @@ describe('Sync Security Edge Cases - Advanced Attack Vectors', () => {
       // Push with version 5
       await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -410,7 +411,7 @@ describe('Sync Security Edge Cases - Advanced Attack Vectors', () => {
       // Try to push with lower version
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -457,7 +458,7 @@ describe('Sync Security Edge Cases - Advanced Attack Vectors', () => {
 
       await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -473,7 +474,7 @@ describe('Sync Security Edge Cases - Advanced Attack Vectors', () => {
       // Try to resurrect by pushing same trip ID
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -517,7 +518,7 @@ describe('Sync Security Edge Cases - Advanced Attack Vectors', () => {
       // Try to sync anyway
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -545,7 +546,7 @@ Host: localhost
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: {
           ...authHeaders,
           'content-type': 'application/json',
@@ -588,7 +589,7 @@ Host: localhost
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: 'test-device',
@@ -605,7 +606,7 @@ Host: localhost
 
       const response = await app.inject({
         method: 'POST',
-        url: '/sync/push',
+        url: API_PATHS.SYNC_PUSH,
         headers: authHeaders,
         payload: {
           deviceId: binaryData,
