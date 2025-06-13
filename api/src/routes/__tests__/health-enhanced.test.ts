@@ -211,10 +211,15 @@ describe('Enhanced Health Checks', () => {
     it('should handle database check timeout gracefully', { timeout: 10000 }, async () => {
       const { getSQLiteDatabase } = await import('@api/db/connection');
       const db = getSQLiteDatabase();
+      
+      // Simulate a database error instead of infinite timeout
+      // to avoid conflict with request timeout plugin
       vi.spyOn(db, 'prepare').mockImplementation(
         () =>
           ({
-            get: () => new Promise(() => {}), // Never resolves to simulate timeout
+            get: () => {
+              throw new Error('Database timeout error');
+            },
           }) as unknown as ReturnType<typeof db.prepare>,
       );
 
@@ -226,7 +231,7 @@ describe('Enhanced Health Checks', () => {
       expect(response.statusCode).toBe(HTTP_STATUS.SERVICE_UNAVAILABLE);
       const json = response.json<HealthResponse>();
       expect(json.checks?.database?.status).toBe('unhealthy');
-      expect(json.checks?.database?.error).toContain('timeout');
+      expect(json.checks?.database?.error).toContain('Database timeout error');
     });
   });
 

@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import { BODY_LIMIT_MESSAGES } from '@api/constants/body-limits';
 import { HTTP_STATUS } from '@api/constants/http';
+import { TIMEOUT_MESSAGES } from '@api/constants/timeout';
 import {
   BaseError,
   InternalError,
@@ -207,10 +208,35 @@ function handleJsonParseError(context: ErrorContext): boolean {
   return false;
 }
 
+function handleTimeoutError(context: ErrorContext): boolean {
+  const { error, reply, requestId } = context;
+
+  if (
+    error.code === 'ETIMEDOUT' ||
+    error.code === 'ESOCKETTIMEDOUT' ||
+    error.code === 'REQUEST_TIMEOUT' ||
+    error.message?.includes('timeout') ||
+    error.message?.includes('Timeout')
+  ) {
+    reply.status(HTTP_STATUS.REQUEST_TIMEOUT).send({
+      error: {
+        message: TIMEOUT_MESSAGES.REQUEST,
+        code: 'REQUEST_TIMEOUT',
+        requestId,
+        timestamp: new Date().toISOString(),
+      },
+    });
+    return true;
+  }
+
+  return false;
+}
+
 function handleSpecialErrors(context: ErrorContext): boolean {
   if (handleRateLimitError(context)) return true;
   if (handleBodySizeError(context)) return true;
   if (handleJsonParseError(context)) return true;
+  if (handleTimeoutError(context)) return true;
 
   return false;
 }
