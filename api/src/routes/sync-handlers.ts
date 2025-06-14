@@ -39,15 +39,17 @@ export async function handleSyncPull(request: FastifyRequest, reply: FastifyRepl
 
   try {
     const pullResult = await executeSyncPull(userId, lastSyncVersion, entityTypes);
-    reply.code(HTTP_STATUS.OK).send(pullResult);
+    await reply.code(HTTP_STATUS.OK).send(pullResult);
+    return;
   } catch (error) {
-    request.log.error({ error }, 'Sync pull error');
-    reply.code(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
+    request.log.error({ error, userId, lastSyncVersion, entityTypes }, 'Sync pull error');
+    await reply.code(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
       error: {
         message: 'Failed to sync data',
         code: 'SYNC_ERROR',
       },
     });
+    return;
   }
 }
 

@@ -13,10 +13,6 @@ export interface ConflictDetectionResult {
 }
 
 export class SyncConflictDetection {
-  private get db(): ReturnType<typeof getDatabase> {
-    return getDatabase();
-  }
-
   async detectTripConflicts(
     userId: string,
     incomingTrips: Trip[],
@@ -47,7 +43,7 @@ export class SyncConflictDetection {
     incomingSettings: UserSettings,
     baseVersion: number,
   ): Promise<SyncConflict | null> {
-    const [currentSettings] = await this.db
+    const [currentSettings] = await getDatabase()
       .select()
       .from(userSettings)
       .where(eq(userSettings.userId, userId));
@@ -95,7 +91,7 @@ export class SyncConflictDetection {
     const conflicts: SyncConflict[] = [];
 
     for (const tripId of deletedTripIds) {
-      const [currentTrip] = await this.db
+      const [currentTrip] = await getDatabase()
         .select()
         .from(trips)
         .where(and(eq(trips.id, tripId), eq(trips.userId, userId)));
@@ -132,7 +128,7 @@ export class SyncConflictDetection {
     incomingTrip: Trip,
     baseVersion: number,
   ): Promise<{ conflict?: SyncConflict }> {
-    const [currentTrip] = await this.db
+    const [currentTrip] = await getDatabase()
       .select()
       .from(trips)
       .where(and(eq(trips.id, incomingTrip.id), eq(trips.userId, userId)));

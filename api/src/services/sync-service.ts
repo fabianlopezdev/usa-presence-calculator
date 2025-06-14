@@ -1,5 +1,5 @@
 import { createId } from '@paralleldrive/cuid2';
-import { and, eq, gt, inArray } from 'drizzle-orm';
+import { and, desc, eq, gt, inArray } from 'drizzle-orm';
 
 import { Trip, UserSettings } from '@usa-presence/shared';
 
@@ -34,10 +34,6 @@ export interface ProcessDeletionsResult {
 export class SyncService {
   private conflictDetection = new SyncConflictDetection();
 
-  private get db(): ReturnType<typeof getDatabase> {
-    return getDatabase();
-  }
-
   // ===== PULL OPERATIONS =====
 
   async fetchTripsForPull(userId: string, lastSyncVersion?: number): Promise<Trip[]> {
@@ -47,7 +43,7 @@ export class SyncService {
       conditions.push(gt(trips.syncVersion, lastSyncVersion));
     }
 
-    const userTrips = await this.db
+    const userTrips = await getDatabase()
       .select()
       .from(trips)
       .where(and(...conditions))
@@ -71,10 +67,8 @@ export class SyncService {
     }));
   }
 
-  async fetchUserSettingsForPull(
-    userId: string,
-  ): Promise<(UserSettings & { userId: string }) | null> {
-    const [settings] = await this.db
+  async fetchUserSettingsForPull(userId: string): Promise<UserSettings | null> {
+    const [settings] = await getDatabase()
       .select()
       .from(userSettings)
       .where(eq(userSettings.userId, userId));
@@ -83,7 +77,10 @@ export class SyncService {
       return null;
     }
 
-    return transformSettingsToUserSettings(settings);
+    const settingsWithUserId = transformSettingsToUserSettings(settings);
+    // Remove userId to match the schema
+    const { userId: _, ...userSettingsOnly } = settingsWithUserId;
+    return userSettingsOnly;
   }
 
   // ===== PUSH OPERATIONS =====
@@ -111,7 +108,7 @@ export class SyncService {
     pushSettings: UserSettings,
     syncVersion: number,
   ): Promise<ProcessSettingsResult> {
-    const [existingSettings] = await this.db
+    const [existingSettings] = await getDatabase()
       .select()
       .from(userSettings)
       .where(eq(userSettings.userId, userId));
@@ -130,7 +127,7 @@ export class SyncService {
     deletedTripIds: string[],
     syncVersion: number,
   ): Promise<ProcessDeletionsResult> {
-    await this.db
+    await getDatabase()
       .update(trips)
       .set({
         deletedAt: new Date().toISOString(),
@@ -169,14 +166,14 @@ export class SyncService {
 
   // ===== HELPER METHODS =====
   async getCurrentSyncVersion(userId: string): Promise<number> {
-    const tripMaxVersion = await this.db
+    const tripMaxVersion = await getDatabase()
       .select({ maxVersion: trips.syncVersion })
       .from(trips)
       .where(eq(trips.userId, userId))
-      .orderBy(trips.syncVersion)
+      .orderBy(desc(trips.syncVersion))
       .limit(1);
 
-    const settingsVersion = await this.db
+    const settingsVersion = await getDatabase()
       .select({ version: userSettings.syncVersion })
       .from(userSettings)
       .where(eq(userSettings.userId, userId));
@@ -192,7 +189,7 @@ export class SyncService {
     pushSettings: UserSettings,
     syncVersion: number,
   ): Promise<void> {
-    await this.db
+    await getDatabase()
       .update(userSettings)
       .set({
         notificationMilestones: pushSettings.notifications?.milestones,
@@ -217,13 +214,18 @@ export class SyncService {
     syncVersion: number,
   ): Promise<void> {
     const timestamp = new Date().toISOString();
-    const settingsData = {
-      ...buildSettingsData(userId, pushSettings, syncVersion, timestamp),
+    const settingsData = buildSettingsData(userId, pushSettings, syncVersion, timestamp);
+
+    // Replace the id field with a proper CUID
+    const insertData = {
+      ...settingsData,
       id: createId(),
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
-    await this.db.insert(userSettings).values(settingsData as any);
+    await getDatabase()
+      .insert(userSettings)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+      .values(insertData as any);
   }
 }
 export const syncService = new SyncService();

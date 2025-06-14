@@ -7,7 +7,7 @@ import { SyncConflict, Trip, UserSettings } from '@usa-presence/shared';
 
 import { HTTP_STATUS } from '@api/constants/http';
 import { SYNC_CONFIG, SYNC_ERROR_CODES, SYNC_MESSAGES } from '@api/constants/sync';
-import { getDatabase } from '@api/db/connection';
+import { getDatabase, initializeDatabase } from '@api/db/connection';
 import { API_PATHS } from '@api/test-utils/api-paths';
 import { trips, userSettings } from '@api/db/schema';
 import { SessionService } from '@api/services/session';
@@ -41,6 +41,8 @@ describe('Sync Routes', () => {
 
   beforeEach(async () => {
     resetTestDatabase();
+    // Ensure database is initialized before getting reference
+    initializeDatabase();
     db = getDatabase();
     app = await buildTestApp();
 
@@ -718,7 +720,7 @@ describe('Sync Routes', () => {
       expect(response.statusCode).toBe(HTTP_STATUS.BAD_REQUEST);
       expect(response.json()).toMatchObject({
         error: {
-          code: SYNC_ERROR_CODES.SYNC_BATCH_TOO_LARGE,
+          code: SYNC_ERROR_CODES.BATCH_TOO_LARGE,
         },
       });
     });
