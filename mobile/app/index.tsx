@@ -1,28 +1,12 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { H1, Paragraph, YStack } from 'tamagui';
 
 export default function HomeScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>USA Presence Calculator</Text>
-      <Text style={styles.subtitle}>Track your path to citizenship</Text>
-    </View>
+    <YStack f={1} ai="center" jc="center" p="$4" bg="$background">
+      <H1 mb="$2">USA Presence Calculator</H1>
+      <Paragraph theme="alt1" size="$6">
+        Track your path to citizenship
+      </Paragraph>
+    </YStack>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-  },
-});
