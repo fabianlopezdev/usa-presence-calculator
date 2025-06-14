@@ -22,12 +22,15 @@
     "@tamagui/font-inter": "^1.126.16",
     "@tamagui/lucide-icons": "^1.126.16",
     "@tamagui/portal": "^1.126.16",
+    "@tamagui/react-native-media-driver": "^1.126.16",
+    "@tamagui/shorthands": "^1.126.16",
     "@tamagui/themes": "^1.126.16",
     "@tamagui/toast": "^1.126.16",
     "babel-preset-expo": "^13.0.0",
     "burnt": "^0.13.0",
     "expo": "^53.0.11",
     "expo-application": "^6.1.4",
+    "expo-build-properties": "^0.14.6",
     "expo-camera": "^16.1.8",
     "expo-constants": "^17.1.6",
     "expo-dev-client": "^5.2.0",
@@ -67,6 +70,8 @@
     "@tamagui/babel-plugin": "^1.126.16",
     "@types/react": "^19.0.14",
     "babel-plugin-transform-inline-environment-variables": "^0.4.4",
+    "eas-build-cache-provider": "^16.4.2",
+    "sharp-cli": "^5.1.0",
     "typescript": "^5.8.3"
   }
 }
