@@ -1,25 +1,14 @@
 #!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
 
-# Format all files
-npm run format
+# Run linting
+echo "🔍 Running linters..."
+pnpm lint
 
-# Get list of staged files
-STAGED_FILES=$(git diff --cached --name-only)
+# Run TypeScript type checking
+echo "📝 Running TypeScript checks..."
+pnpm typecheck
 
-# Check if any API files are changed
-if echo "$STAGED_FILES" | grep -q "^api/"; then
-  echo "API files changed, running API lint, typecheck, and tests..."
-  (cd api && pnpm lint && pnpm typecheck && pnpm test)
-fi
-
-# Check if any shared files are changed
-if echo "$STAGED_FILES" | grep -q "^shared/"; then
-  echo "Shared files changed, running shared lint, typecheck, and tests..."
-  (cd shared && pnpm lint && pnpm typecheck && pnpm test)
-fi
-
-# Check if any root files are changed (configs, etc)
-if echo "$STAGED_FILES" | grep -E -q "^[^/]+\.(ts|js|json)$"; then
-  echo "Root files changed, running root lint..."
-  npm run lint
-fi
+# Run tests
+echo "🧪 Running tests..."
+pnpm test

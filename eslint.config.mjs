@@ -80,6 +80,7 @@ export default tseslint.config(
       '**/drizzle.config.ts',
       '**/vitest.config.ts',
       '**/tsup.config.ts',
+      'api/scripts/**',
     ],
   },
 );

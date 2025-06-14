@@ -1,10 +1,11 @@
+import React from 'react';
 import { H1, Paragraph, YStack } from 'tamagui';
 
-export default function HomeScreen() {
+export default function HomeScreen(): React.ReactElement {
   return (
-    <YStack f={1} ai="center" jc="center" p="$4" bg="$background">
-      <H1 mb="$2">USA Presence Calculator</H1>
-      <Paragraph theme="alt1" size="$6">
+    <YStack flex={1} alignItems="center" justifyContent="center" padding="$4" backgroundColor="$background">
+      <H1 marginBottom="$2">USA Presence Calculator</H1>
+      <Paragraph size="$6">
         Track your path to citizenship
       </Paragraph>
     </YStack>
