@@ -78,9 +78,6 @@ describe('Sync Routes', () => {
         },
       });
 
-      if (response.statusCode === 500) {
-        console.error('Error response:', response.json());
-      }
       expect(response.statusCode).toBe(HTTP_STATUS.UNAUTHORIZED);
     });
 
@@ -173,9 +170,6 @@ describe('Sync Routes', () => {
         },
       });
 
-      if (response.statusCode !== HTTP_STATUS.OK) {
-        console.error('Response body:', response.json());
-      }
       expect(response.statusCode).toBe(HTTP_STATUS.OK);
       const data = response.json<SyncPullResponse>();
       expect(data.syncVersion).toBe(2);

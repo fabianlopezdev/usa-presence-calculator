@@ -9,28 +9,24 @@ export const SWAGGER_CONFIG = {
   PRODUCTION_URL: 'https://api.usapresencecalculator.com',
   TAGS: [
     {
-      name: 'Health',
+      name: 'health',
       description: 'Health check endpoints',
     },
     {
-      name: 'Auth',
+      name: 'auth',
       description: 'Authentication endpoints',
     },
     {
-      name: 'Users',
-      description: 'User management endpoints',
+      name: 'sync',
+      description: 'Data synchronization endpoints',
     },
     {
-      name: 'Trips',
+      name: 'trips',
       description: 'Trip management endpoints',
     },
     {
-      name: 'Settings',
-      description: 'User settings endpoints',
-    },
-    {
-      name: 'Sync',
-      description: 'Data synchronization endpoints',
+      name: 'users',
+      description: 'User management endpoints (includes settings)',
     },
   ],
 } as const;

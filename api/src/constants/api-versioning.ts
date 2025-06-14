@@ -1,7 +1,9 @@
-import { API_VERSION } from '@usa-presence/shared';
-
-// Re-export from shared for backward compatibility
-export { API_VERSION } from '@usa-presence/shared';
+// Define API_VERSION locally to avoid import issues
+export const API_VERSION = {
+  CURRENT: 'v1',
+  PREFIX: '/api/v1',
+  SUPPORTED_VERSIONS: ['v1'],
+} as const;
 
 export const API_VERSIONING_CONFIG = {
   ENABLE_VERSION_HEADER: true,

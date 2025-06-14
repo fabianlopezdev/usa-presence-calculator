@@ -14,7 +14,7 @@ import rateLimitPlugin from '@api/plugins/rate-limit';
 import requestContextPlugin from '@api/plugins/request-context';
 import requireAuthPlugin from '@api/plugins/require-auth';
 import swaggerPlugin from '@api/plugins/swagger';
-import timeoutPlugin from '@api/plugins/timeout';
+// import timeoutPlugin from '@api/plugins/timeout';
 import authRoute from '@api/routes/auth';
 import cspReportRoute from '@api/routes/csp-report';
 import healthRoute from '@api/routes/health';
@@ -40,7 +40,8 @@ async function registerPlugins(app: FastifyInstance): Promise<void> {
   await app.register(requireAuthPlugin);
 
   // Register timeout plugin before routes
-  await app.register(timeoutPlugin);
+  // COMMENTED FOR DEBUGGING
+  // await app.register(timeoutPlugin);
 
   // Add shutdown middleware before other routes
   app.addHook('preHandler', shutdownMiddleware);

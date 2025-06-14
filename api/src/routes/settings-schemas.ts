@@ -30,7 +30,7 @@ const UpdateSettingsSchema = z
 
 export const settingsRouteDefinitions = {
   getSettings: {
-    tags: ['User Settings'],
+    tags: ['users'],
     summary: 'Get user settings',
     description:
       'Retrieves current user settings including notification preferences, theme, and language',
@@ -71,7 +71,7 @@ export const settingsRouteDefinitions = {
     },
   },
   updateSettings: {
-    tags: ['User Settings'],
+    tags: ['users'],
     summary: 'Update user settings',
     description: 'Updates user settings with partial data',
     body: zodToJsonSchema(UpdateSettingsSchema),

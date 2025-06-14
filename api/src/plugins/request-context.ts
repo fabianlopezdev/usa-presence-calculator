@@ -4,7 +4,7 @@ import fp from 'fastify-plugin';
 declare module 'fastify' {
   interface FastifyRequest {
     context: RequestContext;
-    startTime: number;
+    startTime?: bigint;
   }
 }
 
@@ -22,9 +22,11 @@ export interface RequestContext {
 
 // Helper functions
 function initializeContext(request: FastifyRequest): void {
-  request.startTime = Date.now();
-  const correlationId = request.headers['x-correlation-id'] as string || 
-    request.headers['x-request-id'] as string || request.id;
+  request.startTime = process.hrtime.bigint();
+  const correlationId =
+    (request.headers['x-correlation-id'] as string) ||
+    (request.headers['x-request-id'] as string) ||
+    request.id;
 
   request.context = {
     correlationId,
@@ -45,27 +47,44 @@ function enrichWithUser(request: FastifyRequest): void {
 
 function logRequestCompletion(request: FastifyRequest): void {
   if (request.startTime) {
-    request.context.duration = Date.now() - request.startTime;
+    request.context.duration = Number(process.hrtime.bigint() - request.startTime) / 1e6; // milliseconds
   }
-  request.log.info({
-    context: request.context,
-    statusCode: request.raw.statusCode,
-  }, 'Request completed');
+  request.log.info(
+    {
+      context: request.context,
+      statusCode: request.raw.statusCode,
+    },
+    'Request completed',
+  );
 }
 
 const requestContextPlugin: FastifyPluginAsync = (fastify: FastifyInstance) => {
-  fastify.addHook('onRequest', initializeContext);
-  fastify.addHook('preHandler', enrichWithUser);
-  fastify.addHook('onResponse', logRequestCompletion);
-  fastify.addHook('onSend', (request, reply) => {
+  fastify.addHook('onRequest', (request, _reply, done) => {
+    initializeContext(request);
+    done();
+  });
+  fastify.addHook('preHandler', (request, _reply, done) => {
+    enrichWithUser(request);
+    done();
+  });
+  fastify.addHook('onResponse', (request, _reply, done) => {
+    logRequestCompletion(request);
+    done();
+  });
+  fastify.addHook('onSend', (request, reply, _payload, done) => {
     reply.header('X-Correlation-ID', request.context.correlationId);
     reply.header('X-Request-ID', request.context.requestId);
+    done();
   });
-  fastify.decorate('getRequestContext', (request: FastifyRequest): RequestContext => request.context);
-  fastify.decorate('withContext', <T>(
-    context: RequestContext,
-    fn: () => T | Promise<T>,
-  ): T | Promise<T> => fn());
+  fastify.decorate(
+    'getRequestContext',
+    (request: FastifyRequest): RequestContext => request.context,
+  );
+  fastify.decorate(
+    'withContext',
+    <T>(_context: RequestContext, fn: () => T | Promise<T>): T | Promise<T> => fn(),
+  );
+
   return Promise.resolve();
 };
 
@@ -79,10 +98,7 @@ export function extractContext(request: FastifyRequest): RequestContext {
   return request.context;
 }
 
-export function enrichContext(
-  request: FastifyRequest, 
-  additional: Partial<RequestContext>,
-): void {
+export function enrichContext(request: FastifyRequest, additional: Partial<RequestContext>): void {
   request.context = {
     ...request.context,
     ...additional,
@@ -97,7 +113,7 @@ export function getRequestDuration(request: FastifyRequest): number | undefined 
   if (!request.startTime) {
     return undefined;
   }
-  return Date.now() - request.startTime;
+  return Number(process.hrtime.bigint() - request.startTime) / 1e6; // milliseconds
 }
 
 // ===== CONTEXT LOGGING =====
@@ -108,10 +124,13 @@ export function logWithContext(
   message: string,
   additional?: Record<string, unknown>,
 ): void {
-  request.log[level]({
-    ...request.context,
-    ...additional,
-  }, message);
+  request.log[level](
+    {
+      ...request.context,
+      ...additional,
+    },
+    message,
+  );
 }
 
 export function createContextualLogger(request: FastifyRequest): {
@@ -121,13 +140,13 @@ export function createContextualLogger(request: FastifyRequest): {
   debug: (message: string, additional?: Record<string, unknown>) => void;
 } {
   return {
-    info: (message: string, additional?: Record<string, unknown>) => 
+    info: (message: string, additional?: Record<string, unknown>) =>
       logWithContext(request, 'info', message, additional),
-    warn: (message: string, additional?: Record<string, unknown>) => 
+    warn: (message: string, additional?: Record<string, unknown>) =>
       logWithContext(request, 'warn', message, additional),
-    error: (message: string, additional?: Record<string, unknown>) => 
+    error: (message: string, additional?: Record<string, unknown>) =>
       logWithContext(request, 'error', message, additional),
-    debug: (message: string, additional?: Record<string, unknown>) => 
+    debug: (message: string, additional?: Record<string, unknown>) =>
       logWithContext(request, 'debug', message, additional),
   };
 }

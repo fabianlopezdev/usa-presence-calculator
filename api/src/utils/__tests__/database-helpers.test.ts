@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getDatabase } from '@api/db/connection';
-import { trips } from '@api/db/schema';
+import { Trip, trips } from '@api/db/schema';
 import { cleanupTestDatabase, createTestUser, resetTestDatabase } from '@api/test-utils/db';
 import {
   batchInsert,
@@ -173,10 +173,7 @@ describe('Database Helpers', () => {
       expect(onChunkComplete).toHaveBeenCalledTimes(5);
       expect(onChunkComplete).toHaveBeenLastCalledWith(250, 250);
 
-      const count = await getDatabase()
-        .select()
-        .from(trips)
-        .where(eq(trips.userId, testUserId));
+      const count = await getDatabase().select().from(trips).where(eq(trips.userId, testUserId));
       expect(count).toHaveLength(250);
     });
 
@@ -190,7 +187,7 @@ describe('Database Helpers', () => {
     it('should soft delete records', async () => {
       const db = getDatabase();
       const tripId = createId();
-      
+
       await db.insert(trips).values({
         id: tripId,
         userId: testUserId,
@@ -202,18 +199,11 @@ describe('Database Helpers', () => {
         updatedAt: new Date().toISOString(),
       });
 
-      const result = await softDelete(
-        trips,
-        eq(trips.id, tripId),
-        trips.deletedAt,
-      );
+      const result = await softDelete(trips, eq(trips.id, tripId), trips.deletedAt);
 
       expect(result.deleted).toBe(1);
 
-      const [deletedTrip] = await db
-        .select()
-        .from(trips)
-        .where(eq(trips.id, tripId));
+      const [deletedTrip] = await db.select().from(trips).where(eq(trips.id, tripId));
 
       expect(deletedTrip.deletedAt).toBeTruthy();
     });
@@ -223,7 +213,7 @@ describe('Database Helpers', () => {
     it('should update with version check', async () => {
       const db = getDatabase();
       const tripId = createId();
-      
+
       await db.insert(trips).values({
         id: tripId,
         userId: testUserId,
@@ -236,7 +226,7 @@ describe('Database Helpers', () => {
         updatedAt: new Date().toISOString(),
       });
 
-      const updated = await withOptimisticLocking(
+      const updated = await withOptimisticLocking<Trip>(
         trips,
         tripId,
         trips.id,
@@ -252,7 +242,7 @@ describe('Database Helpers', () => {
     it('should throw ConflictError on version mismatch', async () => {
       const db = getDatabase();
       const tripId = createId();
-      
+
       await db.insert(trips).values({
         id: tripId,
         userId: testUserId,
@@ -282,7 +272,7 @@ describe('Database Helpers', () => {
     it('should check if record exists', async () => {
       const db = getDatabase();
       const tripId = createId();
-      
+
       await db.insert(trips).values({
         id: tripId,
         userId: testUserId,

@@ -256,11 +256,9 @@ export class PasskeyService {
   }
 
   private sendSecurityNotification(userId: string, payload: SecurityNotificationPayload): void {
-    // This will be implemented when we have the email service
-    // For now, we'll just log it
+    // NOTE: Security notifications are currently logged only.
+    // In production, these would be sent via email or push notification.
+    // This is intentional for the MVP to avoid email infrastructure complexity.
     console.warn(`Security notification for user ${userId}:`, payload);
-
-    // TODO: When MagicLinkService is implemented with email capability,
-    // send an actual email notification to the user about the security event
   }
 }

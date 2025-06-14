@@ -18,7 +18,7 @@ const tripProperties = (tripJsonSchema as JsonSchemaObject).properties || {};
 
 export const tripSchemas = {
   createTrip: {
-    tags: ['Trips'],
+    tags: ['trips'],
     summary: 'Create a new trip',
     description: 'Create a new trip record for the authenticated user',
     security: [{ bearerAuth: [] }],
@@ -53,7 +53,7 @@ export const tripSchemas = {
   },
 
   getTrips: {
-    tags: ['Trips'],
+    tags: ['trips'],
     summary: 'Get all trips',
     description:
       'Get all trips for the authenticated user, sorted by departure date (newest first)',
@@ -78,7 +78,7 @@ export const tripSchemas = {
   },
 
   getTrip: {
-    tags: ['Trips'],
+    tags: ['trips'],
     summary: 'Get a specific trip',
     description: 'Get a specific trip by ID for the authenticated user',
     security: [{ bearerAuth: [] }],
@@ -118,7 +118,7 @@ export const tripSchemas = {
   },
 
   updateTrip: {
-    tags: ['Trips'],
+    tags: ['trips'],
     summary: 'Update a trip',
     description: 'Update a specific trip for the authenticated user',
     security: [{ bearerAuth: [] }],
@@ -172,7 +172,7 @@ export const tripSchemas = {
   },
 
   deleteTrip: {
-    tags: ['Trips'],
+    tags: ['trips'],
     summary: 'Delete a trip',
     description: 'Soft delete a specific trip for the authenticated user',
     security: [{ bearerAuth: [] }],

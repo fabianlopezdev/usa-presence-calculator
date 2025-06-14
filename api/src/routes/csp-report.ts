@@ -25,7 +25,10 @@ const cspReportRoute: FastifyPluginCallback = (fastify, _opts, done) => {
     CSP_REPORT_ENDPOINT,
     {
       schema: {
-        hide: true, // Don't show in Swagger docs
+        tags: ['security'],
+        summary: 'Report CSP violations',
+        description: 'Endpoint for browsers to report Content Security Policy violations',
+        hide: true, // Don't show in public Swagger docs
       },
       bodyLimit: BODY_LIMITS.CSP_REPORT,
     },

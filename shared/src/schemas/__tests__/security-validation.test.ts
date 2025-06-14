@@ -217,7 +217,7 @@ describe('Security Validation Tests', () => {
 
         // Valid dates should pass, invalid should fail
         if (name === 'nonLeapDay') {
-          expect(result.success).toBe(true); // Zod date regex allows this, actual date validation happens elsewhere
+          expect(result.success).toBe(false); // Invalid date (Feb 29 on non-leap year)
         } else {
           expect(result.success).toBe(true);
         }

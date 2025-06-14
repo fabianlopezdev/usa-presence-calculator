@@ -29,7 +29,6 @@ export interface FindOrCreateOptions<T> {
   table: SQLiteTable;
   where: SQL | undefined;
   create: Partial<T>;
-  returnColumns?: Record<string, SQLiteColumn>;
 }
 
 export interface BatchInsertOptions {
@@ -63,14 +62,16 @@ export async function paginate<T>(
 
     // Get paginated data
     let dataQuery = db.select().from(table);
-    if (where) dataQuery = dataQuery.where(where);
+    if (where) {
+      dataQuery = dataQuery.where(where) as typeof dataQuery;
+    }
     if (options.orderBy) {
       dataQuery = dataQuery.orderBy(
-        options.orderDirection === 'desc' ? desc(options.orderBy) : asc(options.orderBy)
-      );
+        options.orderDirection === 'desc' ? desc(options.orderBy) : asc(options.orderBy),
+      ) as typeof dataQuery;
     }
 
-    const data = await dataQuery.limit(limit).offset(offset) as T[];
+    const data = (await dataQuery.limit(limit).offset(offset)) as T[];
     const totalPages = Math.ceil(total / limit);
 
     return {
@@ -98,8 +99,8 @@ export async function findOrCreate<T extends Record<string, unknown>>(
 
   try {
     // Try to find existing record
-    const existingQuery = db.select(options.returnColumns || {}).from(options.table);
-    
+    const existingQuery = db.select().from(options.table);
+
     if (options.where) {
       existingQuery.where(options.where);
     }
@@ -111,10 +112,7 @@ export async function findOrCreate<T extends Record<string, unknown>>(
     }
 
     // Create new record if not found
-    const [created] = await db
-      .insert(options.table)
-      .values(options.create)
-      .returning(options.returnColumns || {});
+    const [created] = await db.insert(options.table).values(options.create).returning();
 
     return { record: created as T, created: true };
   } catch (error) {
@@ -141,7 +139,7 @@ export async function batchInsert<T extends Record<string, unknown>>(
     // Process in chunks
     for (let i = 0; i < records.length; i += chunkSize) {
       const chunk = records.slice(i, i + chunkSize);
-      
+
       await db.insert(table).values(chunk);
       totalInserted += chunk.length;
 
@@ -152,10 +150,10 @@ export async function batchInsert<T extends Record<string, unknown>>(
 
     return { inserted: totalInserted };
   } catch (error) {
-    throw new DatabaseError('Batch insert failed', { 
-      error, 
+    throw new DatabaseError('Batch insert failed', {
+      error,
       inserted: totalInserted,
-      total: records.length 
+      total: records.length,
     });
   }
 }
@@ -165,7 +163,7 @@ export async function batchInsert<T extends Record<string, unknown>>(
 export async function softDelete(
   table: SQLiteTable,
   where: SQL,
-  deletedAtColumn: SQLiteColumn,
+  _deletedAtColumn: SQLiteColumn,
 ): Promise<{ deleted: number }> {
   const db = getDatabase();
   const timestamp = new Date().toISOString();
@@ -173,10 +171,11 @@ export async function softDelete(
   try {
     const result = await db
       .update(table)
-      .set({ [deletedAtColumn.name]: timestamp })
-      .where(where);
+      .set({ deletedAt: timestamp } as Record<string, unknown>)
+      .where(where)
+      .returning();
 
-    return { deleted: result.changes };
+    return { deleted: result.length };
   } catch (error) {
     throw new DatabaseError('Soft delete failed', { error });
   }
@@ -197,20 +196,16 @@ export async function withOptimisticLocking<T extends Record<string, unknown>>(
 
   try {
     // Build update with version check
-    const updateData = {
+    const updateData: Record<string, unknown> = {
       ...updates,
-      ...(incrementVersion ? { [versionColumn.name]: currentVersion + 1 } : {}),
+      ...(incrementVersion ? { syncVersion: currentVersion + 1 } : {}),
+      updatedAt: new Date().toISOString(),
     };
 
     const result = await db
       .update(table)
       .set(updateData)
-      .where(
-        and(
-          eq(idColumn, id),
-          eq(versionColumn, currentVersion),
-        ),
-      )
+      .where(and(eq(idColumn, id), eq(versionColumn, currentVersion)))
       .returning();
 
     if (result.length === 0) {
@@ -231,12 +226,9 @@ export async function withOptimisticLocking<T extends Record<string, unknown>>(
 
 // ===== UTILITY FUNCTIONS =====
 
-export async function exists(
-  table: SQLiteTable,
-  where: SQL,
-): Promise<boolean> {
+export async function exists(table: SQLiteTable, where: SQL): Promise<boolean> {
   const db = getDatabase();
-  
+
   const [result] = await db
     .select({ count: sql<number>`1` })
     .from(table)
@@ -246,15 +238,10 @@ export async function exists(
   return result !== undefined;
 }
 
-export async function count(
-  table: SQLiteTable,
-  where?: SQL,
-): Promise<number> {
+export async function count(table: SQLiteTable, where?: SQL): Promise<number> {
   const db = getDatabase();
-  
-  const query = db
-    .select({ count: sql<number>`COUNT(*)` })
-    .from(table);
+
+  const query = db.select({ count: sql<number>`COUNT(*)` }).from(table);
 
   if (where) {
     query.where(where);

@@ -33,6 +33,7 @@ export interface ProcessDeletionsResult {
 // ===== MAIN SERVICE CLASS =====
 export class SyncService {
   private conflictDetection = new SyncConflictDetection();
+  private lastFetchHadMore = false;
 
   // ===== PULL OPERATIONS =====
 
@@ -43,14 +44,21 @@ export class SyncService {
       conditions.push(gt(trips.syncVersion, lastSyncVersion));
     }
 
+    // Fetch one extra to check if there are more
     const userTrips = await getDatabase()
       .select()
       .from(trips)
       .where(and(...conditions))
       .orderBy(trips.syncVersion)
-      .limit(Number(SYNC_CONFIG.MAX_TRIPS_PER_SYNC));
+      .limit(Number(SYNC_CONFIG.MAX_TRIPS_PER_SYNC) + 1);
 
-    return userTrips.map((trip) => ({
+    // Check if we have more than MAX_TRIPS_PER_SYNC
+    this.lastFetchHadMore = userTrips.length > SYNC_CONFIG.MAX_TRIPS_PER_SYNC;
+
+    // Return only up to MAX_TRIPS_PER_SYNC
+    const tripsToReturn = userTrips.slice(0, SYNC_CONFIG.MAX_TRIPS_PER_SYNC);
+
+    return tripsToReturn.map((trip) => ({
       id: trip.id,
       userId: trip.userId,
       departureDate: trip.departureDate,
@@ -65,6 +73,10 @@ export class SyncService {
       syncVersion: trip.syncVersion || 0,
       syncStatus: trip.syncStatus || 'local',
     }));
+  }
+
+  getLastFetchHadMore(): boolean {
+    return this.lastFetchHadMore;
   }
 
   async fetchUserSettingsForPull(userId: string): Promise<UserSettings | null> {

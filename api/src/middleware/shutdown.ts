@@ -15,4 +15,5 @@ export async function shutdownMiddleware(
       code: 'SERVER_SHUTTING_DOWN',
     });
   }
+  // Continue to next handler if not shutting down
 }

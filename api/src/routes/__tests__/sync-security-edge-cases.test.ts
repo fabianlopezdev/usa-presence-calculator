@@ -210,6 +210,7 @@ describe('Sync Security Edge Cases - Advanced Attack Vectors', () => {
       );
 
       // Simulate client that keeps pulling
+      let lastSyncVersion: number | undefined;
       const pullLoop = async (): Promise<void> => {
         if (pullCount >= maxPulls) return;
 
@@ -220,11 +221,12 @@ describe('Sync Security Edge Cases - Advanced Attack Vectors', () => {
           headers: authHeaders,
           payload: {
             deviceId: 'test-device',
-            lastSyncVersion: pullCount - 1,
+            lastSyncVersion,
           },
         });
 
-        const responseData = response.json<{ hasMore?: boolean }>();
+        const responseData = response.json<{ hasMore?: boolean; syncVersion: number }>();
+        lastSyncVersion = responseData.syncVersion;
         if (responseData.hasMore) {
           await pullLoop();
         }

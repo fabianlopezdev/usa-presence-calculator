@@ -12,7 +12,7 @@ import {
 } from './auth-handlers';
 
 export const passkeyRegisterOptionsSchema = {
-  tags: ['Authentication'],
+  tags: ['auth'],
   summary: 'Generate passkey registration options',
   description: 'Generates WebAuthn registration options for passkey enrollment',
   body: zodToJsonSchema(PasskeyRegisterOptionsSchema),
@@ -35,7 +35,7 @@ export const passkeyRegisterOptionsSchema = {
 };
 
 export const passkeyRegisterVerifySchema = {
-  tags: ['Authentication'],
+  tags: ['auth'],
   summary: 'Verify passkey registration',
   description: 'Verifies WebAuthn registration response and saves the credential',
   body: zodToJsonSchema(PasskeyRegisterVerifySchema),
@@ -54,7 +54,7 @@ export const passkeyRegisterVerifySchema = {
 };
 
 export const passkeyAuthenticateOptionsSchema = {
-  tags: ['Authentication'],
+  tags: ['auth'],
   summary: 'Generate passkey authentication options',
   description: 'Generates WebAuthn authentication options for passkey login',
   body: zodToJsonSchema(PasskeyAuthenticateOptionsSchema),
@@ -67,7 +67,7 @@ export const passkeyAuthenticateOptionsSchema = {
 };
 
 export const passkeyAuthenticateVerifySchema = {
-  tags: ['Authentication'],
+  tags: ['auth'],
   summary: 'Verify passkey authentication',
   description: 'Verifies WebAuthn authentication response and creates a session',
   body: zodToJsonSchema(PasskeyAuthenticateVerifySchema),
@@ -90,7 +90,7 @@ export const passkeyAuthenticateVerifySchema = {
 };
 
 export const magicLinkSendSchema = {
-  tags: ['Authentication'],
+  tags: ['auth'],
   summary: 'Send magic link',
   description: 'Sends a magic link to the specified email address',
   body: zodToJsonSchema(MagicLinkSendSchema),
@@ -121,7 +121,7 @@ export const magicLinkSendSchema = {
 };
 
 export const magicLinkVerifySchema = {
-  tags: ['Authentication'],
+  tags: ['auth'],
   summary: 'Verify magic link',
   description: 'Verifies a magic link token and creates a session',
   body: zodToJsonSchema(MagicLinkVerifySchema),
@@ -144,7 +144,7 @@ export const magicLinkVerifySchema = {
 };
 
 export const sessionInfoSchema = {
-  tags: ['Authentication'],
+  tags: ['auth'],
   summary: 'Get current session info',
   description: 'Returns information about the current authenticated session',
   response: {
@@ -168,7 +168,7 @@ export const sessionInfoSchema = {
 };
 
 export const refreshTokenRouteSchema = {
-  tags: ['Authentication'],
+  tags: ['auth'],
   summary: 'Refresh access token',
   description: 'Exchanges a refresh token for a new access token',
   body: zodToJsonSchema(RefreshTokenSchema),
@@ -190,7 +190,7 @@ export const refreshTokenRouteSchema = {
 };
 
 export const logoutSchema = {
-  tags: ['Authentication'],
+  tags: ['auth'],
   summary: 'Logout user',
   description: 'Invalidates the current session',
   body: zodToJsonSchema(RefreshTokenSchema),

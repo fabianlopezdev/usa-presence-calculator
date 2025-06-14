@@ -16,7 +16,7 @@ describe('Request Context Plugin', () => {
 
   it('should add correlation ID to request context', async () => {
     const correlationId = 'test-correlation-123';
-    
+
     app.get('/test-context', async (request, reply) => {
       reply.send({
         correlationId: request.context.correlationId,
@@ -35,7 +35,12 @@ describe('Request Context Plugin', () => {
     });
 
     expect(response.statusCode).toBe(200);
-    const data = JSON.parse(response.body) as { correlationId: string; requestId: string; method: string; path: string };
+    const data = JSON.parse(response.body) as {
+      correlationId: string;
+      requestId: string;
+      method: string;
+      path: string;
+    };
     expect(data.correlationId).toBe(correlationId);
     expect(data.requestId).toBeTruthy();
     expect(data.method).toBe('GET');
@@ -62,8 +67,8 @@ describe('Request Context Plugin', () => {
 
   it('should add correlation ID to response headers', async () => {
     const correlationId = 'response-test-456';
-    
-    app.get('/test-headers', async (request, reply) => {
+
+    app.get('/test-headers', async (_request, reply) => {
       reply.send({ success: true });
     });
 
@@ -82,9 +87,11 @@ describe('Request Context Plugin', () => {
   it('should track request duration', async () => {
     app.get('/test-duration', async (request, reply) => {
       // Simulate some processing time
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
-      const duration = request.startTime ? Date.now() - request.startTime : 0;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const duration = request.startTime
+        ? Number(process.hrtime.bigint() - request.startTime) / 1e6
+        : 0;
       reply.send({ duration });
     });
 
@@ -99,13 +106,14 @@ describe('Request Context Plugin', () => {
 
   it('should include user context after authentication', async () => {
     const userId = 'user-123';
-    
-    app.get('/test-user-context', {
-      preHandler: (request) => {
-        // Simulate authentication
-        request.user = { userId };
-      },
-    }, async (request, reply) => {
+
+    // Add a hook that runs before the plugin's preHandler
+    app.addHook('onRequest', async (request, _reply) => {
+      // Simulate authentication by setting user before enrichWithUser runs
+      request.user = { userId, sessionId: 'test-session' };
+    });
+
+    app.get('/test-user-context', async (request, reply) => {
       reply.send({
         userId: request.context.userId,
       });
@@ -122,7 +130,7 @@ describe('Request Context Plugin', () => {
 
   it('should include request metadata in context', async () => {
     const userAgent = 'TestAgent/1.0';
-    
+
     app.get('/test-metadata', async (request, reply) => {
       reply.send({
         userAgent: request.context.userAgent,

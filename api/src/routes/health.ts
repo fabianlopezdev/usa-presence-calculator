@@ -7,7 +7,7 @@ const healthRoute: FastifyPluginCallback = (fastify, _opts, done) => {
     '/health',
     {
       schema: {
-        tags: ['Health'],
+        tags: ['health'],
         summary: 'Health check endpoint',
         description: 'Returns the current health status of the API',
         response: {

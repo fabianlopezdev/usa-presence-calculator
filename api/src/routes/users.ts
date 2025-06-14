@@ -192,17 +192,105 @@ async function updateUserProfile(request: FastifyRequest, reply: FastifyReply): 
   return reply.code(HTTP_STATUS.OK).send(formatUserResponse(updatedUser));
 }
 
+// Schema definitions
+const userProfileResponseSchema = {
+  type: 'object',
+  properties: {
+    id: { type: 'string' },
+    email: { type: 'string' },
+    greenCardDate: { type: 'string' },
+    eligibilityCategory: { type: 'string' },
+    createdAt: { type: 'string' },
+    updatedAt: { type: 'string' },
+  },
+};
+
+const errorResponseSchema = {
+  type: 'object',
+  properties: {
+    error: { type: 'string' },
+  },
+};
+
+const badRequestResponseSchema = {
+  type: 'object',
+  properties: {
+    error: {
+      type: 'object',
+      properties: {
+        message: { type: 'string' },
+        details: { type: 'array' },
+      },
+    },
+  },
+};
+
+const getUserProfileSchema = {
+  tags: ['users'],
+  summary: 'Get user profile',
+  description: 'Get the profile information for the authenticated user',
+  security: [{ bearerAuth: [] }],
+  response: {
+    [HTTP_STATUS.OK]: {
+      description: 'User profile retrieved successfully',
+      ...userProfileResponseSchema,
+    },
+    [HTTP_STATUS.NOT_FOUND]: {
+      description: 'User not found',
+      ...errorResponseSchema,
+    },
+    [HTTP_STATUS.UNAUTHORIZED]: {
+      description: 'Authentication required',
+      ...errorResponseSchema,
+    },
+  },
+};
+
+const updateUserProfileSchema = {
+  tags: ['users'],
+  summary: 'Update user profile',
+  description: 'Update the profile information for the authenticated user',
+  security: [{ bearerAuth: [] }],
+  body: {
+    type: 'object',
+    properties: {
+      greenCardDate: { type: 'string', format: 'date' },
+      eligibilityCategory: { type: 'string', enum: ['three_year', 'five_year'] },
+    },
+  },
+  response: {
+    [HTTP_STATUS.OK]: {
+      description: 'User profile updated successfully',
+      ...userProfileResponseSchema,
+    },
+    [HTTP_STATUS.BAD_REQUEST]: {
+      description: 'Invalid request body',
+      ...badRequestResponseSchema,
+    },
+    [HTTP_STATUS.NOT_FOUND]: {
+      description: 'User not found',
+      ...errorResponseSchema,
+    },
+    [HTTP_STATUS.UNAUTHORIZED]: {
+      description: 'Authentication required',
+      ...errorResponseSchema,
+    },
+  },
+};
+
 const userRoutes: FastifyPluginAsync = (fastify) => {
   // GET /users/profile
   fastify.get('/profile', {
     preHandler: fastify.requireAuth,
     handler: getUserProfile,
+    schema: getUserProfileSchema,
   });
 
   // PATCH /users/profile
   fastify.patch('/profile', {
     preHandler: fastify.requireAuth,
     handler: updateUserProfile,
+    schema: updateUserProfileSchema,
   });
 
   return Promise.resolve();

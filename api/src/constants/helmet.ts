@@ -1,7 +1,5 @@
-import { API_PATHS } from '@usa-presence/shared';
-
 export const CSP_REPORT_ENDPOINT = '/csp-report';
-export const CSP_REPORT_FULL_PATH = API_PATHS.CSP_REPORT;
+export const CSP_REPORT_FULL_PATH = '/api/v1/csp-report';
 
 export const HELMET_CONFIG = {
   PRODUCTION: {

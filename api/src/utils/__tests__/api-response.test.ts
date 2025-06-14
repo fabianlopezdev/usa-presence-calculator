@@ -233,7 +233,7 @@ describe('API Response Utilities', () => {
     it('should return 304 when ETag matches', () => {
       const reply = createMockReply();
       reply.request.headers['if-none-match'] = '"123abc"';
-      
+
       const data = { id: '1' };
       conditionalResponse(reply, data, '"123abc"');
 
@@ -243,7 +243,7 @@ describe('API Response Utilities', () => {
     it('should return data when ETag does not match', () => {
       const reply = createMockReply();
       reply.request.headers['if-none-match'] = '"old-etag"';
-      
+
       const data = { id: '1' };
       conditionalResponse(reply, data, '"new-etag"');
 
@@ -254,16 +254,12 @@ describe('API Response Utilities', () => {
     it('should handle Last-Modified header', () => {
       const reply = createMockReply();
       const lastModified = new Date('2024-01-01');
-      reply.request.headers['if-modified-since'] = 
-        new Date('2023-12-01').toUTCString();
-      
+      reply.request.headers['if-modified-since'] = new Date('2023-12-01').toUTCString();
+
       const data = { id: '1' };
       conditionalResponse(reply, data, '"etag"', lastModified);
 
-      expect(reply.header).toHaveBeenCalledWith(
-        'Last-Modified', 
-        lastModified.toUTCString(),
-      );
+      expect(reply.header).toHaveBeenCalledWith('Last-Modified', lastModified.toUTCString());
       expect(reply.code).toHaveBeenCalledWith(HTTP_STATUS.OK);
     });
   });

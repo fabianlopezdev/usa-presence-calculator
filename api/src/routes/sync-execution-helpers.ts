@@ -1,6 +1,5 @@
 import { Trip, UserSettings } from '@usa-presence/shared';
 
-import { SYNC_CONFIG } from '@api/constants/sync';
 import {
   buildFinalResponse,
   createConflictResponse,
@@ -42,14 +41,22 @@ export async function executeSyncPull(
   if (shouldSyncTrips) {
     const fetchedTrips = await syncService.fetchTripsForPull(userId, lastSyncVersion);
     trips = fetchedTrips;
-    hasMore = fetchedTrips.length >= SYNC_CONFIG.MAX_TRIPS_PER_SYNC;
+    hasMore = syncService.getLastFetchHadMore();
   }
 
   if (shouldSyncSettings && !hasMore) {
     userSettings = await syncService.fetchUserSettingsForPull(userId);
   }
 
-  const syncVersion = await syncService.getCurrentSyncVersion(userId);
+  // For sync version, if we have trips, use the highest version from returned trips
+  // Otherwise use the global max version
+  let syncVersion: number;
+  if (trips.length > 0) {
+    const maxTripVersion = Math.max(...trips.map((t) => t.syncVersion || 0));
+    syncVersion = maxTripVersion;
+  } else {
+    syncVersion = await syncService.getCurrentSyncVersion(userId);
+  }
 
   return { syncVersion, trips, userSettings, hasMore };
 }
@@ -143,7 +150,7 @@ async function detectAllConflicts(userId: string, pushData: SyncPushData): Promi
     const settingsConflict = await syncService.detectUserSettingsConflict(
       userId,
       pushData.userSettings,
-      pushData.syncVersion,
+      pushData.syncVersion - 1, // Use previous version as base
     );
     if (settingsConflict) {
       conflicts.push(settingsConflict);
@@ -191,7 +198,7 @@ async function filterNonConflictingData(
     const settingsConflict = await syncService.detectUserSettingsConflict(
       userId,
       pushData.userSettings,
-      pushData.syncVersion,
+      pushData.syncVersion - 1, // Use previous version as base
     );
     hasSettingsConflict = settingsConflict !== null;
   }

@@ -222,14 +222,14 @@ async function updateUserSettingsHandler(
 const settingsRoutes: FastifyPluginAsync = (fastify): Promise<void> => {
   // GET /users/settings
   fastify.get('/settings', {
-    ...settingsRouteDefinitions.getSettings,
+    schema: settingsRouteDefinitions.getSettings,
     preHandler: fastify.requireAuth,
     handler: getUserSettingsHandler,
   });
 
   // PATCH /users/settings
   fastify.patch('/settings', {
-    ...settingsRouteDefinitions.updateSettings,
+    schema: settingsRouteDefinitions.updateSettings,
     preHandler: fastify.requireAuth,
     handler: updateUserSettingsHandler,
     bodyLimit: BODY_LIMITS.SETTINGS_UPDATE,

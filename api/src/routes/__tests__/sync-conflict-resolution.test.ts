@@ -352,7 +352,7 @@ describe('Sync Conflict Resolution', () => {
         headers: authHeaders,
         payload: {
           deviceId: 'device-2',
-          syncVersion: 2,
+          syncVersion: 1,
           userSettings: device2Settings,
         },
       });

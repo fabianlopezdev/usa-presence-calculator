@@ -76,7 +76,7 @@ function clearTimeoutHandler(request: FastifyRequest): void {
 
 const timeoutPlugin: FastifyPluginCallback = (fastify, _opts, done) => {
   // Add request timeout handling
-  fastify.addHook('onRequest', async (request, reply) => {
+  fastify.addHook('onRequest', (request, reply, done) => {
     const timeout = getTimeoutForRoute(request);
     setupTimeoutHandler(request, reply, timeout);
 
@@ -92,16 +92,19 @@ const timeoutPlugin: FastifyPluginCallback = (fastify, _opts, done) => {
         'Request timeout configured',
       );
     }
+    done();
   });
 
   // Clear timeout when response is sent
-  fastify.addHook('onSend', async (request, _reply, _payload) => {
+  fastify.addHook('onSend', (request, _reply, _payload, done) => {
     clearTimeoutHandler(request);
+    done();
   });
 
   // Clear timeout on error
-  fastify.addHook('onError', async (request, _reply, _error) => {
+  fastify.addHook('onError', (request, _reply, _error, done) => {
     clearTimeoutHandler(request);
+    done();
   });
 
   fastify.log.info(

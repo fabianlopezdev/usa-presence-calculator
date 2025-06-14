@@ -50,17 +50,13 @@ const healthResponseSchema = {
   },
 };
 
-interface FastifyRequestWithStartTime extends FastifyRequest {
-  startTime?: bigint;
-}
-
 function registerMetricsHooks(fastify: FastifyInstance): void {
-  fastify.addHook('onRequest', (request: FastifyRequestWithStartTime, _reply, done) => {
+  fastify.addHook('onRequest', (request: FastifyRequest, _reply, done) => {
     request.startTime = process.hrtime.bigint();
     done();
   });
 
-  fastify.addHook('onResponse', (request: FastifyRequestWithStartTime, reply, done) => {
+  fastify.addHook('onResponse', (request: FastifyRequest, reply, done) => {
     const startTime = request.startTime;
     if (startTime && !request.url.startsWith('/health')) {
       const duration = Number(process.hrtime.bigint() - startTime) / 1e9;
@@ -81,7 +77,7 @@ function registerReadinessRoute(fastify: FastifyInstance): void {
     HEALTH.ENDPOINTS.READY,
     {
       schema: {
-        tags: ['Health'],
+        tags: ['health'],
         summary: 'Readiness probe',
         description: 'Checks if the service is ready to accept traffic',
         response: {
@@ -105,7 +101,7 @@ function registerLivenessRoute(fastify: FastifyInstance): void {
     HEALTH.ENDPOINTS.LIVE,
     {
       schema: {
-        tags: ['Health'],
+        tags: ['health'],
         summary: 'Liveness probe',
         description: 'Simple check to see if the process is alive',
         response: {
@@ -130,7 +126,7 @@ function registerMetricsRoute(fastify: FastifyInstance): void {
     HEALTH.ENDPOINTS.METRICS,
     {
       schema: {
-        tags: ['Health'],
+        tags: ['health'],
         summary: 'Prometheus metrics',
         description: 'Metrics in Prometheus format',
         response: {

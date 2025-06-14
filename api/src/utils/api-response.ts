@@ -51,11 +51,7 @@ export function successResponse<T>(
   return reply.code(HTTP_STATUS.OK).send(response);
 }
 
-export function createdResponse<T>(
-  reply: FastifyReply,
-  data: T,
-  message?: string,
-): FastifyReply {
+export function createdResponse<T>(reply: FastifyReply, data: T, message?: string): FastifyReply {
   const response: CreatedResponse<T> = {
     success: true,
     data,
@@ -200,11 +196,7 @@ export function sendFile(
     .send(buffer);
 }
 
-export function sendJSON(
-  reply: FastifyReply,
-  data: unknown,
-  pretty = false,
-): FastifyReply {
+export function sendJSON(reply: FastifyReply, data: unknown, pretty = false): FastifyReply {
   if (pretty) {
     return reply
       .header('Content-Type', 'application/json; charset=utf-8')
@@ -226,7 +218,7 @@ export function conditionalResponse<T>(
   lastModified?: Date,
 ): FastifyReply {
   reply.header('ETag', etag);
-  
+
   if (lastModified) {
     reply.header('Last-Modified', lastModified.toUTCString());
   }
