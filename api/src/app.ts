@@ -11,6 +11,7 @@ import corsPlugin from '@api/plugins/cors';
 import helmetPlugin from '@api/plugins/helmet';
 import { loggerPlugin } from '@api/plugins/logger';
 import rateLimitPlugin from '@api/plugins/rate-limit';
+import requestContextPlugin from '@api/plugins/request-context';
 import requireAuthPlugin from '@api/plugins/require-auth';
 import swaggerPlugin from '@api/plugins/swagger';
 import timeoutPlugin from '@api/plugins/timeout';
@@ -29,6 +30,7 @@ async function registerPlugins(app: FastifyInstance): Promise<void> {
   // Register core plugins first
   await app.register(requestIdPlugin);
   await app.register(loggerPlugin);
+  await app.register(requestContextPlugin);
 
   // Security plugins should be registered early
   await app.register(corsPlugin);
