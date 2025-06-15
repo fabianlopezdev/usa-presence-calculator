@@ -320,7 +320,10 @@ describe('User Routes', () => {
         const moreThanTwentyYearsAgo = new Date();
         moreThanTwentyYearsAgo.setFullYear(moreThanTwentyYearsAgo.getFullYear() - 20);
         moreThanTwentyYearsAgo.setDate(moreThanTwentyYearsAgo.getDate() - 1);
-        const dateStr = moreThanTwentyYearsAgo.toISOString().split('T')[0];
+        const year = moreThanTwentyYearsAgo.getFullYear();
+        const month = String(moreThanTwentyYearsAgo.getMonth() + 1).padStart(2, '0');
+        const day = String(moreThanTwentyYearsAgo.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
 
         const response = await app.inject({
           method: 'PATCH',
@@ -337,7 +340,11 @@ describe('User Routes', () => {
       });
 
       it('should handle today as greenCardDate', async () => {
-        const today = new Date().toISOString().split('T')[0];
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const today = `${year}-${month}-${day}`;
 
         const response = await app.inject({
           method: 'PATCH',

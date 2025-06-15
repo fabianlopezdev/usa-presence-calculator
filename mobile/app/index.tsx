@@ -1,13 +1,14 @@
+import { Redirect } from 'expo-router';
 import React from 'react';
-import { H1, Paragraph, YStack } from 'tamagui';
+
+import { useUserStore } from '@/stores/user';
 
 export default function HomeScreen(): React.ReactElement {
-  return (
-    <YStack flex={1} alignItems="center" justifyContent="center" padding="$4" backgroundColor="$background">
-      <H1 marginBottom="$2">USA Presence Calculator</H1>
-      <Paragraph size="$6">
-        Track your path to citizenship
-      </Paragraph>
-    </YStack>
-  );
+  const isAuthenticated = useUserStore((state) => state.isAuthenticated);
+
+  if (isAuthenticated) {
+    return <Redirect href="/(tabs)/dashboard" />;
+  }
+
+  return <Redirect href="/(auth)/login" />;
 }

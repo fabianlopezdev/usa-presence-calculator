@@ -1,0 +1,46 @@
+export const ANIMATION_DURATION_QUICK = 200;
+export const ANIMATION_DURATION_GENTLE = 350;
+export const ANIMATION_DURATION_SLOW = 500;
+export const ANIMATION_DURATION_VERY_SLOW = 800;
+
+export const BUTTON_PADDING_VERTICAL = 12;
+export const BUTTON_PADDING_HORIZONTAL = 24;
+export const BUTTON_BORDER_RADIUS = 8;
+export const BUTTON_MIN_HEIGHT = 44;
+
+export const INPUT_PADDING = 16;
+export const INPUT_BORDER_RADIUS = 8;
+export const INPUT_BORDER_WIDTH = 1;
+export const INPUT_BORDER_WIDTH_FOCUSED = 2;
+export const INPUT_MIN_HEIGHT = 44;
+
+export const CARD_PADDING = 16;
+export const CARD_BORDER_RADIUS = 16;
+export const CARD_SHADOW_OFFSET_Y = 4;
+export const CARD_SHADOW_RADIUS = 12;
+export const CARD_SHADOW_OPACITY = 0.1;
+
+export const SCREEN_PADDING_HORIZONTAL = 24;
+export const WIDGET_GAP = 16;
+export const SECTION_GAP = 32;
+
+export const ICON_SIZE_DEFAULT = 24;
+export const ICON_STROKE_WIDTH = 2;
+
+export const TOUCH_TARGET_MIN_SIZE = 44;
+
+export const SKELETON_ANIMATION_DURATION = 1500;
+export const SKELETON_GRADIENT_WIDTH = 100;
+
+export const TOAST_DURATION_SHORT = 3000;
+export const TOAST_DURATION_LONG = 5000;
+export const TOAST_TOP_OFFSET = 60;
+
+export const NUMBER_ANIMATION_STAGGER_DELAY = 50;
+export const NUMBER_ANIMATION_DIGIT_DURATION = 100;
+
+export const CONFETTI_PARTICLE_COUNT = 50;
+export const CONFETTI_ANIMATION_DURATION = 3000;
+
+export const PULL_TO_REFRESH_THRESHOLD = 80;
+export const PULL_TO_REFRESH_RESISTANCE = 0.5;

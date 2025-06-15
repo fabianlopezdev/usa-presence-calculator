@@ -303,6 +303,7 @@ git push
 3. **No Large Commits:** Break down into atomic changes
 4. **No Silent Changes:** Always commit and push immediately
 5. **No Assumption:** Communicate before making architectural decisions
+6. **CRITICAL - NO BREAKING SHARED/API:** Both shared and API packages work perfectly on main branch. ANY breaking changes to these packages during mobile development is YOUR responsibility to fix immediately. Never assume test failures are pre-existing - they work on main!
 
 ## 📋 Checklist for New Task
 

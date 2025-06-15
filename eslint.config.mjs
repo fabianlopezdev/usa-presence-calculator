@@ -67,6 +67,12 @@ export default tseslint.config(
     },
   },
   {
+    files: ['**/*.tsx'],
+    rules: {
+      'max-lines-per-function': 'off', // React components can be longer
+    },
+  },
+  {
     ignores: [
       '**/node_modules/**',
       '**/dist/**',

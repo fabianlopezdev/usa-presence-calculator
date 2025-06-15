@@ -18,8 +18,14 @@ export default function RootLayout(): React.ReactElement {
 
   return (
     <TamaguiProvider config={config} defaultTheme={colorScheme || 'light'}>
-      <Stack>
-        <Stack.Screen name="index" options={{ title: 'USA Presence Calculator' }} />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
     </TamaguiProvider>
